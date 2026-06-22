@@ -1,0 +1,25 @@
+{
+    "name": "JKT48 Stream",
+    "short_name": "JKT48 Stream",
+    "description": "Platform streaming video JKT48. Music video, hiburan, & live arsip dalam satu tempat.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f0f",
+    "theme_color": "#e5113a",
+    "orientation": "portrait",
+    "icons": [{
+            "src": "/logo.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["entertainment", "video"],
+    "lang": "id"
+}

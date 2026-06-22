@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="screen-orientation" content="portrait" />
+    <title>JKT48 Stream</title>
+    <link rel="icon" type="image/x-icon" href="/logo.png" />
+    <meta name="description" content="Tonton video JKT48 Official, JKT48 TV, dan JKT48 LIVE dalam satu platform streaming khusus penggemar JKT48." />
+    <meta name="theme-color" content="#e5113a" />
+    <meta name="google-site-verification" content="-QyGk7oYeLMUqdG0xPj5iYpBTGv_mL4B-kFTigc53go" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="JKT48 Stream" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- Windows/Edge PWA -->
+    <meta name="msapplication-TileColor" content="#e5113a" />
+    <meta name="msapplication-TileImage" content="/logo.png" />
+
+    <meta property="og:title" content="JKT48 Stream - Official Website" />
+    <meta property="og:description" content="Platform streaming video JKT48. Music video, hiburan, & live arsip dalam satu tempat." />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JKT48 Stream" />
+    <meta name="twitter:description" content="Platform streaming video JKT48 mirip YouTube." />
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
