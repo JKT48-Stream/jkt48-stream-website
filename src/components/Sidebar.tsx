@@ -367,7 +367,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
             {/* JKT48 Official */}
             <div className="space-y-2">
               <SectionDivider label="JKT48 Official" />
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap justify-center gap-1.5">
                 <SocialPill href={JKT_WEBSITE}   title="Website"   label="Website"
                   hoverColor="hover:bg-primary/10 hover:text-primary"
                   icon={<svg viewBox="0 0 24 24" className="h-3 w-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>}
@@ -425,7 +425,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
             {/* Developer – BadutZY */}
             <div className="space-y-2">
               <SectionDivider label="BadutZY (Developer)" />
-              <div className="flex items-center gap-1">
+              <div className="flex justify-center gap-1">
                 <SocialIcon href={BADUTZY_GITHUB}    title="GitHub"      hoverColor="hover:text-foreground"
                   icon={<svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d={ICON_GITHUB}/></svg>}
                 />
