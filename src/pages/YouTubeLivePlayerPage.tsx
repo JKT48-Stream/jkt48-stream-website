@@ -84,12 +84,16 @@ function ElapsedTimer() {
 function YouTubeEmbedPlayer({
   videoId,
   isMobile,
+  isPortrait = false,
 }: {
   videoId: string;
   isMobile: boolean;
+  isPortrait?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const isPortraitRef = useRef(isPortrait);
+  useEffect(() => { isPortraitRef.current = isPortrait; }, [isPortrait]);
 
   const toggleFullscreen = useCallback(async () => {
     if (!containerRef.current) return;
@@ -103,9 +107,50 @@ function YouTubeEmbedPlayer({
   }, []);
 
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    const isMobileDevice = () =>
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    const lockLandscape = async () => {
+      try {
+        if (screen.orientation?.lock) await screen.orientation.lock("landscape");
+      } catch { /* ignore */ }
+    };
+
+    const lockPortrait = async () => {
+      try {
+        if (screen.orientation?.lock) await screen.orientation.lock("portrait");
+        else screen.orientation?.unlock?.();
+      } catch {
+        try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
+      }
+    };
+
+    const unlockOrientation = () => {
+      try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
+    };
+
+    const handler = () => {
+      const fsEl = document.fullscreenElement || (document as any).webkitFullscreenElement;
+      setIsFullscreen(!!fsEl);
+      if (fsEl) {
+        if (isMobileDevice()) {
+          if (isPortraitRef.current) lockPortrait();
+          else lockLandscape();
+        }
+      } else {
+        if (isMobileDevice()) unlockOrientation();
+      }
+    };
+
     document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
+    document.addEventListener("webkitfullscreenchange", handler);
+    return () => {
+      document.removeEventListener("fullscreenchange", handler);
+      document.removeEventListener("webkitfullscreenchange", handler);
+      try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
+    };
   }, []);
 
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;

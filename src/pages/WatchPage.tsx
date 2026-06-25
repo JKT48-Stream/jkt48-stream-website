@@ -142,10 +142,14 @@ export default function WatchPage() {
   // Lacak apakah video yang sedang diputar berorientasi potret (mis. YouTube
   // Shorts) lewat ref — supaya effect fullscreen di bawah selalu membaca nilai
   // terbaru tanpa perlu re-attach event listener tiap kali video berganti.
+  // Gunakan useMemo untuk kalkulasi sinkron + ref untuk akses dalam event handler.
   const isPortraitRef = useRef(false);
-  useEffect(() => {
-    isPortraitRef.current = isPortraitVideo(video);
-  }, [video]);
+  const isPortrait = useMemo(() => isPortraitVideo(video), [video]);
+  // Update ref secara sinkron (sebelum paint) agar event handler fullscreen
+  // selalu membaca nilai terbaru meskipun belum ada re-render.
+  useLayoutEffect(() => {
+    isPortraitRef.current = isPortrait;
+  }, [isPortrait]);
 
   // Fetch playlist items when list param is present
   useEffect(() => {
@@ -223,31 +227,37 @@ export default function WatchPage() {
   }, [isMobileLayout]);
 
   useEffect(() => {
-    const container = playerContainerRef.current;
-    if (!container) return;
+    // Deteksi mobile/touch device (lebih reliable dari width saja)
+    const isMobile = () =>
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const isMobile = () => window.innerWidth < 1024 || "ontouchstart" in window;
-
+    // Lock orientasi ke landscape (video 16:9)
     const lockLandscape = async () => {
       try {
         if (screen.orientation?.lock) {
           await screen.orientation.lock("landscape");
         }
-      } catch {}
+      } catch { /* Desktop / browser tidak support — abaikan */ }
     };
 
+    // Lock orientasi ke portrait (video 9:16 / Shorts)
     const lockPortrait = async () => {
       try {
         if (screen.orientation?.lock) {
           await screen.orientation.lock("portrait");
+        } else {
+          screen.orientation?.unlock?.();
         }
       } catch {
-        try {
-          if (screen.orientation?.unlock) {
-            screen.orientation.unlock();
-          }
-        } catch {}
+        try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
       }
+    };
+
+    // Unlock orientasi sepenuhnya
+    const unlockOrientation = () => {
+      try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
     };
 
     const onFullscreenChange = () => {
@@ -258,17 +268,18 @@ export default function WatchPage() {
 
       if (fsEl) {
         if (isMobile()) {
-          // Video potret (mis. YouTube Shorts) tetap dikunci potret saat
-          // fullscreen — persis seperti perilaku aplikasi YouTube asli.
-          // Video landscape tetap dikunci landscape seperti sebelumnya.
+          // Baca nilai portrait terbaru dari ref (selalu sinkron via useLayoutEffect)
           if (isPortraitRef.current) {
+            // Video 9:16 (Shorts/vertikal) → tetap portrait saat fullscreen
             lockPortrait();
           } else {
+            // Video 16:9 (landscape) → paksa landscape saat fullscreen
             lockLandscape();
           }
         }
       } else {
-        if (isMobile()) lockPortrait();
+        // Keluar fullscreen → unlock agar kembali ke orientasi alami device
+        if (isMobile()) unlockOrientation();
       }
     };
 
@@ -280,7 +291,8 @@ export default function WatchPage() {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
       document.removeEventListener("mozfullscreenchange", onFullscreenChange);
-      if (isMobile()) lockPortrait();
+      // Cleanup saat unmount: pastikan orientasi di-unlock
+      if (isMobile()) unlockOrientation();
     };
   }, []);
 
