@@ -43,6 +43,16 @@
         --shadow-player: 0 8px 32px hsl(0 0% 0% / 0.18);
         --gradient-brand: linear-gradient(135deg, hsl(350 88% 50%), hsl(350 95% 60%));
         --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+        /* ── Member Birthdays Counter — token khusus (light) ── */
+        --team-passion: 14 75% 55%;
+        --team-love: 340 82% 68%;
+        --team-dream: 250 55% 62%;
+        --team-trainee: 152 45% 48%;
+        --gradient-birthday: linear-gradient(135deg, hsl(350 88% 50%), hsl(340 82% 68%));
+        --gradient-birthday-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 97%) 100%);
+        --shadow-birthday-card: 0 4px 20px -8px hsl(350 88% 50% / 0.15);
+        --shadow-birthday-glow: 0 10px 40px -12px hsl(350 88% 50% / 0.45);
     }
     .dark {
         --background: 0 0% 6%;
@@ -74,6 +84,16 @@
         --ring: 350 88% 56%;
         --shadow-elevated: 0 4px 16px hsl(0 0% 0% / 0.5);
         --shadow-player: 0 8px 32px hsl(0 0% 0% / 0.6);
+
+        /* ── Member Birthdays Counter — token khusus (dark) ── */
+        --team-passion: 14 80% 62%;
+        --team-love: 340 85% 72%;
+        --team-dream: 250 60% 70%;
+        --team-trainee: 152 40% 56%;
+        --gradient-birthday: linear-gradient(135deg, hsl(350 88% 56%), hsl(340 85% 72%));
+        --gradient-birthday-hero: linear-gradient(180deg, hsl(0 0% 6%) 0%, hsl(0 0% 10%) 100%);
+        --shadow-birthday-card: 0 4px 20px -8px hsl(350 88% 56% / 0.25);
+        --shadow-birthday-glow: 0 10px 40px -12px hsl(350 88% 56% / 0.55);
     }
 }
 
@@ -325,6 +345,27 @@
     100% {
         transform: scale(1);
     }
+}
+
+/* ─────────────────────────────────────────────────────
+   MEMBER BIRTHDAYS COUNTER — keyframes khusus
+   (diberi prefix "bday-" agar tidak bentrok dengan
+   keyframe lain yang sudah ada, mis. @keyframes shimmer)
+───────────────────────────────────────────────────── */
+
+@keyframes bday-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes bday-wiggle {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+}
+
+@keyframes bday-float-y {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
 }
 
 @keyframes nav-active-slide {
@@ -773,6 +814,19 @@
         -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+    /* Dipakai komponen Member Birthdays Counter (Hero & tab bar) */
+    .scrollbar-none {
+        scrollbar-width: none;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+    /* Kompensasi Navbar sticky (--header-h) agar target scroll (mis. tombol
+       "Lihat Semua Member" di Hero Member Birthdays Counter) tidak
+       terpotong/tersembunyi di bawah navbar saat di-scroll ke posisi. */
+    .scroll-mt-header {
+        scroll-margin-top: calc(var(--header-h) + 16px);
     }
     /* Respect reduced motion preferences */
     @media (prefers-reduced-motion: reduce) {

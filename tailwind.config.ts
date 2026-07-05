@@ -51,6 +51,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /* ── Member Birthdays Counter — warna aksen per tim ── */
+        team: {
+          passion: "hsl(var(--team-passion))",
+          love: "hsl(var(--team-love))",
+          dream: "hsl(var(--team-dream))",
+          trainee: "hsl(var(--team-trainee))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -60,9 +67,13 @@ export default {
       boxShadow: {
         elevated: "var(--shadow-elevated)",
         player: "var(--shadow-player)",
+        "birthday-card": "var(--shadow-birthday-card)",
+        "birthday-glow": "var(--shadow-birthday-glow)",
       },
       backgroundImage: {
         brand: "var(--gradient-brand)",
+        "gradient-birthday": "var(--gradient-birthday)",
+        "gradient-birthday-hero": "var(--gradient-birthday-hero)",
       },
       transitionTimingFunction: {
         spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",

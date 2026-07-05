@@ -22,6 +22,7 @@ import UserPlaylistDetailPage from "./pages/UserPlaylistDetailPage";
 import ChannelPlaylistDetailPage from "./pages/ChannelPlaylistDetailPage";
 import MemberLivePage from "./pages/MemberLivePage";
 import StreamingPlayerPage from "./pages/StreamingPlayerPage";
+import MemberBirthdaysPage from "./pages/MemberBirthdaysPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -54,6 +55,8 @@ const App = () => (
                 <Route path="/playlists/channel/:id" element={<ChannelPlaylistDetailPage />} />
                 {/* ── Tab baru: Member Live ── */}
                 <Route path="/member-live" element={<MemberLivePage />} />
+                {/* ── Tab baru: Member Birthdays Counter ── */}
+                <Route path="/member-birthdays" element={<MemberBirthdaysPage />} />
                 {/* ── Streaming Player Page ── */}
                 <Route path="/stream" element={<StreamingPlayerPage />} />
               </Route>
