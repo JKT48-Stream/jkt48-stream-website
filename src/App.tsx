@@ -53,11 +53,8 @@ const App = () => (
                 <Route path="/playlists" element={<PlaylistsPage />} />
                 <Route path="/playlists/:id" element={<UserPlaylistDetailPage />} />
                 <Route path="/playlists/channel/:id" element={<ChannelPlaylistDetailPage />} />
-                {/* ── Tab baru: Member Live ── */}
                 <Route path="/member-live" element={<MemberLivePage />} />
-                {/* ── Tab baru: Member Birthdays Counter ── */}
                 <Route path="/member-birthdays" element={<MemberBirthdaysPage />} />
-                {/* ── Streaming Player Page ── */}
                 <Route path="/stream" element={<StreamingPlayerPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
