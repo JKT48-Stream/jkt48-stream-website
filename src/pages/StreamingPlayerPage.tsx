@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import {
   MEMBERS,
   JKT48_OFFICIAL,
@@ -9,13 +8,18 @@ import {
   TEAM_BADGE_COLORS,
   type Member,
 } from "@/data/members";
+import {
+  fetchJKT48ConnectLive,
+  indexJKT48ConnectLive,
+  buildMemberLiveStatus,
+} from "@/lib/jkt48connect";
 
 // Synthetic Member object untuk JKT48 Official agar kompatibel dengan StreamingPlayerPage
 const OFFICIAL_MEMBER: Member = {
   id: JKT48_OFFICIAL.id,
   name: JKT48_OFFICIAL.name,
   photoFile: "logo",
-  team: "Team Love", // placeholder — tidak ditampilkan untuk official
+  team: "Team Love",
   teamFolder: "love",
   idnUsername: JKT48_OFFICIAL.idnUsername,
   showroomKey: JKT48_OFFICIAL.showroomKey,
@@ -96,7 +100,7 @@ const LiveStatsBar = ({
 
   const isOfficial = member.id === JKT48_OFFICIAL.id;
   const badgeClass = TEAM_BADGE_COLORS[member.team];
-  const photoSrc = isOfficial ? "/logo.jpg" : getMemberPhotoUrl(member);
+  const photoSrc = isOfficial ? "assets/icon-jkt.jpg" : getMemberPhotoUrl(member);
 
   return (
     <div className="mt-4">
@@ -431,6 +435,7 @@ const HlsVideoPlayer = ({
     startHintTimer();
 
     video.muted = false;
+    setIsMuted(false);
 
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
       if (loadIdRef.current !== myId) return;
@@ -457,6 +462,20 @@ const HlsVideoPlayer = ({
         lowLatencyMode: true,
         backBufferLength: 90,
         autoStartLoad: true,
+        // Tuning supaya time-to-first-frame lebih cepat, khususnya penting
+        // sekarang karena tiap request nambah 1 hop lewat proxy:
+        // - liveSyncDurationCount lebih kecil = HLS.js tidak menunggu
+        //   terlalu banyak segmen ter-buffer dulu sebelum mulai play
+        //   (default 3 segmen; diperkecil ke 2). Trade-off: sedikit lebih
+        //   rentan buffering kalau koneksi tidak stabil.
+        // - testBandwidth: false = skip fragmen tes bandwidth awal yang
+        //   HLS.js biasanya lakukan sebelum pilih kualitas — langsung pilih
+        //   level pertama & mulai fetch fragmen asli, hemat 1 round-trip.
+        // - startFragPrefetch: true = mulai fetch fragmen pertama SEGERA
+        //   begitu playlist selesai di-parse, tidak menunggu event lain.
+        liveSyncDurationCount: 2,
+        testBandwidth: false,
+        startFragPrefetch: true,
       });
 
       if (loadIdRef.current !== myId) { hls.destroy(); return; }
@@ -848,68 +867,36 @@ const OtherLiveMembersPanel = ({ currentMemberId }: { currentMemberId: string })
       setLoading(true);
       setLiveMembers([]);
 
-      const otherMembers = MEMBERS.filter(m => m.id !== currentMemberId);
-      const found: Array<{ member: Member; platform: Platform; streamUrl: string; streamQualities: UrlQuality[]; liveUrl: string }> = [];
-
-      const BATCH = 5;
-      for (let i = 0; i < otherMembers.length; i += BATCH) {
+      try {
+        const liveEntries = await fetchJKT48ConnectLive();
         if (cancelled) return;
-        const batch = otherMembers.slice(i, i + BATCH);
-        await Promise.all(
-          batch.map(async (member) => {
-            if (member.idnUsername) {
-              try {
-                const { data, error } = await supabase.functions.invoke("check-idn-live", {
-                  body: { username: member.idnUsername },
-                });
-                if (!cancelled && !error && data?.is_live) {
-                  let streamUrl: string | null = data.stream_url ?? null;
-                  let liveUrl = data.live_url ?? `https://www.idn.app/${member.idnUsername}`;
+        const liveIndex = indexJKT48ConnectLive(liveEntries);
 
-                  if (!streamUrl) {
-                    const slugMatch = data.live_url?.match(/\/live\/([\w-]+)/);
-                    if (slugMatch) {
-                      try {
-                        const { data: d2, error: e2 } = await supabase.functions.invoke("get-idn-stream", {
-                          body: { username: member.idnUsername, slug: slugMatch[1] },
-                        });
-                        if (!e2 && d2?.stream_url) streamUrl = d2.stream_url;
-                      } catch { /* abaikan */ }
-                    }
-                  }
+        const found: Array<{ member: Member; platform: Platform; streamUrl: string; streamQualities: UrlQuality[]; liveUrl: string }> = [];
 
-                  if (streamUrl && !cancelled) {
-                    found.push({ member, platform: "idn", streamUrl, streamQualities: [], liveUrl });
-                    setLiveMembers([...found]);
-                  }
-                }
-              } catch { /* abaikan */ }
-            }
+        for (const member of MEMBERS) {
+          if (member.id === currentMemberId) continue;
+          const status = buildMemberLiveStatus(liveIndex, {
+            idnUsername: member.idnUsername,
+            showroomKey: member.showroomKey,
+            showroomRoomId: member.showroomRoomId,
+          });
 
-            if (member.showroomKey) {
-              try {
-                const { data, error } = await supabase.functions.invoke("check-showroom-live", {
-                  body: { room_url_key: member.showroomKey },
-                });
-                if (!cancelled && !error && data?.is_live && data?.stream_url) {
-                  const quals: UrlQuality[] = [{ label: "Tinggi", url: data.stream_url }];
-                  if (data.stream_url_low && data.stream_url_low !== data.stream_url)
-                    quals.push({ label: "Rendah", url: data.stream_url_low });
-                  const liveUrl = `https://www.showroom-live.com/r/${member.showroomKey}`;
-                  const alreadyAdded = found.some(f => f.member.id === member.id);
-                  if (!alreadyAdded) {
-                    found.push({ member, platform: "showroom", streamUrl: data.stream_url, streamQualities: quals, liveUrl });
-                    setLiveMembers([...found]);
-                  }
-                }
-              } catch { /* abaikan */ }
-            }
-          })
-        );
-        if (i + BATCH < otherMembers.length) await new Promise(r => setTimeout(r, 300));
+          if (status.idn === "live" && status.idnStreamUrl) {
+            found.push({ member, platform: "idn", streamUrl: status.idnStreamUrl, streamQualities: [], liveUrl: status.idnUrl ?? `https://www.idn.app/${member.idnUsername}` });
+          } else if (status.showroom === "live" && status.showroomStreamUrl) {
+            const quals: UrlQuality[] = [{ label: "Tinggi", url: status.showroomStreamUrl }];
+            if (status.showroomStreamUrlLow && status.showroomStreamUrlLow !== status.showroomStreamUrl) quals.push({ label: "Rendah", url: status.showroomStreamUrlLow });
+            found.push({ member, platform: "showroom", streamUrl: status.showroomStreamUrl, streamQualities: quals, liveUrl: status.showroomUrl ?? `https://www.showroom-live.com/r/${member.showroomKey}` });
+          }
+        }
+
+        if (!cancelled) setLiveMembers(found);
+      } catch (err) {
+        console.error("[JKT48Connect] Gagal mengambil member lain yang live:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      if (!cancelled) setLoading(false);
     };
 
     checkAllMembers();
@@ -1056,32 +1043,17 @@ export default function StreamingPlayerPage() {
   const handleRefreshStream = useCallback(async (): Promise<string | null> => {
     if (!member || !platform) return null;
 
-    if (platform === "idn") {
-      try {
-        const { data, error } = await supabase.functions.invoke("check-idn-live", {
-          body: { username: member.idnUsername },
-        });
-        if (!error && data?.stream_url) return data.stream_url;
-        if (!error && data?.is_live && member.idnUsername) {
-          const slugMatch = data.live_url?.match(/\/live\/([\w-]+)/);
-          if (slugMatch) {
-            const { data: d2, error: e2 } = await supabase.functions.invoke("get-idn-stream", {
-              body: { username: member.idnUsername, slug: slugMatch[1] },
-            });
-            if (!e2 && d2?.stream_url) return d2.stream_url;
-          }
-        }
-      } catch { }
-    }
+    try {
+      const liveEntries = await fetchJKT48ConnectLive();
+      const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
+        idnUsername: member.idnUsername,
+        showroomKey: member.showroomKey,
+        showroomRoomId: member.showroomRoomId,
+      });
 
-    if (platform === "showroom" && member.showroomKey) {
-      try {
-        const { data, error } = await supabase.functions.invoke("check-showroom-live", {
-          body: { room_url_key: member.showroomKey },
-        });
-        if (!error && data?.stream_url) return data.stream_url;
-      } catch { }
-    }
+      if (platform === "idn") return fresh.idnStreamUrl;
+      if (platform === "showroom") return fresh.showroomStreamUrl;
+    } catch { }
 
     return null;
   }, [member, platform]);
@@ -1106,21 +1078,21 @@ export default function StreamingPlayerPage() {
     const autoRefresh = async () => {
       setIsAutoRefreshing(true);
       try {
-        const newUrl = await handleRefreshStream();
+        const liveEntries = await fetchJKT48ConnectLive();
+        if (cancelled) return;
+        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
+          idnUsername: member.idnUsername,
+          showroomKey: member.showroomKey,
+          showroomRoomId: member.showroomRoomId,
+        });
+        const newUrl = platform === "idn" ? fresh.idnStreamUrl : fresh.showroomStreamUrl;
+
         if (!cancelled && newUrl) {
           setActiveStreamUrl(newUrl);
-          if (platform === "showroom" && member.showroomKey) {
-            try {
-              const { data, error } = await supabase.functions.invoke("check-showroom-live", {
-                body: { room_url_key: member.showroomKey },
-              });
-              if (!error && data?.stream_url) {
-                const quals: UrlQuality[] = [{ label: "Tinggi", url: data.stream_url }];
-                if (data.stream_url_low && data.stream_url_low !== data.stream_url)
-                  quals.push({ label: "Rendah", url: data.stream_url_low });
-                setActiveStreamQualities(quals);
-              }
-            } catch { }
+          if (platform === "showroom") {
+            const quals: UrlQuality[] = [{ label: "Tinggi", url: fresh.showroomStreamUrl! }];
+            if (fresh.showroomStreamUrlLow && fresh.showroomStreamUrlLow !== fresh.showroomStreamUrl) quals.push({ label: "Rendah", url: fresh.showroomStreamUrlLow });
+            setActiveStreamQualities(quals);
           }
         } else if (!cancelled && !newUrl) {
           setActiveStreamUrl(streamUrl);

@@ -19,9 +19,7 @@ const TEAM_STYLE: Record<BirthdayMember["team"], string> = {
 interface Props {
   member: BirthdayMember;
   rank?: number;
-  /** "podium" enables tiered styling for ranks 1-5 (upcoming birthdays tab). */
   variant?: "default" | "podium";
-  /** Show a subtle favorite indicator on the card frame (used in upcoming top 5). */
   favoriteHighlight?: boolean;
 }
 
@@ -231,7 +229,6 @@ export function BirthdayMemberCard({ member, rank, variant = "default", favorite
 
   if (!isToday) return cardEl;
 
-  // Birthday decoration: static gradient halo + SVG icons floating on left/right sides only.
   const leftIcons = [
     { Icon: Gift, color: "text-pink-400", top: "8%", delay: "0s", size: "h-5 w-5" },
     { Icon: Sparkles, color: "text-amber-300", top: "32%", delay: "0.6s", size: "h-4 w-4" },

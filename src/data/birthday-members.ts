@@ -166,7 +166,7 @@ export const members: BirthdayMember[] = [
 
   { id: "t13", name: "Jemima Evodie", nickname: "Jemima", team: "Trainee", birthday: "11-09", birthYear: 2009, photo: "/assets/foto/trainee/Jemima_Evodie.jpg" },
 
-  { id: "t14", name: "Maxine Faye", nickname: "Maxine", team: "Trainee", birthday: "12-02", birthYear: 2011, photo: "/assets/foto/trainee/maxine_faye_lee.jpg" },
+  { id: "t14", name: "Maxine Faye", nickname: "Maxine", team: "Trainee", birthday: "12-02", birthYear: 2011, photo: "/assets/foto/trainee/maxine_faye.jpg" },
 
   { id: "t15", name: "Mikaela Kusjanto", nickname: "Mikaela", team: "Trainee", birthday: "12-15", birthYear: 2007, photo: "/assets/foto/trainee/Mikaela_Kusjanto.jpg" },
 

@@ -37,6 +37,13 @@ self.addEventListener('fetch', (event) => {
     // Lewati request non-GET dan request ke API eksternal (YouTube, Supabase)
     if (event.request.method !== 'GET') return;
     const url = new URL(event.request.url);
+
+    // Cache API cuma bisa nyimpen request dengan scheme http/https. Request
+    // dari ekstensi browser (scheme "chrome-extension", "moz-extension", dst)
+    // kadang ikut lewat sini dan bikin `cache.put()` throw
+    // "Request scheme 'chrome-extension' is unsupported" — jadi di-skip saja.
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
     if (
         url.hostname.includes('youtube') ||
         url.hostname.includes('supabase') ||
@@ -52,18 +59,28 @@ self.addEventListener('fetch', (event) => {
                     url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff2?)$/)
                 )) {
                 const clone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                caches.open(CACHE_NAME)
+                    .then((cache) => cache.put(event.request, clone))
+                    .catch((err) => console.warn('[sw] cache.put gagal:', err));
             }
             return response;
         })
         .catch(() => {
-            // Offline fallback: kembalikan dari cache
+            // Offline fallback: kembalikan dari cache. PENTING: respondWith()
+            // WAJIB selalu resolve ke sebuah Response — kalau caches.match()
+            // tidak menemukan apa pun, dulu di sini fungsinya diam-diam
+            // resolve ke `undefined` (tidak ada `return` di baris terakhir),
+            // yang bikin browser lempar
+            // "Uncaught TypeError: Failed to convert value to 'Response'"
+            // (persis error yang muncul di console). Sekarang selalu
+            // dipastikan ada Response valid, dengan Response.error() sebagai
+            // fallback paling akhir.
             return caches.match(event.request).then((cached) => {
                 if (cached) return cached;
-                // Untuk navigasi, kembalikan halaman utama
                 if (event.request.mode === 'navigate') {
-                    return caches.match('/');
+                    return caches.match('/').then((home) => home || Response.error());
                 }
+                return Response.error();
             });
         })
     );

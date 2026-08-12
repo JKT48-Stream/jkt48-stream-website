@@ -23,6 +23,8 @@ import ChannelPlaylistDetailPage from "./pages/ChannelPlaylistDetailPage";
 import MemberLivePage from "./pages/MemberLivePage";
 import StreamingPlayerPage from "./pages/StreamingPlayerPage";
 import MemberBirthdaysPage from "./pages/MemberBirthdaysPage";
+import TheaterSchedulePage from "./pages/TheaterSchedulePage";
+import TheaterShowDetailPage from "./pages/TheaterShowDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -55,6 +57,8 @@ const App = () => (
                 <Route path="/playlists/channel/:id" element={<ChannelPlaylistDetailPage />} />
                 <Route path="/member-live" element={<MemberLivePage />} />
                 <Route path="/member-birthdays" element={<MemberBirthdaysPage />} />
+                <Route path="/theater" element={<TheaterSchedulePage />} />
+                <Route path="/theater/:referenceCode" element={<TheaterShowDetailPage />} />
                 <Route path="/stream" element={<StreamingPlayerPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />

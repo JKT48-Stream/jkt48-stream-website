@@ -7,7 +7,7 @@ import { Search, Clock, X, TrendingUp, ArrowUpLeft } from "lucide-react";
 const HISTORY_KEY = "jkt48_search_history";
 const MAX_HISTORY = 20;
 
-// Export agar bisa dipakai Navbar.tsx
+// Export agar bisa dipakai Navbar
 export const TRENDING_SUGGESTIONS = [
   "JKT48 live showroom",
   "JKT48 theater",

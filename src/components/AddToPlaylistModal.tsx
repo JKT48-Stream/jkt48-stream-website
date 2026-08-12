@@ -14,10 +14,8 @@ import { createPortal } from "react-dom";
 
 type Props = {
   video: Omit<PlaylistVideo, "addedAt">;
-  onClose: () => void;
-  /** Dipanggil setelah video berhasil ditambahkan ke playlist */
+  onClose: () => void
   onSaved?: (playlistTitle: string) => void;
-  /** Dipanggil setelah video berhasil dihapus dari playlist */
   onRemoved?: (playlistTitle: string) => void;
 };
 

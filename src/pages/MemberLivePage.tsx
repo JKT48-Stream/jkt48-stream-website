@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import {
   MEMBERS,
   JKT48_OFFICIAL,
@@ -10,6 +9,11 @@ import {
   type Member,
   type Team,
 } from "@/data/members";
+import {
+  fetchJKT48ConnectLive,
+  indexJKT48ConnectLive,
+  buildMemberLiveStatus,
+} from "@/lib/jkt48connect";
 
 type LiveStatus = "checking" | "live" | "offline";
 type Platform = "idn" | "showroom";
@@ -19,6 +23,8 @@ interface MemberStatus {
   idnUrl: string | null; showroomUrl: string | null;
   idnStreamUrl: string | null; showroomStreamUrl: string | null; showroomStreamUrlLow: string | null;
   idnSlug: string | null;
+  /** Thumbnail live dari JKT48Connect (dipakai menggantikan foto statis saat member sedang live) */
+  liveImg: string | null;
 }
 type UrlQuality = { label: string; url: string };
 const IconRefresh = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M23 4v6h-6" /><path d="M1 20v-6h6" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>;
@@ -305,7 +311,7 @@ const OfficialCard = ({
             }}
           >
             <img
-              src="/logo.jpg"
+              src="/assets/icon-jkt.jpg"
               alt="JKT48"
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -434,7 +440,7 @@ const MemberCard = ({ member, status, onWatch, onOpenProfile, isLoadingStream }:
     <div className="relative flex flex-col rounded-2xl overflow-hidden border transition-all duration-500" style={{ background: "hsl(var(--card))", borderColor: isAnyLive ? "hsl(0,70%,50%,0.45)" : "hsl(var(--border))", boxShadow: isAnyLive ? "0 0 32px hsl(0,70%,40%,0.14)" : "none" }}>
       {isAnyLive && <div className="absolute top-0 left-0 right-0 h-[2px] z-10" style={{ background: "linear-gradient(90deg,transparent 0%,hsl(0,80%,55%) 50%,transparent 100%)" }} />}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
-        <img src={getMemberPhotoUrl(member)} alt={member.name} className="w-full h-full object-cover object-top" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/logo.jpg"; }} />
+        <img src={status.liveImg || getMemberPhotoUrl(member)} alt={member.name} className="w-full h-full object-cover object-top" loading="lazy" onError={(e) => { const t = e.target as HTMLImageElement; if (t.src !== getMemberPhotoUrl(member)) { t.src = getMemberPhotoUrl(member); } else { t.src = "/logo.jpg"; } }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom,transparent 50%,hsl(var(--card)) 100%)" }} />
         <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeClass}`}>{member.team}</div>
         {isAnyLive && <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-red-600 shadow-lg"><span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" /><span className="text-white text-[9px] font-black tracking-widest">LIVE</span></div>}
@@ -466,6 +472,7 @@ function buildDefaultStatuses(liveStatus: LiveStatus = "checking"): Map<string, 
       idnUrl: null, showroomUrl: null,
       idnStreamUrl: null, showroomStreamUrl: null, showroomStreamUrlLow: null,
       idnSlug: null,
+      liveImg: null,
     }])
   );
 }
@@ -480,6 +487,7 @@ const MemberLivePage = () => {
     idnUrl: null, showroomUrl: null,
     idnStreamUrl: null, showroomStreamUrl: null, showroomStreamUrlLow: null,
     idnSlug: null,
+    liveImg: null,
   });
   const [officialLoading, setOfficialLoading] = useState<Platform | null>(null);
   const [teamFilter, setTeamFilter] = useState<Team | "Semua">("Semua");
@@ -487,7 +495,9 @@ const MemberLivePage = () => {
   const [search, setSearch] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // ─── BULK CHECK: IDN + Showroom sekaligus untuk semua member ──────────────
+  // ─── BULK CHECK: IDN + Showroom + YouTube sekaligus via JKT48Connect API ───
+  // Menggantikan check-idn-live-bulk & check-showroom-live-bulk: sekarang
+  // cukup 1 request ke JKT48Connect untuk seluruh member.
   const checkAll = useCallback(async () => {
     setIsRefreshing(true);
 
@@ -499,110 +509,48 @@ const MemberLivePage = () => {
       idnUrl: null, showroomUrl: null,
       idnStreamUrl: null, showroomStreamUrl: null, showroomStreamUrlLow: null,
       idnSlug: null,
+      liveImg: null,
     }));
 
-    // Kumpulkan semua username IDN & showroom key (member + official)
-    const allMembers = MEMBERS;
-    const idnUsernames = [
-      ...(JKT48_OFFICIAL.idnUsername ? [JKT48_OFFICIAL.idnUsername] : []),
-      ...allMembers.filter(m => m.idnUsername).map(m => m.idnUsername as string),
-    ];
-    const showroomKeys = [
-      ...(JKT48_OFFICIAL.showroomKey ? [JKT48_OFFICIAL.showroomKey] : []),
-      ...allMembers.filter(m => m.showroomKey).map(m => m.showroomKey as string),
-    ];
-
-    // ── Fire IDN bulk + Showroom bulk SECARA PARALEL ──────────────────────
-    const [idnBulkResult, showroomBulkResult] = await Promise.allSettled([
-      supabase.functions.invoke("check-idn-live-bulk", { body: { usernames: idnUsernames } }),
-      supabase.functions.invoke("check-showroom-live-bulk", { body: { room_url_keys: showroomKeys } }),
-    ]);
-
-    // ── Proses hasil IDN ──────────────────────────────────────────────────
-    const idnMap = new Map<string, any>(); // username -> result
-    if (idnBulkResult.status === "fulfilled" && !idnBulkResult.value.error) {
-      const results: any[] = idnBulkResult.value.data?.results ?? [];
-      for (const r of results) {
-        if (r?.username) idnMap.set(r.username.toLowerCase(), r);
-      }
+    let liveEntries: Awaited<ReturnType<typeof fetchJKT48ConnectLive>> = [];
+    try {
+      liveEntries = await fetchJKT48ConnectLive();
+    } catch (err) {
+      console.error("[JKT48Connect] Gagal mengambil status live:", err);
     }
+    const liveIndex = indexJKT48ConnectLive(liveEntries);
 
-    // ── Proses hasil Showroom ─────────────────────────────────────────────
-    const showroomMap = new Map<string, any>(); // room_url_key -> result
-    if (showroomBulkResult.status === "fulfilled" && !showroomBulkResult.value.error) {
-      const results: any[] = showroomBulkResult.value.data?.results ?? [];
-      for (const r of results) {
-        if (r?.room_url_key) showroomMap.set(r.room_url_key.toLowerCase(), r);
-      }
+    // Mulai download library hls.js LEBIH AWAL begitu kita tahu ada member
+    // yang live — bukan nunggu sampai user klik "Tonton Live" baru mulai
+    // import(). Browser akan cache modul ini, jadi begitu user pindah ke
+    // halaman player, hls.js sudah siap pakai (tidak perlu nunggu download
+    // dulu) — mengurangi waktu jeda sebelum video mulai muncul. Dibiarkan
+    // "fire and forget", tidak perlu ditunggu/di-await.
+    if (liveEntries.length > 0) {
+      import("hls.js").catch(() => { /* biarkan gagal senyap, fallback tetap jalan saat benar-benar dibutuhkan */ });
     }
 
     // ── Update status OFFICIAL ────────────────────────────────────────────
-    const officialIdnData = JKT48_OFFICIAL.idnUsername
-      ? idnMap.get(JKT48_OFFICIAL.idnUsername.toLowerCase())
-      : null;
-    const officialShowroomData = JKT48_OFFICIAL.showroomKey
-      ? showroomMap.get(JKT48_OFFICIAL.showroomKey.toLowerCase())
-      : null;
-
-    const officialUpdates: Partial<MemberStatus> = {};
-    if (officialIdnData) {
-      officialUpdates.idn = officialIdnData.is_live ? "live" : "offline";
-      officialUpdates.idnUrl = officialIdnData.live_url ?? `https://www.idn.app/${JKT48_OFFICIAL.idnUsername}`;
-      officialUpdates.idnStreamUrl = officialIdnData.stream_url ?? null;
-      const slugMatch = officialIdnData.live_url?.match(/\/live\/([\w-]+)/);
-      officialUpdates.idnSlug = slugMatch ? slugMatch[1] : null;
-    } else {
-      officialUpdates.idn = "offline";
-    }
-    if (officialShowroomData) {
-      officialUpdates.showroom = officialShowroomData.is_live ? "live" : "offline";
-      officialUpdates.showroomUrl = officialShowroomData.is_live
-        ? `https://www.showroom-live.com/r/${JKT48_OFFICIAL.showroomKey}`
-        : `https://www.showroom-live.com/room/profile?room_id=${JKT48_OFFICIAL.showroomRoomId}`;
-      officialUpdates.showroomStreamUrl = officialShowroomData.stream_url ?? null;
-      officialUpdates.showroomStreamUrlLow = officialShowroomData.stream_url_low ?? null;
-    } else {
-      officialUpdates.showroom = "offline";
-    }
-    setOfficialStatus(prev => ({ ...prev, ...officialUpdates }));
+    setOfficialStatus(prev => ({
+      ...prev,
+      ...buildMemberLiveStatus(liveIndex, {
+        idnUsername: JKT48_OFFICIAL.idnUsername,
+        showroomKey: JKT48_OFFICIAL.showroomKey,
+        showroomRoomId: JKT48_OFFICIAL.showroomRoomId,
+      }),
+    }));
 
     // ── Update status SEMUA MEMBER sekaligus ──────────────────────────────
     setStatuses(() => {
       const next = new Map<string, MemberStatus>();
-      for (const member of allMembers) {
-        const idnData = member.idnUsername
-          ? idnMap.get(member.idnUsername.toLowerCase())
-          : null;
-        const showroomData = member.showroomKey
-          ? showroomMap.get(member.showroomKey.toLowerCase())
-          : null;
-
-        const idnStatus: LiveStatus = !member.idnUsername
-          ? "offline"
-          : idnData
-            ? (idnData.is_live ? "live" : "offline")
-            : "offline";
-
-        const showroomStatus: LiveStatus = !member.showroomKey
-          ? "offline"
-          : showroomData
-            ? (showroomData.is_live ? "live" : "offline")
-            : "offline";
-
-        const idnSlug = idnData?.live_url?.match(/\/live\/([\w-]+)/)?.[1] ?? null;
-
+      for (const member of MEMBERS) {
         next.set(member.id, {
           memberId: member.id,
-          idn: idnStatus,
-          showroom: showroomStatus,
-          idnUrl: idnData?.live_url ?? (member.idnUsername ? `https://www.idn.app/${member.idnUsername}` : null),
-          showroomUrl: showroomData?.is_live
-            ? `https://www.showroom-live.com/r/${member.showroomKey}`
-            : (member.showroomRoomId ? `https://www.showroom-live.com/room/profile?room_id=${member.showroomRoomId}` : null),
-          idnStreamUrl: idnData?.stream_url ?? null,
-          showroomStreamUrl: showroomData?.stream_url ?? null,
-          showroomStreamUrlLow: showroomData?.stream_url_low ?? null,
-          idnSlug,
+          ...buildMemberLiveStatus(liveIndex, {
+            idnUsername: member.idnUsername,
+            showroomKey: member.showroomKey,
+            showroomRoomId: member.showroomRoomId,
+          }),
         });
       }
       return next;
@@ -622,14 +570,39 @@ const MemberLivePage = () => {
   const handleWatchIDN = useCallback(async (member: Member) => {
     const status = statuses.get(member.id)!; const profileUrl = `https://www.idn.app/${member.idnUsername}`;
     if (status.idnStreamUrl) { goToStream(member, "idn", status.idnStreamUrl, status.idnUrl ?? profileUrl); return; }
-    if (status.idnSlug) { setLoadingPlayer({ memberId: member.id, platform: "idn" }); try { const { data, error } = await supabase.functions.invoke("get-idn-stream", { body: { username: member.idnUsername, slug: status.idnSlug } }); if (!error && data?.stream_url) { goToStream(member, "idn", data.stream_url, status.idnUrl ?? profileUrl); } else { window.open(status.idnUrl ?? profileUrl, "_blank"); } } catch { window.open(status.idnUrl ?? profileUrl, "_blank"); } finally { setLoadingPlayer(null); } return; }
+    if (status.idn === "live") {
+      // Live tapi belum ada stream_url (jarang terjadi) → ambil ulang data terbaru dari JKT48Connect
+      setLoadingPlayer({ memberId: member.id, platform: "idn" });
+      try {
+        const liveEntries = await fetchJKT48ConnectLive();
+        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), { idnUsername: member.idnUsername, showroomKey: member.showroomKey, showroomRoomId: member.showroomRoomId });
+        if (fresh.idnStreamUrl) { goToStream(member, "idn", fresh.idnStreamUrl, fresh.idnUrl ?? status.idnUrl ?? profileUrl); }
+        else { window.open(status.idnUrl ?? profileUrl, "_blank"); }
+      } catch { window.open(status.idnUrl ?? profileUrl, "_blank"); }
+      finally { setLoadingPlayer(null); }
+      return;
+    }
     window.open(status.idnUrl ?? profileUrl, "_blank");
   }, [statuses, navigate]);
 
   const handleWatchShowroom = useCallback(async (member: Member) => {
     const status = statuses.get(member.id)!; const profileUrl = `https://www.showroom-live.com/room/profile?room_id=${member.showroomRoomId}`;
     if (status.showroomStreamUrl) { const quals: UrlQuality[] = [{ label: "Tinggi", url: status.showroomStreamUrl }]; if (status.showroomStreamUrlLow && status.showroomStreamUrlLow !== status.showroomStreamUrl) quals.push({ label: "Rendah", url: status.showroomStreamUrlLow }); goToStream(member, "showroom", status.showroomStreamUrl, status.showroomUrl ?? profileUrl, quals); return; }
-    setLoadingPlayer({ memberId: member.id, platform: "showroom" }); try { const { data, error } = await supabase.functions.invoke("check-showroom-live", { body: { room_url_key: member.showroomKey } }); if (!error && data?.stream_url) { setStatuses(prev => { const next = new Map(prev); const cur = next.get(member.id)!; next.set(member.id, { ...cur, showroomStreamUrl: data.stream_url, showroomStreamUrlLow: data.stream_url_low ?? null }); return next; }); const quals: UrlQuality[] = [{ label: "Tinggi", url: data.stream_url }]; if (data.stream_url_low && data.stream_url_low !== data.stream_url) quals.push({ label: "Rendah", url: data.stream_url_low }); goToStream(member, "showroom", data.stream_url, status.showroomUrl ?? profileUrl, quals); } else { window.open(profileUrl, "_blank"); } } catch { window.open(profileUrl, "_blank"); } finally { setLoadingPlayer(null); }
+    if (status.showroom === "live") {
+      setLoadingPlayer({ memberId: member.id, platform: "showroom" });
+      try {
+        const liveEntries = await fetchJKT48ConnectLive();
+        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), { idnUsername: member.idnUsername, showroomKey: member.showroomKey, showroomRoomId: member.showroomRoomId });
+        if (fresh.showroomStreamUrl) {
+          setStatuses(prev => { const next = new Map(prev); const cur = next.get(member.id)!; next.set(member.id, { ...cur, showroomStreamUrl: fresh.showroomStreamUrl, showroomStreamUrlLow: fresh.showroomStreamUrlLow }); return next; });
+          const quals: UrlQuality[] = [{ label: "Tinggi", url: fresh.showroomStreamUrl }]; if (fresh.showroomStreamUrlLow && fresh.showroomStreamUrlLow !== fresh.showroomStreamUrl) quals.push({ label: "Rendah", url: fresh.showroomStreamUrlLow });
+          goToStream(member, "showroom", fresh.showroomStreamUrl, fresh.showroomUrl ?? status.showroomUrl ?? profileUrl, quals);
+        } else { window.open(profileUrl, "_blank"); }
+      } catch { window.open(profileUrl, "_blank"); }
+      finally { setLoadingPlayer(null); }
+      return;
+    }
+    window.open(status.showroomUrl ?? profileUrl, "_blank");
   }, [statuses, navigate]);
 
   const handleOpenProfile = useCallback((member: Member, platform: Platform) => { if (platform === "idn") { window.open(`https://www.idn.app/${member.idnUsername}`, "_blank"); } else { const url = member.showroomRoomId ? `https://www.showroom-live.com/room/profile?room_id=${member.showroomRoomId}` : `https://www.showroom-live.com/r/${member.showroomKey}`; window.open(url, "_blank"); } }, []);
@@ -638,14 +611,35 @@ const MemberLivePage = () => {
   const handleOfficialWatchIDN = useCallback(async () => {
     const profileUrl = `https://www.idn.app/${JKT48_OFFICIAL.idnUsername}`;
     if (officialStatus.idnStreamUrl) { const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "idn", streamUrl: encodeURIComponent(officialStatus.idnStreamUrl), liveUrl: encodeURIComponent(officialStatus.idnUrl ?? profileUrl) }); navigate(`/stream?${p.toString()}`); return; }
-    if (officialStatus.idnSlug) { setOfficialLoading("idn"); try { const { data, error } = await supabase.functions.invoke("get-idn-stream", { body: { username: JKT48_OFFICIAL.idnUsername, slug: officialStatus.idnSlug } }); if (!error && data?.stream_url) { const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "idn", streamUrl: encodeURIComponent(data.stream_url), liveUrl: encodeURIComponent(officialStatus.idnUrl ?? profileUrl) }); navigate(`/stream?${p.toString()}`); } else { window.open(officialStatus.idnUrl ?? profileUrl, "_blank"); } } catch { window.open(officialStatus.idnUrl ?? profileUrl, "_blank"); } finally { setOfficialLoading(null); } return; }
+    if (officialStatus.idn === "live") {
+      setOfficialLoading("idn");
+      try {
+        const liveEntries = await fetchJKT48ConnectLive();
+        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), { idnUsername: JKT48_OFFICIAL.idnUsername, showroomKey: JKT48_OFFICIAL.showroomKey, showroomRoomId: JKT48_OFFICIAL.showroomRoomId });
+        if (fresh.idnStreamUrl) { const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "idn", streamUrl: encodeURIComponent(fresh.idnStreamUrl), liveUrl: encodeURIComponent(fresh.idnUrl ?? officialStatus.idnUrl ?? profileUrl) }); navigate(`/stream?${p.toString()}`); }
+        else { window.open(officialStatus.idnUrl ?? profileUrl, "_blank"); }
+      } catch { window.open(officialStatus.idnUrl ?? profileUrl, "_blank"); }
+      finally { setOfficialLoading(null); }
+      return;
+    }
     window.open(officialStatus.idnUrl ?? profileUrl, "_blank");
   }, [officialStatus, navigate]);
 
   const handleOfficialWatchShowroom = useCallback(async () => {
     const profileUrl = `https://www.showroom-live.com/room/profile?room_id=${JKT48_OFFICIAL.showroomRoomId}`;
     if (officialStatus.showroomStreamUrl) { const quals = [{ label: "Tinggi", url: officialStatus.showroomStreamUrl }]; if (officialStatus.showroomStreamUrlLow && officialStatus.showroomStreamUrlLow !== officialStatus.showroomStreamUrl) quals.push({ label: "Rendah", url: officialStatus.showroomStreamUrlLow }); const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "showroom", streamUrl: encodeURIComponent(officialStatus.showroomStreamUrl), liveUrl: encodeURIComponent(officialStatus.showroomUrl ?? profileUrl), qualities: encodeURIComponent(JSON.stringify(quals)) }); navigate(`/stream?${p.toString()}`); return; }
-    setOfficialLoading("showroom"); try { const { data, error } = await supabase.functions.invoke("check-showroom-live", { body: { room_url_key: JKT48_OFFICIAL.showroomKey } }); if (!error && data?.stream_url) { const quals = [{ label: "Tinggi", url: data.stream_url }]; if (data.stream_url_low && data.stream_url_low !== data.stream_url) quals.push({ label: "Rendah", url: data.stream_url_low }); const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "showroom", streamUrl: encodeURIComponent(data.stream_url), liveUrl: encodeURIComponent(officialStatus.showroomUrl ?? profileUrl), qualities: encodeURIComponent(JSON.stringify(quals)) }); navigate(`/stream?${p.toString()}`); } else { window.open(profileUrl, "_blank"); } } catch { window.open(profileUrl, "_blank"); } finally { setOfficialLoading(null); }
+    if (officialStatus.showroom === "live") {
+      setOfficialLoading("showroom");
+      try {
+        const liveEntries = await fetchJKT48ConnectLive();
+        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), { idnUsername: JKT48_OFFICIAL.idnUsername, showroomKey: JKT48_OFFICIAL.showroomKey, showroomRoomId: JKT48_OFFICIAL.showroomRoomId });
+        if (fresh.showroomStreamUrl) { const quals = [{ label: "Tinggi", url: fresh.showroomStreamUrl }]; if (fresh.showroomStreamUrlLow && fresh.showroomStreamUrlLow !== fresh.showroomStreamUrl) quals.push({ label: "Rendah", url: fresh.showroomStreamUrlLow }); const p = new URLSearchParams({ memberId: JKT48_OFFICIAL.id, platform: "showroom", streamUrl: encodeURIComponent(fresh.showroomStreamUrl), liveUrl: encodeURIComponent(fresh.showroomUrl ?? officialStatus.showroomUrl ?? profileUrl), qualities: encodeURIComponent(JSON.stringify(quals)) }); navigate(`/stream?${p.toString()}`); }
+        else { window.open(profileUrl, "_blank"); }
+      } catch { window.open(profileUrl, "_blank"); }
+      finally { setOfficialLoading(null); }
+      return;
+    }
+    window.open(officialStatus.showroomUrl ?? profileUrl, "_blank");
   }, [officialStatus, navigate]);
 
   const filtered = MEMBERS.filter(m => {

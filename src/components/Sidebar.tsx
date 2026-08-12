@@ -11,6 +11,7 @@ import {
   ListMusic,
   Radio,
   Cake,
+  Theater,
   ExternalLink,
 } from "lucide-react";
 import { CHANNELS } from "@/lib/youtube";
@@ -297,6 +298,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
         <Item to="/subscriptions" icon={ListVideo} label="Subscriptions"     delay={80} />
         <Item to="/member-live"  icon={Radio}      label="Member Live"       delay={100} />
         <Item to="/member-birthdays" icon={Cake}    label="Member Birthdays"  delay={110} />
+        <Item to="/theater"         icon={Theater}  label="Theater Schedule"  delay={120} />
       </div>
 
       {collapsed ? (

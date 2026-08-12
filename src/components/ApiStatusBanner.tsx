@@ -17,7 +17,6 @@ function formatHMS(ms: number): string {
 }
 
 function formatClockWIB(ts: number): string {
-  // Render as HH:mm WIB (UTC+7).
   const d = new Date(ts);
   const wib = new Date(d.getTime() + 7 * 3600 * 1000);
   const hh = wib.getUTCHours().toString().padStart(2, "0");
@@ -40,7 +39,6 @@ export function ApiStatusBanner() {
         return;
       }
       setErr((prev) => {
-        // Don't reset the "since" timer if the same error keeps firing.
         if (prev && prev.code === ev.code) return prev;
         return { ...ev, since: Date.now() };
       });
@@ -50,7 +48,6 @@ export function ApiStatusBanner() {
     return () => window.removeEventListener("api-status", handler as EventListener);
   }, []);
 
-  // Tick once per second so countdowns update live.
   useEffect(() => {
     if (!err) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);

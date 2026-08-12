@@ -9,11 +9,9 @@ const MONTHS_ID = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 
-/** Tim yang tampil di Hero (Love / Dream / Passion). Trainee tidak termasuk. */
 const HERO_TEAMS = ["Love", "Dream", "Passion"] as const;
 
 export function BirthdayHero() {
-  // Tick tiap menit agar daftar "Berikutnya" otomatis bergeser saat lewat tengah malam.
   const now = useNow(60_000);
 
   const upcoming = useMemo(() => {
@@ -25,7 +23,6 @@ export function BirthdayHero() {
     );
     if (sorted.length === 0) return [];
     const first = sorted[0];
-    // Ambil semua member yang punya tanggal ulang tahun sama dengan yang terdekat.
     return sorted.filter((m) => m.birthday === first.birthday);
   }, [now]);
 
@@ -33,10 +30,6 @@ export function BirthdayHero() {
   const [mm, dd] = upcoming.length > 0 ? upcoming[0].birthday.split("-").map(Number) : [0, 0];
   const dateLabel = upcoming.length > 0 ? `${dd} ${MONTHS_ID[mm - 1]}` : "";
 
-  // scrollIntoView dipakai (bukan sekadar href="#...") supaya animasi scroll
-  // selalu satu gerakan yang konsisten & smooth — termasuk memperhitungkan
-  // sticky Navbar lewat class "scroll-mt-header" pada section tujuan — dan
-  // tidak "patah" karena tercampur dengan efek lompat-hash bawaan browser.
   const scrollToMembers = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const el = document.getElementById("birthday-members");

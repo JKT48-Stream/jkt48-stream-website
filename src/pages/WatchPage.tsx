@@ -138,20 +138,12 @@ export default function WatchPage() {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
-
-  // Lacak apakah video yang sedang diputar berorientasi potret (mis. YouTube
-  // Shorts) lewat ref — supaya effect fullscreen di bawah selalu membaca nilai
-  // terbaru tanpa perlu re-attach event listener tiap kali video berganti.
-  // Gunakan useMemo untuk kalkulasi sinkron + ref untuk akses dalam event handler.
   const isPortraitRef = useRef(false);
   const isPortrait = useMemo(() => isPortraitVideo(video), [video]);
-  // Update ref secara sinkron (sebelum paint) agar event handler fullscreen
-  // selalu membaca nilai terbaru meskipun belum ada re-render.
   useLayoutEffect(() => {
     isPortraitRef.current = isPortrait;
   }, [isPortrait]);
 
-  // Fetch playlist items when list param is present
   useEffect(() => {
     if (!listId) {
       setPlaylistVideos([]);
@@ -164,7 +156,6 @@ export default function WatchPage() {
       .finally(() => setPlaylistLoading(false));
   }, [listId]);
 
-  // Scroll active item into view inside playlist panel
   useEffect(() => {
     if (!activeItemRef.current || !playlistPanelRef.current) return;
     const panel = playlistPanelRef.current;
@@ -178,7 +169,6 @@ export default function WatchPage() {
     }
   }, [v, playlistVideos]);
 
-  // Navigate to next video in playlist when current ends
   const goToNextPlaylistVideo = useCallback(() => {
     if (!listId || !playlistVideos.length) return;
     const nextIndex = indexParam;
@@ -190,7 +180,6 @@ export default function WatchPage() {
     }
   }, [listId, playlistVideos, indexParam, navigate]);
 
-  // Navigate to next video in local (user/channel) playlist when current ends
   const goToNextLocalPlaylistVideo = useCallback(() => {
     if (!localListId || !localPlaylistVideos.length) return;
     const nextIndex = indexParam;
@@ -203,7 +192,6 @@ export default function WatchPage() {
     }
   }, [localListId, localPlaylistVideos, indexParam, navigate, userListId]);
 
-  // Detect mobile/desktop layout breakpoint (lg = 1024px)
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 1023px)");
     const onChange = (e: MediaQueryListEvent) => setIsMobileLayout(e.matches);
@@ -212,7 +200,6 @@ export default function WatchPage() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Prevent body/main from scrolling on mobile — WatchPage manages its own scroll
   useEffect(() => {
     if (!isMobileLayout) return;
     const main = document.querySelector("main");
@@ -227,13 +214,11 @@ export default function WatchPage() {
   }, [isMobileLayout]);
 
   useEffect(() => {
-    // Deteksi mobile/touch device (lebih reliable dari width saja)
     const isMobile = () =>
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Lock orientasi ke landscape (video 16:9)
     const lockLandscape = async () => {
       try {
         if (screen.orientation?.lock) {
@@ -242,7 +227,6 @@ export default function WatchPage() {
       } catch { /* Desktop / browser tidak support — abaikan */ }
     };
 
-    // Lock orientasi ke portrait (video 9:16 / Shorts)
     const lockPortrait = async () => {
       try {
         if (screen.orientation?.lock) {
@@ -268,17 +252,13 @@ export default function WatchPage() {
 
       if (fsEl) {
         if (isMobile()) {
-          // Baca nilai portrait terbaru dari ref (selalu sinkron via useLayoutEffect)
           if (isPortraitRef.current) {
-            // Video 9:16 (Shorts/vertikal) → tetap portrait saat fullscreen
             lockPortrait();
           } else {
-            // Video 16:9 (landscape) → paksa landscape saat fullscreen
             lockLandscape();
           }
         }
       } else {
-        // Keluar fullscreen → unlock agar kembali ke orientasi alami device
         if (isMobile()) unlockOrientation();
       }
     };
@@ -291,7 +271,6 @@ export default function WatchPage() {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
       document.removeEventListener("mozfullscreenchange", onFullscreenChange);
-      // Cleanup saat unmount: pastikan orientasi di-unlock
       if (isMobile()) unlockOrientation();
     };
   }, []);
@@ -454,7 +433,6 @@ export default function WatchPage() {
       } catch {}
       playerRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [v, isMobileLayout, listId, goToNextPlaylistVideo, localListId, goToNextLocalPlaylistVideo]);
 
   const openMini = () => {
@@ -470,7 +448,6 @@ export default function WatchPage() {
     );
   }
 
-  // ── Shared video info content (title, channel, actions, description) ──────
   const videoInfoContent = loading || !video ? (
     <WatchHeaderSkeleton />
   ) : (
@@ -557,7 +534,6 @@ export default function WatchPage() {
                   return;
                 }
               } catch {
-                // user cancelled or share failed — fall through to clipboard
               }
               try {
                 await navigator.clipboard.writeText(url);

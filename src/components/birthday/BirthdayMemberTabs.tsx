@@ -14,19 +14,6 @@ import {
   type TabKey,
 } from "@/data/birthday-members";
 
-/**
- * Setiap tab (termasuk "Ulang Tahun Terdekat") selalu dipetakan ke DUA slot
- * section yang IDENTIK secara struktur: "primary" & "secondary".
- *  - Tab biasa (Love/Dream/Passion/Trainee/Semua/Favorit): hanya "primary"
- *    yang terisi (tanpa judul), "secondary" selalu kosong.
- *  - Tab "Ulang Tahun Terdekat": "primary" = Love/Dream/Passion, "secondary" = Trainee.
- *
- * Dengan begini React & Framer Motion TIDAK PERNAH membongkar-pasang total
- * pohon DOM saat pindah tab — hanya isi kartu di dalam slot yang sama yang
- * berubah — persis mekanisme yang membuat transisi antar 6 filter lama
- * sudah terasa mulus. Ini juga yang menghilangkan lompatan posisi halaman
- * saat pindah ke/dari tab "Ulang Tahun Terdekat".
- */
 type SectionData = {
   key: "primary" | "secondary";
   title?: string;

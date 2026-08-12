@@ -17,6 +17,7 @@ export const JKT48_OFFICIAL = {
   name: "JKT48 Official",
   idnUsername: "jkt48-official",
   showroomKey: "officialJKT48",
+  photoFile: "icon-jkt.jpg",
   showroomRoomId: 332503,
 } as const;
 
@@ -591,7 +592,7 @@ export const MEMBERS: Member[] = [
   {
     id: "maxine_faye_lee",
     name: "Maxine Faye Lee",
-    photoFile: "maxine_faye_lee",
+    photoFile: "maxine_faye",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_maxine",

@@ -4,6 +4,42 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { CHANNELS, type ChannelKey } from "@/lib/youtube";
 import { cn } from "@/lib/utils";
 
+/* ─── YouTube IFrame Player API loader ───────────────────────────────────────
+ * Dipakai supaya kita bisa mendeteksi error "embedding dinonaktifkan oleh
+ * pemilik video" (code 101/150) lewat event onError, alih-alih membiarkan
+ * YouTube menampilkan overlay error mentahnya sendiri di dalam iframe.
+ * ────────────────────────────────────────────────────────────────────────── */
+declare global {
+  interface Window {
+    YT?: any;
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+let ytApiPromise: Promise<void> | null = null;
+function loadYouTubeAPI(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise<void>((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve();
+    };
+    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      const s = document.createElement("script");
+      s.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(s);
+    }
+  });
+  return ytApiPromise;
+}
+
+// Error code dari YouTube IFrame API:
+// 100 = video dihapus/privat, 101 & 150 = embedding dinonaktifkan pemilik video
+const YT_EMBED_BLOCKED_CODES = [100, 101, 150];
+
 /* ─── Icons ───────────────────────────────────────────────────────────────── */
 const IconArrowLeft = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -91,7 +127,10 @@ function YouTubeEmbedPlayer({
   isPortrait?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [embedBlocked, setEmbedBlocked] = useState(false);
   const isPortraitRef = useRef(isPortrait);
   useEffect(() => { isPortraitRef.current = isPortrait; }, [isPortrait]);
 
@@ -153,27 +192,108 @@ function YouTubeEmbedPlayer({
     };
   }, []);
 
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+  // Reset status blocked setiap kali video berganti, lalu buat player via
+  // YouTube IFrame API supaya event onError (mis. embedding dinonaktifkan
+  // oleh pemilik video) bisa kita tangkap dan tampilkan fallback sendiri.
+  useEffect(() => {
+    let destroyed = false;
+    setEmbedBlocked(false);
+
+    loadYouTubeAPI().then(() => {
+      if (destroyed || !hostRef.current || !videoId) return;
+      hostRef.current.innerHTML = "";
+      const div = document.createElement("div");
+      div.id = `yt-live-player-${videoId}`;
+      hostRef.current.appendChild(div);
+
+      try {
+        playerRef.current = new window.YT!.Player(div.id, {
+          videoId,
+          playerVars: {
+            autoplay: 1,
+            rel: 0,
+            modestbranding: 1,
+            playsinline: 1,
+          },
+          events: {
+            onError: (e: any) => {
+              if (YT_EMBED_BLOCKED_CODES.includes(e?.data)) {
+                setEmbedBlocked(true);
+              }
+            },
+          },
+        });
+      } catch {
+        // Kalau constructor-nya sendiri gagal, anggap saja tidak bisa diputar
+        // di sini dan tampilkan fallback, daripada layar kosong/error mentah.
+        setEmbedBlocked(true);
+      }
+    });
+
+    return () => {
+      destroyed = true;
+      try {
+        playerRef.current?.destroy?.();
+      } catch {
+        /* ignore */
+      }
+      playerRef.current = null;
+    };
+  }, [videoId]);
+
+  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const thumbUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-black overflow-hidden"
+      className="relative w-full bg-black overflow-hidden group"
       style={{
         borderRadius: isFullscreen ? "0" : "0.75rem",
         aspectRatio: "16/9",
         border: "1px solid rgba(220,38,38,0.15)",
       }}
     >
-      <iframe
-        src={embedUrl}
-        title="YouTube Live Stream"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowFullScreen
-        className="absolute inset-0 w-full h-full border-none"
-      />
+      {/* Host untuk YouTube IFrame Player (dibuat via JS, bukan <iframe> statis) */}
+      <div ref={hostRef} className="absolute inset-0 h-full w-full" />
+
+      {/* Fallback saat YouTube menolak embed (dinonaktifkan oleh pemilik video) */}
+      {embedBlocked && (
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 px-6 text-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.78),rgba(0,0,0,0.92)), url(${thumbUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-red-500/30 bg-red-500/15">
+            <IconWarning />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white sm:text-base">
+              Live stream ini tidak bisa diputar di sini
+            </p>
+            <p className="mx-auto mt-1 max-w-sm text-xs text-white/60 sm:text-sm">
+              Pemilik channel menonaktifkan pemutaran embed di situs lain untuk video ini.
+              Tonton langsung di YouTube untuk melanjutkan.
+            </p>
+          </div>
+          <a
+            href={watchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white"
+            style={{ background: "linear-gradient(135deg,hsl(0,80%,50%),hsl(0,70%,38%))" }}
+          >
+            <IconExternalLink />
+            Tonton di YouTube
+          </a>
+        </div>
+      )}
+
       {/* Fullscreen button overlay */}
-      {!isMobile && (
+      {!isMobile && !embedBlocked && (
         <button
           onClick={toggleFullscreen}
           className="absolute bottom-3 right-3 z-10 rounded-lg bg-black/60 p-2 text-white opacity-0 transition-opacity hover:opacity-100 hover:bg-black/80 backdrop-blur-sm group-hover:opacity-100"
@@ -259,6 +379,39 @@ function ChannelInfoBar({
           Untuk pengalaman lengkap (live chat, super chat), buka di YouTube langsung.
         </p>
       </div>
+
+      {/* Notice khusus: channel JKT48 LIVE menonaktifkan embed pihak ketiga */}
+      {channelKey === "48DailyLive" && (
+        <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500"
+          >
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <p className="text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+            <span className="font-semibold text-foreground">Perlu diketahui:</span> channel{" "}
+            <span className="font-semibold text-foreground">JKT48 LIVE</span> menonaktifkan izin
+            pemutaran (embed) di situs pihak ketiga lewat pengaturan YouTube mereka sendiri.
+            Karena itu, jika pemutar di atas gagal atau tiba-tiba terhenti, ini bukan masalah dari
+            website ini — kamu perlu menonton video/live tersebut langsung lewat{" "}
+            <a
+              href={ytUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-amber-500 hover:underline"
+            >
+              YouTube
+            </a>.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

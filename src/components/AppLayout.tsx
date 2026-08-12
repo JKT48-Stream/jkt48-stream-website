@@ -18,7 +18,6 @@ export function AppLayout() {
   const [pageKey, setPageKey] = useState(location.pathname);
   const [pageVisible, setPageVisible] = useState(true);
 
-  // Detect jika user sedang di halaman Watch atau Streaming Player
   const isWatchPage = location.pathname === "/watch";
   const isStreamingPage = location.pathname === "/stream";
   const isVideoPage = isWatchPage || isStreamingPage;
@@ -31,21 +30,18 @@ export function AppLayout() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  // Prefetch channel info
   useEffect(() => {
     (Object.keys(CHANNELS) as ChannelKey[]).forEach((k) => {
       fetchChannelInfo(k).catch(() => {});
     });
   }, []);
 
-  // Scroll ke atas setiap kali lokasi berubah (termasuk query params seperti ?q=...)
   useEffect(() => {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [location.pathname, location.search]);
 
-  // Page transition on route change (pathname only)
   useEffect(() => {
     if (location.pathname !== pageKey) {
       setPageVisible(false);
@@ -57,7 +53,6 @@ export function AppLayout() {
     }
   }, [location.pathname]);
 
-  // Mount/unmount drawer with exit animation
   useEffect(() => {
     if (sidebarOpen) {
       setDrawerMounted(true);
@@ -82,25 +77,19 @@ export function AppLayout() {
     }
   };
 
-  // Di WatchPage, sidebar desktop otomatis disembunyikan (mirip YouTube)
-  // User tetap bisa toggle manual jika mau
   const [watchPageCollapsedOverride, setWatchPageCollapsedOverride] = useState(true);
 
   useEffect(() => {
     if (isVideoPage) {
-      // Saat masuk WatchPage atau StreamingPlayerPage: collapse sidebar
       setWatchPageCollapsedOverride(true);
     } else {
-      // Saat keluar: kembalikan ke state semula
       setWatchPageCollapsedOverride(false);
     }
   }, [isVideoPage]);
 
-  // Effective collapsed state: di WatchPage/StreamingPage override ke collapsed kecuali user sudah toggle manual
   const effectiveCollapsed = isVideoPage ? watchPageCollapsedOverride : collapsed;
   const desktopSidebar = isDesktop && !effectiveCollapsed;
 
-  // Override toggle di WatchPage/StreamingPage agar toggle watchPageCollapsedOverride bukan collapsed global
   const handleToggle = () => {
     if (isDesktop) {
       if (isVideoPage) {

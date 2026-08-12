@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { fetchChannel, type ChannelKey, type YTVideo, CHANNELS } from "@/lib/youtube";
 import { VideoCard, VideoCardSkeleton } from "@/components/VideoCard";
+import { AlertTriangle } from "lucide-react";
 
 const CHIPS: { key: ChannelKey | "ALL"; label: string }[] = [
   { key: "ALL", label: "Semua" },
@@ -133,6 +134,29 @@ export default function Home() {
           </button>
         ))}
       </div>
+
+      {/* Notice: video dari channel JKT48 LIVE tidak bisa diputar di website ini */}
+      {(active === "ALL" || active === "48DailyLive") && (
+        <div className="mx-3 mb-4 mt-1 animate-fade-in-up sm:mx-6">
+          <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+            <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                Video dari channel JKT48 LIVE tidak bisa diputar langsung di website ini
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                Pemilik channel <span className="font-medium text-foreground">JKT48 LIVE (@48DailyLive)</span>{" "}
+                menonaktifkan opsi "izinkan pemutaran embed di situs lain" untuk video-video di
+                channel ini lewat pengaturan YouTube mereka sendiri. Ini adalah pengaturan resmi
+                dari pihak channel, bukan pembatasan dari website ini — video tetap bisa dibuka
+                seperti biasa, tetapi kamu akan diarahkan langsung ke YouTube untuk menontonnya.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Channel banner (when specific channel selected) */}
       {active !== "ALL" && (
