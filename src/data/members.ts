@@ -26,7 +26,7 @@ export const MEMBERS: Member[] = [
   {
     id: "alya_amanda",
     name: "Alya Amanda",
-    photoFile: "alya_amanda",
+    photoFile: "alya",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_alya",
@@ -36,7 +36,7 @@ export const MEMBERS: Member[] = [
   {
     id: "anindya_ramadhani",
     name: "Anindya Ramadhani",
-    photoFile: "anindya_ramadhani",
+    photoFile: "anindya",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_anindya",
@@ -46,7 +46,7 @@ export const MEMBERS: Member[] = [
   {
     id: "aurellia",
     name: "Aurellia",
-    photoFile: "aurellia",
+    photoFile: "lia",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_lia",
@@ -56,7 +56,7 @@ export const MEMBERS: Member[] = [
   {
     id: "aurhel_alana",
     name: "Aurhel Alana",
-    photoFile: "aurhel_alana",
+    photoFile: "lana",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_lana",
@@ -64,19 +64,9 @@ export const MEMBERS: Member[] = [
     showroomRoomId: 509997,
   },
   {
-    id: "cathleen_nixie",
-    name: "Cathleen Nixie",
-    photoFile: "cathleen_nixie",
-    team: "Team Love",
-    teamFolder: "love",
-    idnUsername: "jkt48_cathy",
-    showroomKey: "JKT48_Cathy",
-    showroomRoomId: 461454,
-  },
-  {
     id: "celline_thefani",
     name: "Celline Thefani",
-    photoFile: "celline_thefani",
+    photoFile: "elin",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_elin",
@@ -86,7 +76,7 @@ export const MEMBERS: Member[] = [
   {
     id: "cynthia_yaputera",
     name: "Cynthia Yaputera",
-    photoFile: "cynthia_yaputera",
+    photoFile: "cynthia",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_cynthia",
@@ -96,7 +86,7 @@ export const MEMBERS: Member[] = [
   {
     id: "fiony_alveria",
     name: "Fiony Alveria",
-    photoFile: "fiony_alveria",
+    photoFile: "fiony",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_fiony",
@@ -106,7 +96,7 @@ export const MEMBERS: Member[] = [
   {
     id: "fritzy_rosmerian",
     name: "Fritzy Rosmerian",
-    photoFile: "fritzy_rosmerian",
+    photoFile: "fritzy",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_fritzy",
@@ -116,7 +106,7 @@ export const MEMBERS: Member[] = [
   {
     id: "grace_octaviani",
     name: "Grace Octaviani",
-    photoFile: "grace_octaviani",
+    photoFile: "gracie",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_gracie",
@@ -126,7 +116,7 @@ export const MEMBERS: Member[] = [
   {
     id: "hillary_abigail",
     name: "Hillary Abigail",
-    photoFile: "hillary_abigail",
+    photoFile: "lily",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_lily",
@@ -136,7 +126,7 @@ export const MEMBERS: Member[] = [
   {
     id: "indah_cahya",
     name: "Indah Cahya",
-    photoFile: "indah_cahya",
+    photoFile: "indah",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_indah",
@@ -146,7 +136,7 @@ export const MEMBERS: Member[] = [
   {
     id: "jazzlyn_trisha",
     name: "Jazzlyn Trisha",
-    photoFile: "jazzlyn_trisha",
+    photoFile: "trisha",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_trisha",
@@ -156,7 +146,7 @@ export const MEMBERS: Member[] = [
   {
     id: "michelle_alexandra",
     name: "Michelle Alexandra",
-    photoFile: "michelle_alexandra",
+    photoFile: "michie",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_michie",
@@ -166,7 +156,7 @@ export const MEMBERS: Member[] = [
   {
     id: "nayla_suji",
     name: "Nayla Suji",
-    photoFile: "nayla_suji",
+    photoFile: "nayla",
     team: "Team Love",
     teamFolder: "love",
     idnUsername: "jkt48_nayla",
@@ -178,7 +168,7 @@ export const MEMBERS: Member[] = [
   {
     id: "adeline_wijaya",
     name: "Adeline Wijaya",
-    photoFile: "adeline_wijaya",
+    photoFile: "delynn",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_delynn",
@@ -188,7 +178,7 @@ export const MEMBERS: Member[] = [
   {
     id: "febriola_sinambela",
     name: "Febriola Sinambela",
-    photoFile: "febriola_sinambela",
+    photoFile: "olla",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_olla",
@@ -198,7 +188,7 @@ export const MEMBERS: Member[] = [
   {
     id: "freya_jayawardana",
     name: "Freya Jayawardana",
-    photoFile: "freya_jayawardana",
+    photoFile: "freya",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_freya",
@@ -208,7 +198,7 @@ export const MEMBERS: Member[] = [
   {
     id: "gabriela_abigail",
     name: "Gabriela Abigail",
-    photoFile: "gabriela_abigail",
+    photoFile: "ella",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_ella",
@@ -216,19 +206,9 @@ export const MEMBERS: Member[] = [
     showroomRoomId: 400715,
   },
   {
-    id: "gendis_mayrannisa",
-    name: "Gendis Mayrannisa",
-    photoFile: "gendis_mayrannisa",
-    team: "Team Dream",
-    teamFolder: "dream",
-    idnUsername: "jkt48_gendis",
-    showroomKey: "JKT48_Gendis",
-    showroomRoomId: 461476,
-  },
-  {
     id: "gita_sekar_andarini",
     name: "Gita Sekar Andarini",
-    photoFile: "gita_sekar_andarini",
+    photoFile: "gita",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_gita",
@@ -238,7 +218,7 @@ export const MEMBERS: Member[] = [
   {
     id: "greesella_adhalia",
     name: "Greesella Adhalia",
-    photoFile: "greesella_adhalia",
+    photoFile: "greesel",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_greesel",
@@ -248,7 +228,7 @@ export const MEMBERS: Member[] = [
   {
     id: "helisma_putri",
     name: "Helisma Putri",
-    photoFile: "helisma_putri",
+    photoFile: "eli",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_eli",
@@ -258,7 +238,7 @@ export const MEMBERS: Member[] = [
   {
     id: "jesslyn_elly",
     name: "Jesslyn Elly",
-    photoFile: "jesslyn_elly",
+    photoFile: "lyn",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_lyn",
@@ -268,7 +248,7 @@ export const MEMBERS: Member[] = [
   {
     id: "marsha_lenathea",
     name: "Marsha Lenathea",
-    photoFile: "marsha_lenathea",
+    photoFile: "marsha",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_marsha",
@@ -278,7 +258,7 @@ export const MEMBERS: Member[] = [
   {
     id: "nina_tutachia",
     name: "Nina Tutachia",
-    photoFile: "nina_tutachia",
+    photoFile: "nachia",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_nachia",
@@ -288,7 +268,7 @@ export const MEMBERS: Member[] = [
   {
     id: "oline_manuel",
     name: "Oline Manuel",
-    photoFile: "oline_manuel",
+    photoFile: "oline",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_oline",
@@ -298,7 +278,7 @@ export const MEMBERS: Member[] = [
   {
     id: "shabilqis_naila",
     name: "Shabilqis Naila",
-    photoFile: "shabilqis_naila",
+    photoFile: "nala",
     team: "Team Dream",
     teamFolder: "dream",
     idnUsername: "jkt48_nala",
@@ -310,7 +290,7 @@ export const MEMBERS: Member[] = [
   {
     id: "abigail_rachel",
     name: "Abigail Rachel",
-    photoFile: "abigail_rachel",
+    photoFile: "aralie",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_aralie",
@@ -320,7 +300,7 @@ export const MEMBERS: Member[] = [
   {
     id: "angelina_christy",
     name: "Angelina Christy",
-    photoFile: "angelina_christy",
+    photoFile: "christy",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_christy",
@@ -330,7 +310,7 @@ export const MEMBERS: Member[] = [
   {
     id: "catherina_vallencia",
     name: "Catherina Vallencia",
-    photoFile: "catherina_vallencia",
+    photoFile: "erine",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_erine",
@@ -340,7 +320,7 @@ export const MEMBERS: Member[] = [
   {
     id: "cornelia_vanisa",
     name: "Cornelia Vanisa",
-    photoFile: "cornelia_vanisa",
+    photoFile: "oniel",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_oniel",
@@ -350,7 +330,7 @@ export const MEMBERS: Member[] = [
   {
     id: "dena_natalia",
     name: "Dena Natalia",
-    photoFile: "dena_natalia",
+    photoFile: "danella",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_danella",
@@ -360,7 +340,7 @@ export const MEMBERS: Member[] = [
   {
     id: "desy_natalia",
     name: "Desy Natalia",
-    photoFile: "desy_natalia",
+    photoFile: "daisy",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_daisy",
@@ -370,7 +350,7 @@ export const MEMBERS: Member[] = [
   {
     id: "feni_fitriyanti",
     name: "Feni Fitriyanti",
-    photoFile: "feni_fitriyanti",
+    photoFile: "feni",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_feni",
@@ -380,7 +360,7 @@ export const MEMBERS: Member[] = [
   {
     id: "jessica_chandra",
     name: "Jessica Chandra",
-    photoFile: "jessica_chandra",
+    photoFile: "jessi",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_jessi",
@@ -390,7 +370,7 @@ export const MEMBERS: Member[] = [
   {
     id: "kathrina_irene",
     name: "Kathrina Irene",
-    photoFile: "kathrina_irene",
+    photoFile: "kathrina",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_kathrina",
@@ -400,7 +380,7 @@ export const MEMBERS: Member[] = [
   {
     id: "lulu_salsabila",
     name: "Lulu Salsabila",
-    photoFile: "lulu_salsabila",
+    photoFile: "lulu",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_lulu",
@@ -410,7 +390,7 @@ export const MEMBERS: Member[] = [
   {
     id: "michelle_levia",
     name: "Michelle Levia",
-    photoFile: "michelle_levia",
+    photoFile: "levi",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_levi",
@@ -420,7 +400,7 @@ export const MEMBERS: Member[] = [
   {
     id: "mutiara_azzahra",
     name: "Mutiara Azzahra",
-    photoFile: "mutiara_azzahra",
+    photoFile: "muthe",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_muthe",
@@ -430,7 +410,7 @@ export const MEMBERS: Member[] = [
   {
     id: "raisha_syifa",
     name: "Raisha Syifa",
-    photoFile: "raisha_syifa",
+    photoFile: "raisha",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_raisha",
@@ -440,7 +420,7 @@ export const MEMBERS: Member[] = [
   {
     id: "ribka_budiman",
     name: "Ribka Budiman",
-    photoFile: "ribka_budiman",
+    photoFile: "ribka",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_ribka",
@@ -450,7 +430,7 @@ export const MEMBERS: Member[] = [
   {
     id: "victoria_kimberly",
     name: "Victoria Kimberly",
-    photoFile: "victoria_kimberly",
+    photoFile: "kimmy",
     team: "Team Passion",
     teamFolder: "passion",
     idnUsername: "jkt48_kimmy",
@@ -462,7 +442,7 @@ export const MEMBERS: Member[] = [
   {
     id: "afera_thalia",
     name: "Afera Thalia",
-    photoFile: "afera_thalia",
+    photoFile: "fera",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_fera",
@@ -472,7 +452,7 @@ export const MEMBERS: Member[] = [
   {
     id: "astrella_virgiananda",
     name: "Astrella Virgiananda",
-    photoFile: "Astrella_Virgiananda",
+    photoFile: "virgi",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_virgi",
@@ -482,7 +462,7 @@ export const MEMBERS: Member[] = [
   {
     id: "aulia_riza",
     name: "Aulia Riza",
-    photoFile: "Aulia_Riza",
+    photoFile: "auwia",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_auwia",
@@ -492,7 +472,7 @@ export const MEMBERS: Member[] = [
   {
     id: "bong_aprilli",
     name: "Bong Aprilli",
-    photoFile: "Bong_Aprilli",
+    photoFile: "rilly",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_rilly",
@@ -502,7 +482,7 @@ export const MEMBERS: Member[] = [
   {
     id: "carissa_dini",
     name: "Carissa Dini",
-    photoFile: "carissa_dini",
+    photoFile: "carissa",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_carissa",
@@ -512,7 +492,7 @@ export const MEMBERS: Member[] = [
   {
     id: "christabella_bonita",
     name: "Christabella Bonita",
-    photoFile: "christabella_bonita",
+    photoFile: "bella",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_bella",
@@ -522,7 +502,7 @@ export const MEMBERS: Member[] = [
   {
     id: "fahira_putri",
     name: "Fahira Putri",
-    photoFile: "fahira_putri",
+    photoFile: "fahira",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_fahira",
@@ -532,7 +512,7 @@ export const MEMBERS: Member[] = [
   {
     id: "fatimah_azzahra",
     name: "Fatimah Azzahra",
-    photoFile: "fatimah_azzahra",
+    photoFile: "rara",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_rara",
@@ -542,7 +522,7 @@ export const MEMBERS: Member[] = [
   {
     id: "hagia_sopia",
     name: "Hagia Sopia",
-    photoFile: "Hagia_Sopia",
+    photoFile: "giaa",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_giaa",
@@ -552,7 +532,7 @@ export const MEMBERS: Member[] = [
   {
     id: "heidi_suyangga",
     name: "Heidi Suyangga",
-    photoFile: "heidi_suyangga",
+    photoFile: "heidi",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_heidi",
@@ -562,7 +542,7 @@ export const MEMBERS: Member[] = [
   {
     id: "humaira_ramadhani",
     name: "Humaira Ramadhani",
-    photoFile: "Humaira_Ramadhani",
+    photoFile: "maira",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_maira",
@@ -572,7 +552,7 @@ export const MEMBERS: Member[] = [
   {
     id: "jacqueline_immanuela",
     name: "Jacqueline Immanuela",
-    photoFile: "Jacqueline_Immanuela",
+    photoFile: "ekin",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_ekin",
@@ -582,7 +562,7 @@ export const MEMBERS: Member[] = [
   {
     id: "jemima_evodie",
     name: "Jemima Evodie",
-    photoFile: "Jemima_Evodie",
+    photoFile: "jemima",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_jemima",
@@ -592,7 +572,7 @@ export const MEMBERS: Member[] = [
   {
     id: "maxine_faye_lee",
     name: "Maxine Faye Lee",
-    photoFile: "maxine_faye",
+    photoFile: "maxine",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_maxine",
@@ -602,7 +582,7 @@ export const MEMBERS: Member[] = [
   {
     id: "mikaela_kusjanto",
     name: "Mikaela Kusjanto",
-    photoFile: "Mikaela_Kusjanto",
+    photoFile: "mikaela",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_mikaela",
@@ -612,7 +592,7 @@ export const MEMBERS: Member[] = [
   {
     id: "nur_intan",
     name: "Nur Intan",
-    photoFile: "Nur_Intan",
+    photoFile: "intan",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_intan",
@@ -622,7 +602,7 @@ export const MEMBERS: Member[] = [
   {
     id: "putry_jazyta",
     name: "Putry Jazyta",
-    photoFile: "putry_jazyta",
+    photoFile: "jazzy",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_jazzy",
@@ -632,7 +612,7 @@ export const MEMBERS: Member[] = [
   {
     id: "ralyne_van_irwan",
     name: "Ralyne Van Irwan",
-    photoFile: "ralyne_van_irwan",
+    photoFile: "ralyne",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_ralyne",
@@ -642,7 +622,7 @@ export const MEMBERS: Member[] = [
   {
     id: "sona_kalyana",
     name: "Sona Kalyana",
-    photoFile: "sona_kalyana",
+    photoFile: "sona",
     team: "Trainee",
     teamFolder: "trainee",
     idnUsername: "jkt48_sona",

@@ -222,11 +222,112 @@ function namesFuzzyMatch(nameA: string, nameB: string): boolean {
 }
 
 /**
+ * Mapping LANGSUNG `url_key` (dari API JKT48Connect) -> path foto lokal
+ * (public/assets/foto/<team>/<file>.jpg), untuk SEMUA tim (Love, Dream,
+ * Passion, Trainee).
+ *
+ * Alasan mapping ini perlu terpisah dari `MEMBERS`: `url_key` yang dikirim
+ * API selalu berupa nickname pendek (mis. "fera", "alya", "gracie", "kimmy"
+ * — lihat contoh field `lineup`/`url_key` pada endpoint detail show),
+ * sedangkan `id`/`photoFile` di `MEMBERS` kebanyakan memakai nama lengkap
+ * (mis. "alya_amanda", "grace_octaviani", "victoria_kimberly") yang malah
+ * TIDAK sama dengan nama file foto yang sebenarnya ada di
+ * `public/assets/foto/<team>/`. Karena itu match berbasis `id`/nama di
+ * bawah sering gagal dan jatuh ke avatar generatif. Nama file foto di semua
+ * folder tim justru sudah konsisten memakai nickname yang sama persis
+ * dengan `url_key` API, jadi paling aman dan akurat untuk di-match langsung
+ * lewat mapping eksplisit ini (bukan fuzzy match).
+ *
+ * Key selalu huruf kecil (dibandingkan lewat `normalizeUrlKey`). Hanya
+ * mendaftarkan nickname yang foto lokalnya benar-benar ada di
+ * `public/assets/foto/`; kalau ada member baru/foto yang belum ditambahkan
+ * (mis. saat ini "cathy" & "gendis" belum punya file), otomatis jatuh ke
+ * pencocokan fallback (`id`/nama) atau avatar generatif di bawah — supaya
+ * tidak ada gambar rusak (404).
+ */
+const LOCAL_PHOTO_BY_URL_KEY: Record<string, string> = {
+  // ─── Trainee ──────────────────────────────────────────────────────────
+  fera: "/assets/foto/trainee/fera.jpg",
+  virgi: "/assets/foto/trainee/virgi.jpg",
+  auwia: "/assets/foto/trainee/auwia.jpg",
+  rilly: "/assets/foto/trainee/rilly.jpg",
+  carissa: "/assets/foto/trainee/carissa.jpg",
+  bella: "/assets/foto/trainee/bella.jpg",
+  fahira: "/assets/foto/trainee/fahira.jpg",
+  rara: "/assets/foto/trainee/rara.jpg",
+  giaa: "/assets/foto/trainee/giaa.jpg",
+  heidi: "/assets/foto/trainee/heidi.jpg",
+  maira: "/assets/foto/trainee/maira.jpg",
+  ekin: "/assets/foto/trainee/ekin.jpg",
+  jemima: "/assets/foto/trainee/jemima.jpg",
+  maxine: "/assets/foto/trainee/maxine.jpg",
+  mikaela: "/assets/foto/trainee/mikaela.jpg",
+  intan: "/assets/foto/trainee/intan.jpg",
+  jazzy: "/assets/foto/trainee/jazzy.jpg",
+  ralyne: "/assets/foto/trainee/ralyne.jpg",
+  sona: "/assets/foto/trainee/sona.jpg",
+
+  // ─── Team Love ────────────────────────────────────────────────────────
+  alya: "/assets/foto/love/alya.jpg",
+  anindya: "/assets/foto/love/anindya.jpg",
+  lia: "/assets/foto/love/lia.jpg",
+  lana: "/assets/foto/love/lana.jpg",
+  elin: "/assets/foto/love/elin.jpg",
+  cynthia: "/assets/foto/love/cynthia.jpg",
+  fiony: "/assets/foto/love/fiony.jpg",
+  fritzy: "/assets/foto/love/fritzy.jpg",
+  gracie: "/assets/foto/love/gracie.jpg",
+  lily: "/assets/foto/love/lily.jpg",
+  indah: "/assets/foto/love/indah.jpg",
+  trisha: "/assets/foto/love/trisha.jpg",
+  michie: "/assets/foto/love/michie.jpg",
+  nayla: "/assets/foto/love/nayla.jpg",
+
+  // ─── Team Dream ───────────────────────────────────────────────────────
+  delynn: "/assets/foto/dream/delynn.jpg",
+  olla: "/assets/foto/dream/olla.jpg",
+  freya: "/assets/foto/dream/freya.jpg",
+  ella: "/assets/foto/dream/ella.jpg",
+  gita: "/assets/foto/dream/gita.jpg",
+  greesel: "/assets/foto/dream/greesel.jpg",
+  eli: "/assets/foto/dream/eli.jpg",
+  lyn: "/assets/foto/dream/lyn.jpg",
+  marsha: "/assets/foto/dream/marsha.jpg",
+  nachia: "/assets/foto/dream/nachia.jpg",
+  oline: "/assets/foto/dream/oline.jpg",
+  nala: "/assets/foto/dream/nala.jpg",
+
+  // ─── Team Passion ─────────────────────────────────────────────────────
+  aralie: "/assets/foto/passion/aralie.jpg",
+  christy: "/assets/foto/passion/christy.jpg",
+  erine: "/assets/foto/passion/erine.jpg",
+  oniel: "/assets/foto/passion/oniel.jpg",
+  danella: "/assets/foto/passion/danella.jpg",
+  daisy: "/assets/foto/passion/daisy.jpg",
+  feni: "/assets/foto/passion/feni.jpg",
+  jessi: "/assets/foto/passion/jessi.jpg",
+  kathrina: "/assets/foto/passion/kathrina.jpg",
+  lulu: "/assets/foto/passion/lulu.jpg",
+  levi: "/assets/foto/passion/levi.jpg",
+  muthe: "/assets/foto/passion/muthe.jpg",
+  raisha: "/assets/foto/passion/raisha.jpg",
+  ribka: "/assets/foto/passion/ribka.jpg",
+  kimmy: "/assets/foto/passion/kimmy.jpg",
+};
+
+/** Normalisasi `url_key` API supaya bisa dibandingkan ke key di atas (huruf kecil, `-`/spasi -> `_`, trim). */
+function normalizeUrlKey(key: string): string {
+  return key.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+/**
  * Cari foto member secara lokal (public/assets/foto/<team>/<file>.jpg) — dipakai
  * karena field `lineup` pada API Theater tidak menyertakan foto sama sekali.
- * Urutan pencocokan: url_key (exact) -> url_key (fuzzy) -> nama (exact) ->
- * nama (fuzzy) -> foto dari API (jika ada) -> avatar generatif (fallback
- * terakhir, sama seperti dipakai di Member Birthdays).
+ * Urutan pencocokan: url_key -> foto lokal (mapping langsung, lihat
+ * `LOCAL_PHOTO_BY_URL_KEY`, berlaku untuk semua tim) -> url_key (exact ke
+ * `MEMBERS.id`) -> url_key (fuzzy) -> nama (exact) -> nama (fuzzy) -> foto
+ * dari API (jika ada) -> avatar generatif (fallback terakhir, sama seperti
+ * dipakai di Member Birthdays).
  *
  * Pencocokan "fuzzy" diperlukan karena nama/slug dari API kadang tidak
  * lengkap dibanding data lokal (mis. API: "Maxine Faye", lokal: "Maxine Faye
@@ -241,6 +342,11 @@ export function resolveTheaterMemberPhoto(opts: {
   const { urlKey, name, apiImg } = opts;
 
   if (urlKey) {
+    const normalizedUrlKey = normalizeUrlKey(urlKey);
+
+    const localPhoto = LOCAL_PHOTO_BY_URL_KEY[normalizedUrlKey];
+    if (localPhoto) return localPhoto;
+
     const slugId = slugToMemberId(urlKey);
 
     const byId = MEMBERS.find((m) => m.id === slugId);

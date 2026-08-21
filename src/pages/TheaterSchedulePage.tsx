@@ -56,39 +56,40 @@ function TheaterShowCard({
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         {show.is_birthday_show && (
-          <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-amber-500/90 px-2.5 py-1 text-[11px] font-semibold text-amber-950 shadow-sm">
-            <Cake className="h-3.5 w-3.5" />
-            Birthday Show
+          <div className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-semibold text-amber-950 shadow-sm sm:left-2 sm:top-2 sm:px-2.5 sm:py-1 sm:text-[11px]">
+            <Cake className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Birthday Show</span>
+            <span className="sm:hidden">Birthday</span>
           </div>
         )}
         {past && (
-          <div className="absolute right-2 top-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white">
+          <div className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white sm:right-2 sm:top-2 sm:px-2.5 sm:py-1 sm:text-[11px]">
             Selesai
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 font-semibold leading-snug text-foreground">
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-base">
           {show.title}
         </h3>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground sm:text-sm">
           {formatTheaterDate(show.date)}
         </p>
 
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+        <div className="flex items-center gap-1 text-xs text-muted-foreground sm:gap-1.5 sm:text-sm">
+          <Clock className="h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5" />
           <span>
             {show.start_time} – {show.end_time}
           </span>
         </div>
 
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:mt-1">
           <span
             className={cn(
-              "rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+              "rounded-full border px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-[11px]",
               getTheaterTeamBadgeClass(show.jkt48_member_type),
             )}
           >
@@ -97,9 +98,9 @@ function TheaterShowCard({
         </div>
 
         {show.is_birthday_show && (
-          <div className="mt-1 flex items-start gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-500">
-            <Cake className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-            <span className="leading-snug">
+          <div className="mt-0.5 flex items-start gap-1 rounded-lg bg-amber-500/10 px-2 py-1 text-[10px] text-amber-500 sm:mt-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-xs">
+            <Cake className="mt-0.5 h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5" />
+            <span className="line-clamp-2 leading-snug">
               {birthdayNames && birthdayNames.length > 0
                 ? `Birthday: ${birthdayNames.join(", ")}`
                 : "Special Birthday Show"}
@@ -126,7 +127,7 @@ function ScheduleSection({
   return (
     <section className="mb-8">
       <h2 className="mb-3 text-lg font-bold text-foreground">{title}</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {shows.map((show) => (
           <TheaterShowCard
             key={show.reference_code}
@@ -209,7 +210,7 @@ export default function TheaterSchedulePage() {
       )}
 
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 8 }).map((_, i) => (
             <TheaterCardSkeleton key={i} />
           ))}

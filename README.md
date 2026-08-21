@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/logo.png" height="120">
+
 # JKT48 Stream
 
 **Unofficial Video Streaming Platform for JKT48 Fans**

@@ -48,135 +48,131 @@ export const members: BirthdayMember[] = [
 
   // -------------------- Tim Love --------------------
 
-  { id: "l1", name: "Alya Amanda", nickname: "Alya", team: "Love", birthday: "08-26", birthYear: 2006, photo: "/assets/foto/love/alya_amanda.jpg" },
+  { id: "l1", name: "Alya Amanda", nickname: "Alya", team: "Love", birthday: "08-26", birthYear: 2006, photo: "/assets/foto/love/alya.jpg" },
 
-  { id: "l2", name: "Anindya Ramadhani", nickname: "Anindya", team: "Love", birthday: "10-18", birthYear: 2005, photo: "/assets/foto/love/anindya_ramadhani.jpg" },
+  { id: "l2", name: "Anindya Ramadhani", nickname: "Anindya", team: "Love", birthday: "10-18", birthYear: 2005, photo: "/assets/foto/love/anindya.jpg" },
 
-  { id: "l3", name: "Aurellia", nickname: "Lia", team: "Love", birthday: "10-29", birthYear: 2002, photo: "/assets/foto/love/aurellia.jpg" },
+  { id: "l3", name: "Aurellia", nickname: "Lia", team: "Love", birthday: "10-29", birthYear: 2002, photo: "/assets/foto/love/lia.jpg" },
 
-  { id: "l4", name: "Aurhel Alana", nickname: "Lana", team: "Love", birthday: "09-14", birthYear: 2006, photo: "/assets/foto/love/aurhel_alana.jpg" },
+  { id: "l4", name: "Aurhel Alana", nickname: "Lana", team: "Love", birthday: "09-14", birthYear: 2006, photo: "/assets/foto/love/lana.jpg" },
 
-  { id: "l5", name: "Cathleen Nixie", nickname: "Cathy", team: "Love", birthday: "05-28", birthYear: 2009, photo: "/assets/foto/love/cathleen_nixie.jpg" },
+  { id: "l5", name: "Celline Thefani", nickname: "Elin", team: "Love", birthday: "04-09", birthYear: 2007, photo: "/assets/foto/love/elin.jpg" },
 
-  { id: "l6", name: "Celline Thefani", nickname: "Elin", team: "Love", birthday: "04-09", birthYear: 2007, photo: "/assets/foto/love/celline_thefani.jpg" },
+  { id: "l6", name: "Cynthia Yaputera", nickname: "Cynthia", team: "Love", birthday: "11-22", birthYear: 2003, photo: "/assets/foto/love/cynthia.jpg" },
 
-  { id: "l7", name: "Cynthia Yaputera", nickname: "Cynthia", team: "Love", birthday: "11-22", birthYear: 2003, photo: "/assets/foto/love/cynthia_yaputera.jpg" },
+  { id: "l7", name: "Fiony Alveria", nickname: "Fiony", team: "Love", birthday: "02-04", birthYear: 2002, photo: "/assets/foto/love/fiony.jpg" },
 
-  { id: "l8", name: "Fiony Alveria", nickname: "Fiony", team: "Love", birthday: "02-04", birthYear: 2002, photo: "/assets/foto/love/fiony_alveria.jpg" },
+  { id: "l8", name: "Fritzy Rosmerian", nickname: "Fritzy", team: "Love", birthday: "07-28", birthYear: 2008, photo: "/assets/foto/love/fritzy.jpg" },
 
-  { id: "l9", name: "Fritzy Rosmerian", nickname: "Fritzy", team: "Love", birthday: "07-28", birthYear: 2008, photo: "/assets/foto/love/fritzy_rosmerian.jpg" },
+  { id: "l9", name: "Grace Octaviani", nickname: "Gracie", team: "Love", birthday: "10-18", birthYear: 2007, photo: "/assets/foto/love/gracie.jpg" },
 
-  { id: "l10", name: "Grace Octaviani", nickname: "Gracie", team: "Love", birthday: "10-18", birthYear: 2007, photo: "/assets/foto/love/grace_octaviani.jpg" },
+  { id: "l10", name: "Hillary Abigail", nickname: "Lily", team: "Love", birthday: "10-17", birthYear: 2007, photo: "/assets/foto/love/lily.jpg" },
 
-  { id: "l11", name: "Hillary Abigail", nickname: "Lily", team: "Love", birthday: "10-17", birthYear: 2007, photo: "/assets/foto/love/hillary_abigail.jpg" },
+  { id: "l11", name: "Indah Cahya", nickname: "Indah", team: "Love", birthday: "03-20", birthYear: 2001, photo: "/assets/foto/love/indah.jpg" },
 
-  { id: "l12", name: "Indah Cahya", nickname: "Indah", team: "Love", birthday: "03-20", birthYear: 2001, photo: "/assets/foto/love/indah_cahya.jpg" },
+  { id: "l12", name: "Jazzlyn Trisha", nickname: "Trisha", team: "Love", birthday: "02-16", birthYear: 2011, photo: "/assets/foto/love/trisha.jpg" },
 
-  { id: "l13", name: "Jazzlyn Trisha", nickname: "Trisha", team: "Love", birthday: "02-16", birthYear: 2011, photo: "/assets/foto/love/jazzlyn_trisha.jpg" },
+  { id: "l13", name: "Michelle Alexandra", nickname: "Michie", team: "Love", birthday: "04-22", birthYear: 2009, photo: "/assets/foto/love/michie.jpg" },
 
-  { id: "l14", name: "Michelle Alexandra", nickname: "Michie", team: "Love", birthday: "04-22", birthYear: 2009, photo: "/assets/foto/love/michelle_alexandra.jpg" },
-
-  { id: "l15", name: "Nayla Suji", nickname: "Nayla", team: "Love", birthday: "06-18", birthYear: 2007, photo: "/assets/foto/love/nayla_suji.jpg" },
+  { id: "l14", name: "Nayla Suji", nickname: "Nayla", team: "Love", birthday: "06-18", birthYear: 2007, photo: "/assets/foto/love/nayla.jpg" },
 
   // -------------------- Tim Dream --------------------
 
-  { id: "d1", name: "Adeline Wijaya", nickname: "Delynn", team: "Dream", birthday: "09-01", birthYear: 2007, photo: "/assets/foto/dream/adeline_wijaya.jpg" },
+  { id: "d1", name: "Adeline Wijaya", nickname: "Delynn", team: "Dream", birthday: "09-01", birthYear: 2007, photo: "/assets/foto/dream/delynn.jpg" },
 
-  { id: "d2", name: "Febriola Sinambela", nickname: "Olla", team: "Dream", birthday: "02-26", birthYear: 2005, photo: "/assets/foto/dream/febriola_sinambela.jpg" },
+  { id: "d2", name: "Febriola Sinambela", nickname: "Olla", team: "Dream", birthday: "02-26", birthYear: 2005, photo: "/assets/foto/dream/olla.jpg" },
 
-  { id: "d3", name: "Freya Jayawardana", nickname: "Freya", team: "Dream", birthday: "02-13", birthYear: 2006, photo: "/assets/foto/dream/freya_jayawardana.jpg" },
+  { id: "d3", name: "Freya Jayawardana", nickname: "Freya", team: "Dream", birthday: "02-13", birthYear: 2006, photo: "/assets/foto/dream/freya.jpg" },
 
-  { id: "d4", name: "Gabriela Abigail", nickname: "Ella", team: "Dream", birthday: "08-07", birthYear: 2006, photo: "/assets/foto/dream/gabriela_abigail.jpg" },
+  { id: "d4", name: "Gabriela Abigail", nickname: "Ella", team: "Dream", birthday: "08-07", birthYear: 2006, photo: "/assets/foto/dream/ella.jpg" },
 
-  { id: "d5", name: "Gendis Mayrannisa", nickname: "Gendis", team: "Dream", birthday: "06-23", birthYear: 2010, photo: "/assets/foto/dream/gendis_mayrannisa.jpg" },
+  { id: "d5", name: "Gita Sekar Andarini", nickname: "Gita", team: "Dream", birthday: "06-30", birthYear: 2001, photo: "/assets/foto/dream/gita.jpg" },
 
-  { id: "d6", name: "Gita Sekar Andarini", nickname: "Gita", team: "Dream", birthday: "06-30", birthYear: 2001, photo: "/assets/foto/dream/gita_sekar_andarini.jpg" },
+  { id: "d6", name: "Greesella Adhalia", nickname: "Greesel", team: "Dream", birthday: "01-10", birthYear: 2006, photo: "/assets/foto/dream/greesel.jpg" },
 
-  { id: "d7", name: "Greesella Adhalia", nickname: "Greesel", team: "Dream", birthday: "01-10", birthYear: 2006, photo: "/assets/foto/dream/greesella_adhalia.jpg" },
+  { id: "d7", name: "Helisma Putri", nickname: "Eli", team: "Dream", birthday: "06-15", birthYear: 2000, photo: "/assets/foto/dream/eli.jpg" },
 
-  { id: "d8", name: "Helisma Putri", nickname: "Eli", team: "Dream", birthday: "06-15", birthYear: 2000, photo: "/assets/foto/dream/helisma_putri.jpg" },
+  { id: "d8", name: "Jesslyn Elly", nickname: "Lyn", team: "Dream", birthday: "09-13", birthYear: 2001, photo: "/assets/foto/dream/lyn.jpg" },
 
-  { id: "d9", name: "Jesslyn Elly", nickname: "Lyn", team: "Dream", birthday: "09-13", birthYear: 2001, photo: "/assets/foto/dream/jesslyn_elly.jpg" },
+  { id: "d9", name: "Marsha Lenathea", nickname: "Marsha", team: "Dream", birthday: "01-09", birthYear: 2006, photo: "/assets/foto/dream/marsha.jpg" },
 
-  { id: "d10", name: "Marsha Lenathea", nickname: "Marsha", team: "Dream", birthday: "01-09", birthYear: 2006, photo: "/assets/foto/dream/marsha_lenathea.jpg" },
+  { id: "d10", name: "Nina Tutachia", nickname: "Nachia", team: "Dream", birthday: "10-16", birthYear: 2009, photo: "/assets/foto/dream/nachia.jpg" },
 
-  { id: "d11", name: "Nina Tutachia", nickname: "Nachia", team: "Dream", birthday: "10-16", birthYear: 2009, photo: "/assets/foto/dream/nina_tutachia.jpg" },
+  { id: "d11", name: "Oline Manuel", nickname: "Oline", team: "Dream", birthday: "11-03", birthYear: 2007, photo: "/assets/foto/dream/oline.jpg" },
 
-  { id: "d12", name: "Oline Manuel", nickname: "Oline", team: "Dream", birthday: "11-03", birthYear: 2007, photo: "/assets/foto/dream/oline_manuel.jpg" },
-
-  { id: "d13", name: "Shabilqis Naila", nickname: "Nala", team: "Dream", birthday: "09-01", birthYear: 2008, photo: "/assets/foto/dream/shabilqis_naila.jpg" },
+  { id: "d12", name: "Shabilqis Naila", nickname: "Nala", team: "Dream", birthday: "09-01", birthYear: 2008, photo: "/assets/foto/dream/nala.jpg" },
 
   // -------------------- Tim Passion --------------------
 
-  { id: "p1", name: "Abigail Rachel", nickname: "Aralie", team: "Passion", birthday: "08-06", birthYear: 2008, photo: "/assets/foto/passion/abigail_rachel.jpg" },
+  { id: "p1", name: "Abigail Rachel", nickname: "Aralie", team: "Passion", birthday: "08-06", birthYear: 2008, photo: "/assets/foto/passion/aralie.jpg" },
 
-  { id: "p2", name: "Angelina Christy", nickname: "Christy", team: "Passion", birthday: "12-05", birthYear: 2005, photo: "/assets/foto/passion/angelina_christy.jpg" },
+  { id: "p2", name: "Angelina Christy", nickname: "Christy", team: "Passion", birthday: "12-05", birthYear: 2005, photo: "/assets/foto/passion/christy.jpg" },
 
-  { id: "p3", name: "Catherina Vallencia", nickname: "Erine", team: "Passion", birthday: "08-21", birthYear: 2007, photo: "/assets/foto/passion/catherina_vallencia.jpg" },
+  { id: "p3", name: "Catherina Vallencia", nickname: "Erine", team: "Passion", birthday: "08-21", birthYear: 2007, photo: "/assets/foto/passion/erine.jpg" },
 
-  { id: "p4", name: "Cornelia Vanisa", nickname: "Oniel", team: "Passion", birthday: "07-26", birthYear: 2002, photo: "/assets/foto/passion/cornelia_vanisa.jpg" },
+  { id: "p4", name: "Cornelia Vanisa", nickname: "Oniel", team: "Passion", birthday: "07-26", birthYear: 2002, photo: "/assets/foto/passion/oniel.jpg" },
 
-  { id: "p5", name: "Dena Natalia", nickname: "Danella", team: "Passion", birthday: "12-16", birthYear: 2005, photo: "/assets/foto/passion/dena_natalia.jpg" },
+  { id: "p5", name: "Dena Natalia", nickname: "Danella", team: "Passion", birthday: "12-16", birthYear: 2005, photo: "/assets/foto/passion/danella.jpg" },
 
-  { id: "p6", name: "Desy Natalia", nickname: "Daisy", team: "Passion", birthday: "12-16", birthYear: 2005, photo: "/assets/foto/passion/desy_natalia.jpg" },
+  { id: "p6", name: "Desy Natalia", nickname: "Daisy", team: "Passion", birthday: "12-16", birthYear: 2005, photo: "/assets/foto/passion/daisy.jpg" },
 
-  { id: "p7", name: "Feni Fitriyanti", nickname: "Feni", team: "Passion", birthday: "01-16", birthYear: 1999, photo: "/assets/foto/passion/feni_fitriyanti.jpg" },
+  { id: "p7", name: "Feni Fitriyanti", nickname: "Feni", team: "Passion", birthday: "01-16", birthYear: 1999, photo: "/assets/foto/passion/feni.jpg" },
 
-  { id: "p8", name: "Jessica Chandra", nickname: "Jessi", team: "Passion", birthday: "09-23", birthYear: 2005, photo: "/assets/foto/passion/jessica_chandra.jpg" },
+  { id: "p8", name: "Jessica Chandra", nickname: "Jessi", team: "Passion", birthday: "09-23", birthYear: 2005, photo: "/assets/foto/passion/jessi.jpg" },
 
-  { id: "p9", name: "Kathrina Irene", nickname: "Kathrina", team: "Passion", birthday: "07-26", birthYear: 2005, photo: "/assets/foto/passion/kathrina_irene.jpg" },
+  { id: "p9", name: "Kathrina Irene", nickname: "Kathrina", team: "Passion", birthday: "07-26", birthYear: 2005, photo: "/assets/foto/passion/kathrina.jpg" },
 
-  { id: "p10", name: "Lulu Salsabila", nickname: "Lulu", team: "Passion", birthday: "10-23", birthYear: 2002, photo: "/assets/foto/passion/lulu_salsabila.jpg" },
+  { id: "p10", name: "Lulu Salsabila", nickname: "Lulu", team: "Passion", birthday: "10-23", birthYear: 2002, photo: "/assets/foto/passion/lulu.jpg" },
 
-  { id: "p11", name: "Michelle Levia", nickname: "Levi", team: "Passion", birthday: "01-24", birthYear: 2009, photo: "/assets/foto/passion/michelle_levia.jpg" },
+  { id: "p11", name: "Michelle Levia", nickname: "Levi", team: "Passion", birthday: "01-24", birthYear: 2009, photo: "/assets/foto/passion/levi.jpg" },
 
-  { id: "p12", name: "Mutiara Azzahra", nickname: "Muthe", team: "Passion", birthday: "07-12", birthYear: 2004, photo: "/assets/foto/passion/mutiara_azzahra.jpg" },
+  { id: "p12", name: "Mutiara Azzahra", nickname: "Muthe", team: "Passion", birthday: "07-12", birthYear: 2004, photo: "/assets/foto/passion/muthe.jpg" },
 
-  { id: "p13", name: "Raisha Syifa", nickname: "Raisha", team: "Passion", birthday: "11-11", birthYear: 2007, photo: "/assets/foto/passion/raisha_syifa.jpg" },
+  { id: "p13", name: "Raisha Syifa", nickname: "Raisha", team: "Passion", birthday: "11-11", birthYear: 2007, photo: "/assets/foto/passion/raisha.jpg" },
 
-  { id: "p14", name: "Ribka Budiman", nickname: "Ribka", team: "Passion", birthday: "01-13", birthYear: 2009, photo: "/assets/foto/passion/ribka_budiman.jpg" },
+  { id: "p14", name: "Ribka Budiman", nickname: "Ribka", team: "Passion", birthday: "01-13", birthYear: 2009, photo: "/assets/foto/passion/ribka.jpg" },
 
-  { id: "p15", name: "Victoria Kimberly", nickname: "Kimmy", team: "Passion", birthday: "03-08", birthYear: 2010, photo: "/assets/foto/passion/victoria_kimberly.jpg" },
+  { id: "p15", name: "Victoria Kimberly", nickname: "Kimmy", team: "Passion", birthday: "03-08", birthYear: 2010, photo: "/assets/foto/passion/kimmy.jpg" },
 
   // -------------------- Trainee --------------------
 
-  { id: "t1", name: "Afera Thalia", nickname: "Fera", team: "Trainee", birthday: "10-20", birthYear: 2012, photo: "/assets/foto/trainee/afera_thalia.jpg" },
+  { id: "t1", name: "Afera Thalia", nickname: "Fera", team: "Trainee", birthday: "10-20", birthYear: 2012, photo: "/assets/foto/trainee/fera.jpg" },
 
-  { id: "t2", name: "Astrella Virgiananda", nickname: "Virgi", team: "Trainee", birthday: "08-06", birthYear: 2010, photo: "/assets/foto/trainee/Astrella_Virgiananda.jpg" },
+  { id: "t2", name: "Astrella Virgiananda", nickname: "Virgi", team: "Trainee", birthday: "08-06", birthYear: 2010, photo: "/assets/foto/trainee/virgi.jpg" },
 
-  { id: "t3", name: "Aulia Riza", nickname: "Auwia", team: "Trainee", birthday: "07-14", birthYear: 2007, photo: "/assets/foto/trainee/Aulia_Riza.jpg" },
+  { id: "t3", name: "Aulia Riza", nickname: "Auwia", team: "Trainee", birthday: "07-14", birthYear: 2007, photo: "/assets/foto/trainee/auwia.jpg" },
 
-  { id: "t4", name: "Bong Aprilli", nickname: "Rilly", team: "Trainee", birthday: "04-01", birthYear: 2010, photo: "/assets/foto/trainee/Bong_Aprilli.jpg" },
+  { id: "t4", name: "Bong Aprilli", nickname: "Rilly", team: "Trainee", birthday: "04-01", birthYear: 2010, photo: "/assets/foto/trainee/rilly.jpg" },
 
-  { id: "t5", name: "Carissa Dini", nickname: "Carissa", team: "Trainee", birthday: "02-02", birthYear: 2012, photo: "/assets/foto/trainee/carissa_dini.jpg" },
+  { id: "t5", name: "Carissa Dini", nickname: "Carissa", team: "Trainee", birthday: "02-02", birthYear: 2012, photo: "/assets/foto/trainee/carissa.jpg" },
 
-  { id: "t6", name: "Christabella Bonita", nickname: "Bella", team: "Trainee", birthday: "03-02", birthYear: 2011, photo: "/assets/foto/trainee/christabella_bonita.jpg" },
+  { id: "t6", name: "Christabella Bonita", nickname: "Bella", team: "Trainee", birthday: "03-02", birthYear: 2011, photo: "/assets/foto/trainee/bella.jpg" },
 
-  { id: "t7", name: "Fahira Putri", nickname: "Fahira", team: "Trainee", birthday: "08-13", birthYear: 2012, photo: "/assets/foto/trainee/fahira_putri.jpg" },
+  { id: "t7", name: "Fahira Putri", nickname: "Fahira", team: "Trainee", birthday: "08-13", birthYear: 2012, photo: "/assets/foto/trainee/fahira.jpg" },
 
-  { id: "t8", name: "Fatimah Azzahra", nickname: "Rara", team: "Trainee", birthday: "08-30", birthYear: 2010, photo: "/assets/foto/trainee/fatimah_azzahra.jpg" },
+  { id: "t8", name: "Fatimah Azzahra", nickname: "Rara", team: "Trainee", birthday: "08-30", birthYear: 2010, photo: "/assets/foto/trainee/rara.jpg" },
 
-  { id: "t9", name: "Hagia Sopia", nickname: "Giaa", team: "Trainee", birthday: "07-01", birthYear: 2008, photo: "/assets/foto/trainee/Hagia_Sopia.jpg" },
+  { id: "t9", name: "Hagia Sopia", nickname: "Giaa", team: "Trainee", birthday: "07-01", birthYear: 2008, photo: "/assets/foto/trainee/giaa.jpg" },
 
-  { id: "t10", name: "Heidi Suyangga", nickname: "Heidi", team: "Trainee", birthday: "08-27", birthYear: 2008, photo: "/assets/foto/trainee/heidi_suyangga.jpg" },
+  { id: "t10", name: "Heidi Suyangga", nickname: "Heidi", team: "Trainee", birthday: "08-27", birthYear: 2008, photo: "/assets/foto/trainee/heidi.jpg" },
 
-  { id: "t11", name: "Humaira Ramadhani", nickname: "Maira", team: "Trainee", birthday: "08-13", birthYear: 2011, photo: "/assets/foto/trainee/Humaira_Ramadhani.jpg" },
+  { id: "t11", name: "Humaira Ramadhani", nickname: "Maira", team: "Trainee", birthday: "08-13", birthYear: 2011, photo: "/assets/foto/trainee/maira.jpg" },
 
-  { id: "t12", name: "Jacqueline Immanuela", nickname: "Ekin", team: "Trainee", birthday: "07-09", birthYear: 2009, photo: "/assets/foto/trainee/Jacqueline_Immanuela.jpg" },
+  { id: "t12", name: "Jacqueline Immanuela", nickname: "Ekin", team: "Trainee", birthday: "07-09", birthYear: 2009, photo: "/assets/foto/trainee/ekin.jpg" },
 
-  { id: "t13", name: "Jemima Evodie", nickname: "Jemima", team: "Trainee", birthday: "11-09", birthYear: 2009, photo: "/assets/foto/trainee/Jemima_Evodie.jpg" },
+  { id: "t13", name: "Jemima Evodie", nickname: "Jemima", team: "Trainee", birthday: "11-09", birthYear: 2009, photo: "/assets/foto/trainee/jemima.jpg" },
 
-  { id: "t14", name: "Maxine Faye", nickname: "Maxine", team: "Trainee", birthday: "12-02", birthYear: 2011, photo: "/assets/foto/trainee/maxine_faye.jpg" },
+  { id: "t14", name: "Maxine Faye", nickname: "Maxine", team: "Trainee", birthday: "12-02", birthYear: 2011, photo: "/assets/foto/trainee/maxine.jpg" },
 
-  { id: "t15", name: "Mikaela Kusjanto", nickname: "Mikaela", team: "Trainee", birthday: "12-15", birthYear: 2007, photo: "/assets/foto/trainee/Mikaela_Kusjanto.jpg" },
+  { id: "t15", name: "Mikaela Kusjanto", nickname: "Mikaela", team: "Trainee", birthday: "12-15", birthYear: 2007, photo: "/assets/foto/trainee/mikaela.jpg" },
 
-  { id: "t16", name: "Nur Intan", nickname: "Intan", team: "Trainee", birthday: "02-24", birthYear: 2006, photo: "/assets/foto/trainee/Nur_Intan.jpg" },
+  { id: "t16", name: "Nur Intan", nickname: "Intan", team: "Trainee", birthday: "02-24", birthYear: 2006, photo: "/assets/foto/trainee/intan.jpg" },
 
-  { id: "t17", name: "Putry Jazyta", nickname: "Jazzy", team: "Trainee", birthday: "03-12", birthYear: 2011, photo: "/assets/foto/trainee/putry_jazyta.jpg" },
+  { id: "t17", name: "Putry Jazyta", nickname: "Jazzy", team: "Trainee", birthday: "03-12", birthYear: 2011, photo: "/assets/foto/trainee/jazzy.jpg" },
 
-  { id: "t18", name: "Ralyne Van Irwan", nickname: "Ralyne", team: "Trainee", birthday: "10-15", birthYear: 2011, photo: "/assets/foto/trainee/ralyne_van_irwan.jpg" },
+  { id: "t18", name: "Ralyne Van Irwan", nickname: "Ralyne", team: "Trainee", birthday: "10-15", birthYear: 2011, photo: "/assets/foto/trainee/ralyne.jpg" },
 
-  { id: "t19", name: "Sona Kalyana", nickname: "Sona", team: "Trainee", birthday: "12-01", birthYear: 2011, photo: "/assets/foto/trainee/sona_kalyana.jpg" },
+  { id: "t19", name: "Sona Kalyana", nickname: "Sona", team: "Trainee", birthday: "12-01", birthYear: 2011, photo: "/assets/foto/trainee/sona.jpg" },
 
 ];
 

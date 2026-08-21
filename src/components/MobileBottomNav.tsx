@@ -1,13 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { Home, Cake, ListMusic, Bookmark, Radio } from "lucide-react";
+import { Home, Cake, ListMusic, Theater, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", icon: Home, label: "Beranda", end: true },
   { to: "/member-birthdays", icon: Cake, label: "Birthdays" },
   { to: "/member-live", icon: Radio, label: "Member Live" },
+  { to: "/theater", icon: Theater, label: "Theater" },
   { to: "/playlists", icon: ListMusic, label: "Playlist" },
-  { to: "/saved", icon: Bookmark, label: "Tersimpan" },
 ];
 
 export function MobileBottomNav() {
