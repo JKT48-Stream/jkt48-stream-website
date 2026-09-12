@@ -46,9 +46,7 @@ export function getMemberPhoto(m: BirthdayMember): string {
 
 export const members: BirthdayMember[] = [
 
-  // -------------------- Tim Love --------------------
-
-  { id: "l1", name: "Alya Amanda", nickname: "Alya", team: "Love", birthday: "08-26", birthYear: 2006, photo: "/assets/foto/love/alya.jpg" },
+  // -------------------- Tim Love --------------------\
 
   { id: "l2", name: "Anindya Ramadhani", nickname: "Anindya", team: "Love", birthday: "10-18", birthYear: 2005, photo: "/assets/foto/love/anindya.jpg" },
 

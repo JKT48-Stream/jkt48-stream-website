@@ -24,16 +24,6 @@ export const JKT48_OFFICIAL = {
 export const MEMBERS: Member[] = [
   // ─── Team Love ───────────────────────────────────────────────────────
   {
-    id: "alya_amanda",
-    name: "Alya Amanda",
-    photoFile: "alya",
-    team: "Team Love",
-    teamFolder: "love",
-    idnUsername: "jkt48_alya",
-    showroomKey: "JKT48_Alya",
-    showroomRoomId: 461451,
-  },
-  {
     id: "anindya_ramadhani",
     name: "Anindya Ramadhani",
     photoFile: "anindya",

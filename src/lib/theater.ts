@@ -268,7 +268,6 @@ const LOCAL_PHOTO_BY_URL_KEY: Record<string, string> = {
   sona: "/assets/foto/trainee/sona.jpg",
 
   // ─── Team Love ────────────────────────────────────────────────────────
-  alya: "/assets/foto/love/alya.jpg",
   anindya: "/assets/foto/love/anindya.jpg",
   lia: "/assets/foto/love/lia.jpg",
   lana: "/assets/foto/love/lana.jpg",
