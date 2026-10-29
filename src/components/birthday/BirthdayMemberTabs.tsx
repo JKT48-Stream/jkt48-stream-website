@@ -130,10 +130,8 @@ export function BirthdayMemberTabs() {
                 </div>
               );
             })}
-            {/* Spacer supaya pil terakhir tidak menempel di tepi layar saat di-scroll penuh */}
             <span aria-hidden="true" className="shrink-0 px-0.5 sm:hidden" />
           </div>
-          {/* Petunjuk visual "masih ada tab lain" di ujung kanan — hanya mobile */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent sm:hidden"
@@ -141,7 +139,6 @@ export function BirthdayMemberTabs() {
         </div>
       </LayoutGroup>
 
-      {/* Search */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input
@@ -153,7 +150,6 @@ export function BirthdayMemberTabs() {
         />
       </div>
 
-      {/* Konten: selalu 2 slot section yang sama, hanya isinya yang berubah */}
       <motion.div layout className="space-y-10">
         <AnimatePresence mode="popLayout" initial={false}>
           {sections.map((section) =>

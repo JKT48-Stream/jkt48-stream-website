@@ -450,16 +450,6 @@ export const MEMBERS: Member[] = [
     showroomRoomId: 547061,
   },
   {
-    id: "aulia_riza",
-    name: "Aulia Riza",
-    photoFile: "auwia",
-    team: "Trainee",
-    teamFolder: "trainee",
-    idnUsername: "jkt48_auwia",
-    showroomKey: "JKT48_Auwia",
-    showroomRoomId: 547062,
-  },
-  {
     id: "bong_aprilli",
     name: "Bong Aprilli",
     photoFile: "rilly",

@@ -244,13 +244,11 @@ export function BirthdayMemberCard({ member, rank, variant = "default", favorite
 
   return (
     <div className="relative">
-      {/* Static soft halo behind the card */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-3 -z-10 rounded-[1.4rem] bg-gradient-birthday opacity-25 blur-2xl"
       />
 
-      {/* Side rails: vertical gradient strips flanking the card */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-1.5 top-4 bottom-4 w-1 rounded-full bg-gradient-to-b from-transparent via-primary/70 to-transparent"
@@ -260,7 +258,6 @@ export function BirthdayMemberCard({ member, rank, variant = "default", favorite
         className="pointer-events-none absolute -right-1.5 top-4 bottom-4 w-1 rounded-full bg-gradient-to-b from-transparent via-primary/70 to-transparent"
       />
 
-      {/* Left side SVG icons */}
       {leftIcons.map(({ Icon, color, top, delay, size }, i) => (
         <Icon
           key={`l-${i}`}
@@ -270,7 +267,6 @@ export function BirthdayMemberCard({ member, rank, variant = "default", favorite
         />
       ))}
 
-      {/* Right side SVG icons */}
       {rightIcons.map(({ Icon, color, top, delay, size }, i) => (
         <Icon
           key={`r-${i}`}

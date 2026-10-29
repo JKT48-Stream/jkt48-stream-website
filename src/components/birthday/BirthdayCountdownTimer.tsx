@@ -3,7 +3,7 @@ import { PartyPopper } from "lucide-react";
 import { isBirthdayToday } from "@/data/birthday-members";
 
 interface Props {
-  birthday: string; // "MM-DD"
+  birthday: string;
   variant?: "default" | "celebration";
 }
 

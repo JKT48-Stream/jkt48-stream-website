@@ -1,28 +1,3 @@
-// ============================================================
-// JKT48 Members Data — khusus tab "Member Birthdays Counter"
-// ------------------------------------------------------------
-// File ini terpisah dari src/data/members.ts (dipakai fitur Member Live)
-// agar tidak saling bentrok. Ubah data di sini untuk menambah / mengedit /
-// menghapus member pada Birthdays Counter.
-//
-// Field `photo` menerima:
-//   1. URL online, contoh:
-//        photo: "https://example.com/foto.jpg"
-//   2. Gambar lokal — taruh file di `src/assets/members/`
-//      lalu import di atas dan pakai variabel-nya:
-//        import freyaPhoto from "@/assets/members/freya.jpg";
-//        ...
-//        { ..., photo: freyaPhoto }
-//   3. Path publik dari folder `public/`, contoh:
-//        photo: "/members/freya.jpg"
-//
-// Jika `photo` dikosongkan, aplikasi otomatis pakai avatar
-// generatif berbasis nama (DiceBear).
-// ============================================================
-
-// Contoh import gambar lokal (uncomment & sesuaikan file-nya):
-// import freyaPhoto from "@/assets/members/freya.jpg";
-
 export type Team = "Passion" | "Love" | "Dream" | "Trainee";
 
 export interface BirthdayMember {
@@ -48,31 +23,31 @@ export const members: BirthdayMember[] = [
 
   // -------------------- Tim Love --------------------\
 
-  { id: "l2", name: "Anindya Ramadhani", nickname: "Anindya", team: "Love", birthday: "10-18", birthYear: 2005, photo: "/assets/foto/love/anindya.jpg" },
+  { id: "l1", name: "Anindya Ramadhani", nickname: "Anindya", team: "Love", birthday: "10-18", birthYear: 2005, photo: "/assets/foto/love/anindya.jpg" },
 
-  { id: "l3", name: "Aurellia", nickname: "Lia", team: "Love", birthday: "10-29", birthYear: 2002, photo: "/assets/foto/love/lia.jpg" },
+  { id: "l2", name: "Aurellia", nickname: "Lia", team: "Love", birthday: "10-29", birthYear: 2002, photo: "/assets/foto/love/lia.jpg" },
 
-  { id: "l4", name: "Aurhel Alana", nickname: "Lana", team: "Love", birthday: "09-14", birthYear: 2006, photo: "/assets/foto/love/lana.jpg" },
+  { id: "l3", name: "Aurhel Alana", nickname: "Lana", team: "Love", birthday: "09-14", birthYear: 2006, photo: "/assets/foto/love/lana.jpg" },
 
-  { id: "l5", name: "Celline Thefani", nickname: "Elin", team: "Love", birthday: "04-09", birthYear: 2007, photo: "/assets/foto/love/elin.jpg" },
+  { id: "l4", name: "Celline Thefani", nickname: "Elin", team: "Love", birthday: "04-09", birthYear: 2007, photo: "/assets/foto/love/elin.jpg" },
 
-  { id: "l6", name: "Cynthia Yaputera", nickname: "Cynthia", team: "Love", birthday: "11-22", birthYear: 2003, photo: "/assets/foto/love/cynthia.jpg" },
+  { id: "l5", name: "Cynthia Yaputera", nickname: "Cynthia", team: "Love", birthday: "11-22", birthYear: 2003, photo: "/assets/foto/love/cynthia.jpg" },
 
-  { id: "l7", name: "Fiony Alveria", nickname: "Fiony", team: "Love", birthday: "02-04", birthYear: 2002, photo: "/assets/foto/love/fiony.jpg" },
+  { id: "l6", name: "Fiony Alveria", nickname: "Fiony", team: "Love", birthday: "02-04", birthYear: 2002, photo: "/assets/foto/love/fiony.jpg" },
 
-  { id: "l8", name: "Fritzy Rosmerian", nickname: "Fritzy", team: "Love", birthday: "07-28", birthYear: 2008, photo: "/assets/foto/love/fritzy.jpg" },
+  { id: "l7", name: "Fritzy Rosmerian", nickname: "Fritzy", team: "Love", birthday: "07-28", birthYear: 2008, photo: "/assets/foto/love/fritzy.jpg" },
 
-  { id: "l9", name: "Grace Octaviani", nickname: "Gracie", team: "Love", birthday: "10-18", birthYear: 2007, photo: "/assets/foto/love/gracie.jpg" },
+  { id: "l8", name: "Grace Octaviani", nickname: "Gracie", team: "Love", birthday: "10-18", birthYear: 2007, photo: "/assets/foto/love/gracie.jpg" },
 
-  { id: "l10", name: "Hillary Abigail", nickname: "Lily", team: "Love", birthday: "10-17", birthYear: 2007, photo: "/assets/foto/love/lily.jpg" },
+  { id: "l9", name: "Hillary Abigail", nickname: "Lily", team: "Love", birthday: "10-17", birthYear: 2007, photo: "/assets/foto/love/lily.jpg" },
 
-  { id: "l11", name: "Indah Cahya", nickname: "Indah", team: "Love", birthday: "03-20", birthYear: 2001, photo: "/assets/foto/love/indah.jpg" },
+  { id: "l10", name: "Indah Cahya", nickname: "Indah", team: "Love", birthday: "03-20", birthYear: 2001, photo: "/assets/foto/love/indah.jpg" },
 
-  { id: "l12", name: "Jazzlyn Trisha", nickname: "Trisha", team: "Love", birthday: "02-16", birthYear: 2011, photo: "/assets/foto/love/trisha.jpg" },
+  { id: "l11", name: "Jazzlyn Trisha", nickname: "Trisha", team: "Love", birthday: "02-16", birthYear: 2011, photo: "/assets/foto/love/trisha.jpg" },
 
-  { id: "l13", name: "Michelle Alexandra", nickname: "Michie", team: "Love", birthday: "04-22", birthYear: 2009, photo: "/assets/foto/love/michie.jpg" },
+  { id: "l12", name: "Michelle Alexandra", nickname: "Michie", team: "Love", birthday: "04-22", birthYear: 2009, photo: "/assets/foto/love/michie.jpg" },
 
-  { id: "l14", name: "Nayla Suji", nickname: "Nayla", team: "Love", birthday: "06-18", birthYear: 2007, photo: "/assets/foto/love/nayla.jpg" },
+  { id: "l13", name: "Nayla Suji", nickname: "Nayla", team: "Love", birthday: "06-18", birthYear: 2007, photo: "/assets/foto/love/nayla.jpg" },
 
   // -------------------- Tim Dream --------------------
 
@@ -137,8 +112,6 @@ export const members: BirthdayMember[] = [
   { id: "t1", name: "Afera Thalia", nickname: "Fera", team: "Trainee", birthday: "10-20", birthYear: 2012, photo: "/assets/foto/trainee/fera.jpg" },
 
   { id: "t2", name: "Astrella Virgiananda", nickname: "Virgi", team: "Trainee", birthday: "08-06", birthYear: 2010, photo: "/assets/foto/trainee/virgi.jpg" },
-
-  { id: "t3", name: "Aulia Riza", nickname: "Auwia", team: "Trainee", birthday: "07-14", birthYear: 2007, photo: "/assets/foto/trainee/auwia.jpg" },
 
   { id: "t4", name: "Bong Aprilli", nickname: "Rilly", team: "Trainee", birthday: "04-01", birthYear: 2010, photo: "/assets/foto/trainee/rilly.jpg" },
 
@@ -212,7 +185,6 @@ export function sortByUpcoming(list: BirthdayMember[], now: Date = new Date()): 
   );
 }
 
-/** Urutkan ID secara numerik (l1, l2, ..., l9, l10, l11) alih-alih leksikografis (l1, l10, l11, l2). */
 function compareIds(a: string, b: string): number {
   const ma = a.match(/^([a-zA-Z]+)(\d+)$/);
   const mb = b.match(/^([a-zA-Z]+)(\d+)$/);
@@ -224,7 +196,6 @@ function compareIds(a: string, b: string): number {
   return a.localeCompare(b);
 }
 
-/** Urutkan member berdasarkan tim (Love → Dream → Passion → Trainee) lalu ID. */
 export function sortByTeamAndId(list: BirthdayMember[]): BirthdayMember[] {
   const teamOrder: Record<Team, number> = {
     Love: 0,
@@ -239,7 +210,6 @@ export function sortByTeamAndId(list: BirthdayMember[]): BirthdayMember[] {
   });
 }
 
-// Urutan tab: Ulang Tahun Terdekat → Love → Dream → Passion → Trainee → Semua → Favorit
 export const TAB_KEYS = [
   "upcoming",
   "love",
@@ -261,12 +231,6 @@ export const TAB_LABELS: Record<TabKey, string> = {
   all: "Semua Member",
 };
 
-/**
- * Ambil member untuk sebuah tab.
- * - "upcoming": dibatasi 5 member dengan ulang tahun terdekat.
- * - Tab tim (love/dream/passion/trainee): tampilkan SEMUA member tim tersebut,
- *   diurutkan berdasarkan ulang tahun terdekat.
- */
 export function getMembersForTab(
   tab: TabKey,
   favoriteIds: string[] = [],
@@ -274,7 +238,6 @@ export function getMembersForTab(
 ): BirthdayMember[] {
   if (tab === "all") return sortByTeamAndId(members);
   if (tab === "upcoming") {
-    // Legacy flat list (dipakai jika ada konsumen lain). MemberTabs pakai getUpcomingGrouped.
     const teams = sortByUpcoming(members.filter((m) => m.team !== "Trainee"), now).slice(0, 5);
     const trainees = sortByUpcoming(members.filter((m) => m.team === "Trainee"), now).slice(0, 5);
     return [...teams, ...trainees];
@@ -292,11 +255,6 @@ export function getMembersForTab(
   return sortByUpcoming(members.filter((m) => m.team === team), now);
 }
 
-/**
- * Kelompokkan tab "Ulang Tahun Terdekat" menjadi dua seksi:
- * - Tim (Love / Dream / Passion) — 5 member terdekat.
- * - Trainee — 5 member terdekat.
- */
 export function getUpcomingGrouped(now: Date = new Date()): {
   teams: BirthdayMember[];
   trainees: BirthdayMember[];
