@@ -5,22 +5,20 @@ import {
   Clock,
   Cake,
   Users,
-  Ticket,
   ListMusic,
-  Armchair,
-  DoorOpen,
   AlertCircle,
   CalendarDays,
+  ExternalLink,
+  GraduationCap,
+  PlayCircle,
+  Theater,
 } from "lucide-react";
 import {
   fetchTheaterDetail,
   formatTheaterDate,
-  formatTheaterPrice,
-  formatTheaterPeriodDateTime,
   getTheaterTeamBadgeClass,
   resolveTheaterMemberPhoto,
   isTheaterShowPast,
-  shortenTicketLabel,
 } from "@/lib/theater";
 import { cn } from "@/lib/utils";
 
@@ -103,60 +101,6 @@ function MemberAvatarSkeleton() {
   );
 }
 
-// ─── Kartu periode penjualan tiket ──────────────────────────────────────────
-
-function SalesPeriodCard({
-  label,
-  startDate,
-  endDate,
-  salesMethod,
-  pricing,
-}: {
-  label: string;
-  startDate: string;
-  endDate: string;
-  salesMethod: string;
-  pricing: { label: string; price: number; quota: number; is_ofc_only?: boolean }[];
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-bold text-foreground sm:text-lg">
-          {shortenTicketLabel(label)}
-        </h3>
-      </div>
-
-      <p className="mt-1 text-xs text-muted-foreground">
-        {formatTheaterPeriodDateTime(startDate)} → {formatTheaterPeriodDateTime(endDate)}
-      </p>
-
-      {pricing.length > 0 && (
-        <>
-          <div className="my-3 border-t border-border" />
-          <div className="space-y-2">
-            {pricing.map((p, j) => (
-              <div key={j} className="flex items-center justify-between gap-2 text-sm">
-                <span className="truncate text-muted-foreground">
-                  {shortenTicketLabel(p.label)}
-                  {p.is_ofc_only && (
-                    <span className="ml-1 text-[10px] uppercase text-muted-foreground/70">
-                    </span>
-                  )}
-                </span>
-                <span className="flex-shrink-0 whitespace-nowrap">
-                  <span className="text-muted-foreground">
-                    {p.quota} slot
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function TheaterShowDetailPage() {
@@ -181,9 +125,9 @@ export default function TheaterShowDetailPage() {
         {/* Banner */}
         <div className="mx-auto aspect-[11/6] w-full max-w-2xl animate-pulse rounded-2xl bg-muted md:max-w-3xl" />
 
-        {/* Quick info grid — Harga, Tim, Waktu, Kuota */}
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+        {/* Quick info grid — Tanggal, Tim, Waktu */}
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
@@ -200,24 +144,6 @@ export default function TheaterShowDetailPage() {
                 <MemberAvatarSkeleton key={i} />
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Info penjualan tiket */}
-        <div className="mt-6 mb-4">
-          <div className="mb-3 h-6 w-52 animate-pulse rounded bg-muted" />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-5 w-16 animate-pulse rounded bg-muted" />
-                  <div className="h-4 w-14 animate-pulse rounded bg-muted" />
-                </div>
-                <div className="mt-2 h-3 w-44 animate-pulse rounded bg-muted" />
-                <div className="my-3 border-t border-border" />
-                <div className="h-4 w-full animate-pulse rounded bg-muted" />
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -255,11 +181,18 @@ export default function TheaterShowDetailPage() {
 
       {/* Banner hero — rasio tetap 11:6, ukuran dibatasi biar tidak raksasa di layar lebar */}
       <div className="relative mx-auto aspect-[11/6] w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-muted md:max-w-3xl">
-        <img
-          src={show.banner}
-          alt={show.title}
-          className="h-full w-full object-cover"
-        />
+        {show.banner ? (
+          <img
+            src={show.banner}
+            alt={show.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          // Gambar jadwal dibuat otomatis oleh API; sebelum statusnya `ready` tampilkan placeholder.
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/25 via-muted to-muted">
+            <Theater className="h-12 w-12 text-muted-foreground/40" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         <div className="absolute left-0 right-0 top-0 flex items-center gap-2 p-3">
@@ -285,37 +218,40 @@ export default function TheaterShowDetailPage() {
         </div>
       </div>
 
-      {/* Quick info grid — Harga sejajar dengan Tim / Waktu / Kuota */}
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Quick info grid — Tanggal / Tim / Waktu (harga & kuota tidak lagi disediakan API) */}
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <InfoStat
-          icon={Users}
-          label="Tim"
-          value={
-            <span
-              className={cn(
-                "inline-block rounded-full border px-2 py-0.5 text-xs",
-                getTheaterTeamBadgeClass(show.jkt48_member_type),
-              )}
-            >
-              Team {show.jkt48_member_type}
-            </span>
-          }
+          icon={CalendarDays}
+          label="Tanggal"
+          value={formatTheaterDate(show.date)}
         />
-        <InfoStat
-          icon={Clock}
-          label="Waktu"
-          value={`${show.start_time} – ${show.end_time}`}
-        />
-        <InfoStat
-          icon={Users}
-          label="Kuota"
-          value={`${show.total_quota} orang`}
-        />
-        <InfoStat
-          icon={Ticket}
-          label="Harga"
-          value={formatTheaterPrice(show.default_price)}
-        />
+        {show.jkt48_member_type && (
+          <InfoStat
+            icon={Users}
+            label="Tim"
+            value={
+              <span
+                className={cn(
+                  "inline-block rounded-full border px-2 py-0.5 text-xs",
+                  getTheaterTeamBadgeClass(show.jkt48_member_type),
+                )}
+              >
+                Team {show.jkt48_member_type}
+              </span>
+            }
+          />
+        )}
+        {show.start_time && (
+          <InfoStat
+            icon={Clock}
+            label="Waktu"
+            value={
+              show.end_time
+                ? `${show.start_time} – ${show.end_time}`
+                : `${show.start_time} WIB`
+            }
+          />
+        )}
       </div>
 
       {show.short_description && (
@@ -325,7 +261,7 @@ export default function TheaterShowDetailPage() {
       )}
 
       {/* Birthday spotlight */}
-      {show.is_birthday_show && show.birthday_members?.length > 0 && (
+      {show.is_birthday_show && show.birthday_members.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
             <Cake className="h-5 w-5 text-amber-500" /> Special Birthday Show
@@ -349,7 +285,7 @@ export default function TheaterShowDetailPage() {
       )}
 
       {/* Lineup */}
-      {show.lineup?.length > 0 && (
+      {show.lineup.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-bold text-foreground">
             Lineup Member
@@ -363,6 +299,7 @@ export default function TheaterShowDetailPage() {
                   photo={resolveTheaterMemberPhoto({
                     urlKey: m.url_key,
                     name: m.name,
+                    apiImg: m.img,
                   })}
                 />
               ))}
@@ -371,25 +308,95 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Sales period */}
-      {show.sales_period?.length > 0 && (
-        <section className="mt-6 mb-4">
+      {/* Graduation */}
+      {show.graduation_members.length > 0 && (
+        <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
-            <CalendarDays className="h-5 w-5 text-primary" /> Info Penjualan Tiket
+            <GraduationCap className="h-5 w-5 text-primary" /> Graduation
           </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {show.sales_period.map((period, i) => (
-              <SalesPeriodCard
-                key={`${period.label}-${i}`}
-                label={period.label}
-                startDate={period.start_date}
-                endDate={period.end_date}
-                salesMethod={period.sales_method}
-                pricing={period.pricing ?? []}
-              />
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 lg:gap-3">
+              {show.graduation_members.map((m) => (
+                <MemberAvatar
+                  key={m.member_id}
+                  name={m.name}
+                  photo={resolveTheaterMemberPhoto({
+                    name: m.name,
+                    apiImg: m.img,
+                  })}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Setlist */}
+      {show.set_list.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+            <ListMusic className="h-5 w-5 text-primary" /> Setlist
+          </h2>
+          <ol className="grid grid-cols-1 gap-x-6 gap-y-1 rounded-2xl border border-border bg-card p-4 text-sm sm:grid-cols-2">
+            {show.set_list.map((song, i) => (
+              <li key={`${song}-${i}`} className="flex gap-2 text-foreground">
+                <span className="w-6 flex-shrink-0 text-right text-muted-foreground">
+                  {i + 1}.
+                </span>
+                <span className="min-w-0">{song}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* Rekaman show (YouTube) */}
+      {show.recordings.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+            <PlayCircle className="h-5 w-5 text-primary" /> Rekaman
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {show.recordings.map((rec, i) => (
+              <a
+                key={`${rec.youtube_url}-${i}`}
+                href={rec.youtube_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-2.5 transition-colors hover:border-primary/40"
+              >
+                <div className="relative aspect-video w-28 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+                  {rec.thumbnail && (
+                    <img
+                      src={rec.thumbnail}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                  <PlayCircle className="absolute inset-0 m-auto h-7 w-7 text-white drop-shadow" />
+                </div>
+                <span className="line-clamp-2 min-w-0 text-sm font-medium text-foreground group-hover:text-primary">
+                  {rec.title}
+                </span>
+              </a>
             ))}
           </div>
         </section>
+      )}
+
+      {/* Tautan resmi — info tiket / pembelian mengikuti halaman resmi, bukan data API */}
+      {show.link && (
+        <div className="mt-6 mb-4">
+          <a
+            href={show.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <ExternalLink className="h-4 w-4" /> Info &amp; tiket resmi
+          </a>
+        </div>
       )}
     </div>
   );

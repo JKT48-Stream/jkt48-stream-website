@@ -535,7 +535,7 @@ The following variables are **never** placed in the frontend `.env`. They should
 | Variable | Description | Used in |
 |---|---|---|
 | `YOUTUBE_API_KEY` | YouTube Data API v3 key | Edge Function `youtube` |
-| Other third-party service credentials | Used for live status checks | IDN Live status-checking Edge Functions |
+| `JKT48CONNECT_API_KEY` (Supabase **secret**, format `jkc_…`) | JKT48Connect API key (live status & theater schedule) | Edge Functions `live`, `theater` — see [docs/JKT48CONNECT_API.md](docs/JKT48CONNECT_API.md) |
 
 ```bash
 # Example of setting a secret via the Supabase CLI

@@ -1,10 +1,14 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Theater, Clock, Cake, AlertCircle, Users } from "lucide-react";
 import {
-  fetchTheaterSchedule,
-  fetchTheaterDetail,
+  fetchTheaterPage,
+  fetchTheaterRemaining,
+  mergeTheaterShows,
+  readCachedSchedule,
+  writeCachedSchedule,
+  theaterPageCount,
   formatTheaterDate,
   getTheaterTeamBadgeClass,
   isTheaterShowPast,
@@ -29,14 +33,10 @@ function TheaterCardSkeleton() {
 
 // ─── Card ───────────────────────────────────────────────────────────────────
 
-function TheaterShowCard({
-  show,
-  birthdayNames,
-}: {
-  show: TheaterListItem;
-  birthdayNames?: string[] | null;
-}) {
+function TheaterShowCard({ show }: { show: TheaterListItem }) {
   const past = isTheaterShowPast(show.date);
+  // API terbaru membawa nama member birthday langsung di daftar jadwal (tidak perlu request detail per show).
+  const birthdayNames = show.birthday_members.map((m) => m.name);
 
   return (
     <Link
@@ -49,12 +49,19 @@ function TheaterShowCard({
     >
       {/* Banner — pakai aspect-video supaya proporsional dengan banner API */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
-        <img
-          src={show.banner}
-          alt={show.title}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {show.banner ? (
+          <img
+            src={show.banner}
+            alt={show.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          // Gambar jadwal dibuat otomatis oleh API; sebelum statusnya `ready` tampilkan placeholder.
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
+            <Theater className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+        )}
         {show.is_birthday_show && (
           <div className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-semibold text-amber-950 shadow-sm sm:left-2 sm:top-2 sm:px-2.5 sm:py-1 sm:text-[11px]">
             <Cake className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5" />
@@ -79,29 +86,34 @@ function TheaterShowCard({
           {formatTheaterDate(show.date)}
         </p>
 
-        <div className="flex items-center gap-1 text-xs text-muted-foreground sm:gap-1.5 sm:text-sm">
-          <Clock className="h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5" />
-          <span>
-            {show.start_time} – {show.end_time}
-          </span>
-        </div>
+        {show.start_time && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground sm:gap-1.5 sm:text-sm">
+            <Clock className="h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5" />
+            <span>
+              {show.start_time}
+              {show.end_time ? ` – ${show.end_time}` : " WIB"}
+            </span>
+          </div>
+        )}
 
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:mt-1">
-          <span
-            className={cn(
-              "rounded-full border px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-[11px]",
-              getTheaterTeamBadgeClass(show.jkt48_member_type),
-            )}
-          >
-            Team {show.jkt48_member_type}
-          </span>
-        </div>
+        {show.jkt48_member_type && (
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:mt-1">
+            <span
+              className={cn(
+                "rounded-full border px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-[11px]",
+                getTheaterTeamBadgeClass(show.jkt48_member_type),
+              )}
+            >
+              Team {show.jkt48_member_type}
+            </span>
+          </div>
+        )}
 
         {show.is_birthday_show && (
           <div className="mt-0.5 flex items-start gap-1 rounded-lg bg-amber-500/10 px-2 py-1 text-[10px] text-amber-500 sm:mt-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:text-xs">
             <Cake className="mt-0.5 h-3 w-3 flex-shrink-0 sm:h-3.5 sm:w-3.5" />
             <span className="line-clamp-2 leading-snug">
-              {birthdayNames && birthdayNames.length > 0
+              {birthdayNames.length > 0
                 ? `Birthday: ${birthdayNames.join(", ")}`
                 : "Special Birthday Show"}
             </span>
@@ -114,26 +126,14 @@ function TheaterShowCard({
 
 // ─── Section wrapper ────────────────────────────────────────────────────────
 
-function ScheduleSection({
-  title,
-  shows,
-  birthdayNamesByCode,
-}: {
-  title: string;
-  shows: TheaterListItem[];
-  birthdayNamesByCode: Map<string, string[]>;
-}) {
+function ScheduleSection({ title, shows }: { title: string; shows: TheaterListItem[] }) {
   if (shows.length === 0) return null;
   return (
     <section className="mb-8">
       <h2 className="mb-3 text-lg font-bold text-foreground">{title}</h2>
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {shows.map((show) => (
-          <TheaterShowCard
-            key={show.reference_code}
-            show={show}
-            birthdayNames={birthdayNamesByCode.get(show.reference_code)}
-          />
+          <TheaterShowCard key={show.reference_code} show={show} />
         ))}
       </div>
     </section>
@@ -143,15 +143,44 @@ function ScheduleSection({
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function TheaterSchedulePage() {
-  const {
-    data: schedule = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["theater-schedule"],
-    queryFn: fetchTheaterSchedule,
-    staleTime: 1000 * 60 * 5,
+  // Jadwal terakhir (dari kunjungan sebelumnya) langsung ditampilkan sambil data baru dimuat di latar.
+  const cached = useMemo(() => readCachedSchedule(), []);
+
+  // 1) Halaman pertama — kecil & cepat, langsung tampil begitu siap.
+  const first = useQuery({
+    queryKey: ["theater-schedule", "first"],
+    queryFn: () => fetchTheaterPage(1),
+    staleTime: 1000 * 60 * 10,
   });
+
+  // 2) Halaman berikutnya diambil paralel di latar setelah halaman pertama datang.
+  const rest = useQuery({
+    queryKey: ["theater-schedule", "rest", first.data?.total, first.data?.perpage],
+    queryFn: () => fetchTheaterRemaining(first.data!),
+    enabled: !!first.data && theaterPageCount(first.data) > 1,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const restDone = !first.data || theaterPageCount(first.data) <= 1 || rest.isSuccess || rest.isError;
+
+  const schedule = useMemo(() => {
+    if (!first.data) return cached?.data ?? [];
+    // Selama halaman lain belum selesai, pertahankan salinan lama agar daftar tidak "menyusut" sesaat.
+    return restDone
+      ? mergeTheaterShows(first.data.items, rest.data ?? [])
+      : mergeTheaterShows(cached?.data ?? [], first.data.items);
+  }, [first.data, rest.data, restDone, cached]);
+
+  // Simpan hasil lengkap untuk kunjungan berikutnya.
+  useEffect(() => {
+    // Hanya simpan bila semua halaman berhasil, supaya salinan lokal tidak menyusut karena halaman yang gagal.
+    const complete = !!first.data && (theaterPageCount(first.data) <= 1 || rest.isSuccess);
+    if (complete && schedule.length > 0) writeCachedSchedule(schedule);
+  }, [first.data, rest.isSuccess, schedule]);
+
+  const isLoading = first.isLoading && schedule.length === 0;
+  const isError = first.isError && schedule.length === 0;
+  const isLoadingMore = !!first.data && !restDone;
 
   const { upcoming, past } = useMemo(() => {
     const sorted = [...schedule].sort((a, b) => {
@@ -165,36 +194,6 @@ export default function TheaterSchedulePage() {
     };
   }, [schedule]);
 
-  // Ambil nama member yang berulang tahun — hanya untuk show birthday, karena
-  // field `lineup` pada list API tidak menyertakan info ini, harus dari detail.
-  const birthdayShows = useMemo(
-    () => schedule.filter((s) => s.is_birthday_show),
-    [schedule],
-  );
-
-  const birthdayDetailQueries = useQueries({
-    queries: birthdayShows.map((show) => ({
-      queryKey: ["theater-detail", show.reference_code],
-      queryFn: () => fetchTheaterDetail(show.reference_code),
-      staleTime: 1000 * 60 * 10,
-      enabled: birthdayShows.length > 0,
-    })),
-  });
-
-  const birthdayNamesByCode = useMemo(() => {
-    const map = new Map<string, string[]>();
-    birthdayShows.forEach((show, i) => {
-      const detail = birthdayDetailQueries[i]?.data;
-      if (detail?.birthday_members?.length) {
-        map.set(
-          show.reference_code,
-          detail.birthday_members.map((m) => m.name),
-        );
-      }
-    });
-    return map;
-  }, [birthdayShows, birthdayDetailQueries]);
-
   return (
     <div className="px-3 py-4 sm:px-6">
       <div className="mb-4 flex items-center gap-2">
@@ -207,6 +206,10 @@ export default function TheaterSchedulePage() {
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           Gagal memuat jadwal theater. Coba muat ulang halaman.
         </div>
+      )}
+
+      {isLoadingMore && (
+        <p className="mb-3 text-xs text-muted-foreground">Memuat jadwal lainnya…</p>
       )}
 
       {isLoading ? (
@@ -224,16 +227,8 @@ export default function TheaterSchedulePage() {
         </div>
       ) : (
         <>
-          <ScheduleSection
-            title="Akan Datang"
-            shows={upcoming}
-            birthdayNamesByCode={birthdayNamesByCode}
-          />
-          <ScheduleSection
-            title="Sudah Berlangsung"
-            shows={past}
-            birthdayNamesByCode={birthdayNamesByCode}
-          />
+          <ScheduleSection title="Akan Datang" shows={upcoming} />
+          <ScheduleSection title="Sudah Berlangsung" shows={past} />
         </>
       )}
     </div>

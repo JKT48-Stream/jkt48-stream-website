@@ -1,108 +1,119 @@
-// JKT48Connect Theater API proxy — Developer API v1 (https://jkt48connect.com/dev/docs)
+// JKT48Connect Theater API proxy — JKT48Connect API terbaru (https://api.jkt48connect.app/docs)
 //
-// Endpoint upstream `/api/v1/theater` butuh header `x-api-key` dan TIDAK
-// mengirim header CORS untuk request dari browser, jadi kalau dipanggil
-// langsung dari frontend akan selalu gagal dengan:
-//   "Access to fetch at '...' has been blocked by CORS policy"
-// Function ini jadi perantara: browser -> Supabase Edge Function (function
-// ini) -> jkt48connect.com (server-to-server, tanpa masalah CORS), lalu
-// hasilnya diteruskan balik ke browser dengan header CORS yang benar.
-// Bonus: API key `x-api-key` jadi tidak perlu ikut ter-bundle di kode
-// frontend (disimpan sebagai Supabase secret, bukan VITE_ env var).
+// Browser -> Supabase Edge Function (function ini) -> api.jkt48connect.app (server-to-server).
+// API key `jkc_...` disimpan sebagai SECRET Supabase (`JKT48CONNECT_API_KEY`), bukan VITE_ env var.
 //
-// Query params yang didukung:
-//   ?action=list                                -> GET /api/v1/theater
-//   ?action=detail&reference_code=SH9A7D         -> GET /api/v1/theater/{reference_code}
+// Query params:
+//   ?action=list&page=N                       -> GET /api/theater?page=N&perpage=20 (SATU halaman; frontend
+//                                                memintanya bertahap & paralel, lihat src/lib/theater.ts)
+//   ?action=detail&reference_code=<id show>   -> GET /api/theater/<id show>
+//
+// `reference_code` = ID show yang diberikan API pada daftar theater (field `code`/`id`). Dokumentasi:
+// "Gunakan ID yang diberikan API; slug dan ID antarplatform tidak selalu sama."
+//
+// Respons yang dikirim ke browser sudah dinormalisasi (lihat `shapeTheaterPage` / `shapeTheaterDetail`
+// di ../_shared/jkt48connect.ts) — tidak lagi dibungkus envelope { ok, data } seperti API lama.
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+import {
+  TtlCache,
+  UpstreamError,
+  corsHeaders,
+  errorResponse,
+  jsonResponse,
+  shapeTheaterDetail,
+  shapeTheaterPage,
+  upstreamGet,
+  validateApiKey,
+} from "../_shared/jkt48connect.ts";
+
+// Jadwal jarang berubah → cache panjang untuk menghemat kuota.
+const LIST_TTL = 15 * 60 * 1000;
+const DETAIL_TTL = 30 * 60 * 1000;
+// Data lama boleh disajikan (sambil diperbarui di latar) sampai 24 jam.
+const STALE = 24 * 60 * 60 * 1000;
+
+// Halaman kecil → tiap request upstream lebih ringan (sebelumnya 40 show/request sering melewati batas waktu).
+const PER_PAGE = 20;
+// Batas pengaman jumlah halaman yang boleh diminta frontend (= 100 show).
+const MAX_PAGES = 5;
+// Beri API waktu cukup: lebih baik lambat daripada gagal. Frontend menampilkan halaman 1 begitu siap.
+const PAGE_TIMEOUT_MS = 25_000;
+
+const ID_PARAM = /^[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}$/;
+
+const cache = new TtlCache();
+
+async function fetchPage(apiKey: string, page: number) {
+  const t0 = Date.now();
+  try {
+    const { body } = await upstreamGet("/api/theater", {
+      apiKey,
+      query: { page, perpage: PER_PAGE },
+      timeoutMs: PAGE_TIMEOUT_MS,
+      retries: 1,
+    });
+    return shapeTheaterPage(body);
+  } finally {
+    // Terlihat di Supabase → Edge Functions → theater → Logs; berguna untuk mengetahui seberapa lambat API upstream.
+    console.log(`[theater] page ${page} upstream ${Date.now() - t0}ms`);
+  }
+}
+
+// Menjaga pembaruan latar belakang (SWR) tetap berjalan setelah respons dikirim (tersedia di Supabase Edge Runtime).
+const waitUntil = (p: Promise<unknown>) => {
+  try {
+    (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime?.waitUntil?.(p);
+  } catch { /* abaikan */ }
 };
-
-const JKT48CONNECT_BASE_URL = "https://jkt48connect.com";
-const LIST_TTL = 5 * 60 * 1000;
-const DETAIL_TTL = 10 * 60 * 1000;
-
-// Cache in-memory sederhana per isolate (sama seperti supabase/functions/youtube)
-const cache: Record<string, { data: unknown; exp: number }> = {};
-const now = () => Date.now();
-function cacheGet(key: string) {
-  const hit = cache[key];
-  if (hit && hit.exp > now()) return hit.data;
-  if (hit) delete cache[key];
-  return null;
-}
-function cacheSet(key: string, data: unknown, ttl: number) {
-  cache[key] = { data, exp: now() + ttl };
-}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const json = (data: unknown, status = 200) =>
-    new Response(JSON.stringify(data), {
-      status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-
-  const apiKey = Deno.env.get("JKT48CONNECT_API_KEY");
-  if (!apiKey) {
-    return json(
-      {
-        error:
-          "JKT48CONNECT_API_KEY belum diatur sebagai secret di Supabase Edge Functions.",
-        code: "CONFIG_ERROR",
-      },
-      500,
-    );
+  const check = validateApiKey(Deno.env.get("JKT48CONNECT_API_KEY"));
+  if (!check.ok) {
+    return jsonResponse({ error: check.message, code: "CONFIG_ERROR" }, 500);
   }
+  const apiKey = check.key;
 
   try {
     const url = new URL(req.url);
     const action = url.searchParams.get("action") ?? "list";
-    const cacheKey = url.search;
 
-    const cached = cacheGet(cacheKey);
-    if (cached) return json(cached);
-
-    let upstreamPath = "/api/v1/theater";
-    let ttl = LIST_TTL;
+    if (action === "list") {
+      const page = Math.min(MAX_PAGES, Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10) || 1));
+      const { data } = await cache.getOrLoad(
+        `theater:page:${page}`,
+        LIST_TTL,
+        STALE,
+        () => fetchPage(apiKey, page),
+        { swr: true, waitUntil },
+      );
+      return jsonResponse({ ...data, max_pages: MAX_PAGES });
+    }
 
     if (action === "detail") {
       const referenceCode = url.searchParams.get("reference_code") ?? "";
       if (!referenceCode) {
-        return json({ error: "reference_code required", code: "BAD_REQUEST" }, 400);
+        return jsonResponse({ error: "reference_code required", code: "BAD_REQUEST" }, 400);
       }
-      upstreamPath = `/api/v1/theater/${encodeURIComponent(referenceCode)}`;
-      ttl = DETAIL_TTL;
-    } else if (action !== "list") {
-      return json({ error: "unknown action", code: "BAD_REQUEST" }, 400);
+      if (!ID_PARAM.test(referenceCode)) {
+        return jsonResponse({ error: "reference_code tidak valid", code: "BAD_REQUEST" }, 400);
+      }
+
+      const { data } = await cache.getOrLoad(`theater:detail:${referenceCode}`, DETAIL_TTL, STALE, async () => {
+        const { body } = await upstreamGet(`/api/theater/${encodeURIComponent(referenceCode)}`, { apiKey, timeoutMs: PAGE_TIMEOUT_MS, retries: 1 });
+        const detail = shapeTheaterDetail(body, referenceCode);
+        if (!detail) throw new UpstreamError(404, "Show tidak ditemukan.", "NOT_FOUND");
+        return detail;
+      }, { swr: true, waitUntil });
+      return jsonResponse(data);
     }
 
-    const upstream = await fetch(`${JKT48CONNECT_BASE_URL}${upstreamPath}`, {
-      headers: { "x-api-key": apiKey },
-    });
-
-    const body = await upstream.json().catch(() => null);
-
-    if (!upstream.ok || (body && typeof body === "object" && (body as any).ok === false)) {
-      const message =
-        (body && typeof body === "object" && (body as any).error) ||
-        `HTTP ${upstream.status}`;
-      const code =
-        (body && typeof body === "object" && (body as any).code) || "UPSTREAM_ERROR";
-      return json({ error: message, code }, upstream.status >= 400 ? upstream.status : 502);
-    }
-
-    cacheSet(cacheKey, body, ttl);
-    return json(body);
+    return jsonResponse({ error: "unknown action", code: "BAD_REQUEST" }, 400);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("theater fn error:", e);
-    return json({ error: msg, code: "UNKNOWN" }, 500);
+    if (!(e instanceof UpstreamError)) console.error("theater fn error:", e);
+    return errorResponse(e);
   }
 });

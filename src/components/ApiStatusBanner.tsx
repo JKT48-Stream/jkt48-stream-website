@@ -34,12 +34,13 @@ export function ApiStatusBanner() {
       const ev = (e as CustomEvent<ApiStatusEvent>).detail;
       if (!ev) return;
       if (ev.type === "ok") {
-        setErr(null);
+        // "ok" dari satu layanan hanya menghapus error milik layanan yang sama (YouTube vs JKT48Connect).
+        setErr((prev) => (prev && (prev.source ?? "youtube") !== (ev.source ?? "youtube") ? prev : null));
         setDismissed(false);
         return;
       }
       setErr((prev) => {
-        if (prev && prev.code === ev.code) return prev;
+        if (prev && prev.code === ev.code && prev.source === ev.source) return prev;
         return { ...ev, since: Date.now() };
       });
       setDismissed(false);
@@ -78,12 +79,14 @@ export function ApiStatusBanner() {
     }
   })();
 
+  const serviceName = err.source === "jkt48connect" ? "JKT48Connect" : "YouTube";
+
   const title = (() => {
     switch (err.code) {
-      case "QUOTA_EXCEEDED": return "Kuota YouTube API habis";
+      case "QUOTA_EXCEEDED": return `Kuota ${serviceName} API habis`;
       case "RATE_LIMITED":   return "Terlalu banyak permintaan";
       case "NETWORK":        return "Koneksi terputus";
-      case "UPSTREAM_ERROR": return "Server YouTube bermasalah";
+      case "UPSTREAM_ERROR": return `Server ${serviceName} bermasalah`;
       case "CONFIG_ERROR":   return "Konfigurasi API bermasalah";
       default:               return "Terjadi masalah";
     }
@@ -133,7 +136,9 @@ export function ApiStatusBanner() {
           </p>
           {err.code === "QUOTA_EXCEEDED" && (
             <p className="mt-1 text-[11px] text-muted-foreground/80">
-              Kuota YouTube di-reset setiap hari oleh Google. Banner ini akan hilang sendiri saat layanan kembali normal.
+              {err.source === "jkt48connect"
+                ? "Kuota JKT48Connect dihitung per bulan per API key (reset tanggal 1, 00.00 WIB). Banner ini akan hilang sendiri saat layanan kembali normal."
+                : "Kuota YouTube di-reset setiap hari oleh Google. Banner ini akan hilang sendiri saat layanan kembali normal."}
             </p>
           )}
         </div>

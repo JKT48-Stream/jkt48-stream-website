@@ -26,9 +26,21 @@ import MemberBirthdaysPage from "./pages/MemberBirthdaysPage";
 import TheaterSchedulePage from "./pages/TheaterSchedulePage";
 import TheaterShowDetailPage from "./pages/TheaterShowDetailPage";
 import NotFound from "./pages/NotFound";
+import { EdgeError } from "./lib/edge";
+
+// Error yang tidak akan sembuh dengan mengulang (kuota/rate limit, key salah, data tidak ada) tidak di-retry,
+// supaya tidak menghabiskan kuota API key JKT48Connect.
+const NO_RETRY_CODES = ["QUOTA_EXCEEDED", "RATE_LIMITED", "CONFIG_ERROR", "NOT_FOUND", "BAD_REQUEST"];
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error) =>
+        failureCount < 2 && !(error instanceof EdgeError && NO_RETRY_CODES.includes(error.code)),
+    },
+  },
 });
 
 const App = () => (

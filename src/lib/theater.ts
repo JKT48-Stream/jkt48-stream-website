@@ -1,163 +1,179 @@
 /**
- * Client untuk endpoint Theater JKT48Connect Developer API v1 —
- * https://jkt48connect.com/dev/docs (bagian "Theater" -> Jadwal theater / Detail show).
+ * Client untuk endpoint Theater JKT48Connect API (generasi terbaru) —
+ * https://api.jkt48connect.app/docs/guide/jadwal-dan-theater
  *
- * PENTING soal transport: endpoint upstream `/api/v1/theater` butuh header
- * `x-api-key` dan tidak mengirim header CORS untuk request langsung dari
- * browser (selalu gagal dengan "blocked by CORS policy" kalau di-fetch dari
- * frontend). Karena itu, permintaan ke API ini TIDAK dipanggil langsung dari
- * sini — melainkan lewat Supabase Edge Function `theater`
- * (`supabase/functions/theater/index.ts`), yang meneruskan request ke
- * jkt48connect.com secara server-to-server lalu mengembalikan hasilnya
- * dengan header CORS yang benar. Pola ini sama seperti yang dipakai
- * `src/lib/youtube.ts` untuk YouTube Data API.
+ *   daftar jadwal : GET /api/theater?page=&perpage=   -> { theater: [...], page, perpage, total_count }
+ *   detail show   : GET /api/theater/:id              -> { shows: [ {...} ] }
  *
- * API key (`jk48c_...`) disimpan sebagai SECRET Supabase bernama
- * `JKT48CONNECT_API_KEY` (bukan VITE_ env var), supaya tidak ikut ter-bundle
- * ke kode browser. Lihat instruksi setup di bagian bawah file ini.
+ * ── Apa yang berubah dari API lama ───────────────────────────────────────────────────────────────
+ *   lama : https://jkt48connect.com/api/v1/theater/{reference_code}   header `x-api-key: jk48c_…`
+ *   baru : https://api.jkt48connect.app/api/theater/{id}              header `X-API-Key: jkc_…`
+ *
+ * Field yang TIDAK lagi tersedia dari API: harga default, kuota, periode & tier penjualan tiket
+ * (`sales_period`), jam selesai. Dokumentasi mengarahkan info pembelian ke tautan resmi pada respons
+ * (`link` di sini), jadi UI menampilkan tombol "Info & tiket resmi" menggantikan kartu periode penjualan.
+ * Field BARU yang dimanfaatkan: setlist, member graduation, rekaman YouTube, foto lineup dari API.
+ *
+ * ── Transport ────────────────────────────────────────────────────────────────────────────────────
+ * API key `jkc_…` tidak boleh berada di browser, jadi request dilakukan oleh Supabase Edge Function
+ * `theater` (`supabase/functions/theater/index.ts`) yang mengembalikan data yang SUDAH dinormalisasi ke
+ * bentuk di bawah ini (lihat `shapeTheaterPage` / `shapeTheaterDetail` di `supabase/functions/_shared`).
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import { callEdge } from "@/lib/edge";
 import { MEMBERS, getMemberPhotoUrl } from "@/data/members";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-/** Anggota lineup pada list & detail show — TANPA foto dari API. */
+/** Anggota lineup pada list & detail show. `img` = foto dari API (bisa kosong). */
 export interface TheaterLineupMember {
   id: string | number;
   name: string;
   url_key: string;
+  img?: string;
 }
 
-/** Anggota pada `jkt48_member` / `birthday_members` di detail show — DENGAN foto dari API. */
+/** Anggota pada `birthday_members` / `graduation_members` di show. */
 export interface TheaterApiMember {
   name: string;
   type: string;
-  member_id: number;
+  member_id: number | string;
   img: string;
 }
 
-export interface TheaterPricingTier {
-  label: string;
-  price: number;
-  quota: number;
-  is_ofc_only?: boolean;
+/** Rekaman show yang sudah diunggah ke YouTube (unlisted). */
+export interface TheaterRecording {
+  title: string;
+  youtube_url: string;
+  thumbnail: string;
 }
 
-export interface TheaterSalesPeriod {
-  label: string;
-  start_date: string;
-  end_date: string;
-  sales_method: string;
-  pricing: TheaterPricingTier[];
-}
-
-/** Satu entri pada GET /api/v1/theater (daftar jadwal). */
+/** Satu entri pada daftar jadwal theater. */
 export interface TheaterListItem {
+  /** ID show dari API — dipakai untuk route `/theater/:referenceCode` dan `GET /api/theater/:id`. */
+  reference_code: string;
+  /** Tautan halaman resmi show (info tiket), "" bila tidak ada. */
   link: string;
-  schedule_id: number;
+  /** YYYY-MM-DD (WIB). */
   date: string;
+  /** HH:mm (WIB), "" bila API tidak memberi jam. */
   start_time: string;
+  /** HH:mm (WIB), "" bila API tidak memberi jam selesai. */
   end_time: string;
-  type: string;
-  status: boolean;
   title: string;
+  /** LOVE / DREAM / PASSION / TRAINEE, "" bila tidak ada. */
   jkt48_member_type: string;
-  reference_code: string;
   is_birthday_show: boolean;
+  /** "" bila gambar jadwal belum selesai dirender API (status bukan `ready`). */
   banner: string;
   poster: string;
   short_description: string | null;
   lineup: TheaterLineupMember[];
-}
-
-/** Response lengkap GET /api/v1/theater/{reference_code} (detail satu show). */
-export interface TheaterDetail {
-  success?: boolean;
-  reference_code: string;
-  banner: string;
-  poster: string;
-  title: string;
-  date: string;
-  start_time: string;
-  end_time: string;
-  status: boolean;
-  jkt48_member_type: string;
-  default_price: number;
-  total_quota: number;
-  max_purchase: number;
-  set_list: string;
-  seating_layout: string;
-  reception_start_time: string | null;
-  reception_end_time: string | null;
-  is_birthday_show: boolean;
-  short_description: string | null;
-  content_body: string | null;
   birthday_members: TheaterApiMember[];
-  lineup: TheaterLineupMember[];
-  jkt48_member: TheaterApiMember[];
-  sales_period: TheaterSalesPeriod[];
 }
 
-// ─── Transport: panggil lewat Supabase Edge Function `theater` ────────────
-
-async function callTheaterFn<T>(query: string): Promise<T> {
-  const { data, error } = await supabase.functions.invoke(`theater?${query}`, {
-    method: "GET",
-  });
-
-  if (error) {
-    let payload: any = null;
-    try {
-      const ctx: any = (error as any)?.context;
-      if (ctx && typeof ctx.json === "function") payload = await ctx.json();
-      else if (ctx && typeof ctx.text === "function") {
-        const t = await ctx.text();
-        try {
-          payload = JSON.parse(t);
-        } catch {
-          payload = { error: t };
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-    throw new Error(
-      payload?.error ?? "Gagal menghubungi layanan jadwal theater."
-    );
-  }
-
-  if (data && typeof data === "object" && "error" in data) {
-    throw new Error((data as { error: string }).error);
-  }
-
-  // Envelope upstream JKT48Connect: { ok, data, cached_at, cache_ttl, tier }
-  if (data && typeof data === "object" && "data" in data) {
-    return (data as { data: T }).data;
-  }
-  return data as T;
+/** Detail lengkap satu show. */
+export interface TheaterDetail extends TheaterListItem {
+  /** Judul lagu pada setlist (kosong bila belum diumumkan). */
+  set_list: string[];
+  graduation_members: TheaterApiMember[];
+  recordings: TheaterRecording[];
 }
 
 // ─── Fetchers ───────────────────────────────────────────────────────────────
 
+/** Satu halaman daftar jadwal (`GET /api/theater?page=N`). */
+export interface TheaterSchedulePage {
+  items: TheaterListItem[];
+  page: number;
+  perpage: number;
+  total: number;
+  /** Batas halaman yang diizinkan Edge Function. */
+  max_pages?: number;
+}
+
 /**
- * Ambil seluruh jadwal show teater JKT48 (lampau & akan datang).
+ * Ambil SATU halaman jadwal. Daftar tidak lagi diminta sekaligus: request besar sering melewati batas waktu
+ * API, jadi halaman 1 diambil dulu (cepat tampil), lalu halaman lain lewat `fetchTheaterRemaining`.
  */
-export async function fetchTheaterSchedule(): Promise<TheaterListItem[]> {
-  const data = await callTheaterFn<TheaterListItem[]>("action=list");
-  return Array.isArray(data) ? data : [];
+export async function fetchTheaterPage(page = 1): Promise<TheaterSchedulePage> {
+  const data = await callEdge<TheaterSchedulePage>(
+    "theater",
+    { action: "list", page: String(page) },
+    "Gagal menghubungi layanan jadwal theater.",
+  );
+  return {
+    items: Array.isArray(data?.items) ? data.items : [],
+    page: data?.page ?? page,
+    perpage: data?.perpage ?? 0,
+    total: data?.total ?? 0,
+    max_pages: data?.max_pages,
+  };
+}
+
+/** Jumlah halaman yang perlu diambil berdasarkan halaman 1 (dibatasi `max_pages` dari server). */
+export function theaterPageCount(first: TheaterSchedulePage): number {
+  const size = first.perpage || first.items.length;
+  if (size <= 0 || first.total <= first.items.length) return 1;
+  return Math.max(1, Math.min(first.max_pages ?? 5, Math.ceil(first.total / size)));
+}
+
+/**
+ * Ambil halaman 2..N SECARA PARALEL. Halaman yang gagal dilewati (tidak menggagalkan yang lain), sehingga
+ * daftar tetap tampil walau sebagian halaman lambat/error.
+ */
+export async function fetchTheaterRemaining(first: TheaterSchedulePage): Promise<TheaterListItem[]> {
+  const count = theaterPageCount(first);
+  const results = await Promise.allSettled(
+    Array.from({ length: count - 1 }, (_, i) => fetchTheaterPage(i + 2)),
+  );
+  return results.flatMap((r) => (r.status === "fulfilled" ? r.value.items : []));
+}
+
+/** Gabungkan beberapa daftar; entri yang muncul belakangan menimpa yang lama (berdasarkan reference_code). */
+export function mergeTheaterShows(...lists: TheaterListItem[][]): TheaterListItem[] {
+  const map = new Map<string, TheaterListItem>();
+  for (const list of lists) for (const s of list) map.set(s.reference_code, s);
+  return [...map.values()];
+}
+
+// ─── Cache lokal jadwal (tampil instan, diperbarui di latar) ────────────────
+
+const SCHEDULE_CACHE_KEY = "jkt48:theater-schedule:v1";
+/** Salinan lokal lebih tua dari ini tidak dipakai lagi. */
+const SCHEDULE_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 3;
+
+export function readCachedSchedule(): { data: TheaterListItem[]; at: number } | null {
+  try {
+    const raw = localStorage.getItem(SCHEDULE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { data?: TheaterListItem[]; at?: number };
+    if (!Array.isArray(parsed.data) || typeof parsed.at !== "number") return null;
+    if (Date.now() - parsed.at > SCHEDULE_CACHE_MAX_AGE) return null;
+    return { data: parsed.data, at: parsed.at };
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedSchedule(data: TheaterListItem[]) {
+  try {
+    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify({ data, at: Date.now() }));
+  } catch {
+    /* penyimpanan penuh / diblokir — abaikan */
+  }
 }
 
 /**
  * Ambil detail lengkap satu show teater berdasarkan `reference_code`-nya
  * (didapat dari hasil `fetchTheaterSchedule`).
  */
-export async function fetchTheaterDetail(
-  referenceCode: string
-): Promise<TheaterDetail | null> {
+export async function fetchTheaterDetail(referenceCode: string): Promise<TheaterDetail | null> {
   if (!referenceCode) return null;
-  const data = await callTheaterFn<TheaterDetail>(
-    `action=detail&reference_code=${encodeURIComponent(referenceCode)}`
+  const data = await callEdge<TheaterDetail | null>(
+    "theater",
+    { action: "detail", reference_code: referenceCode },
+    "Gagal menghubungi layanan jadwal theater.",
   );
   return data ?? null;
 }
@@ -324,8 +340,8 @@ function normalizeUrlKey(key: string): string {
  * karena field `lineup` pada API Theater tidak menyertakan foto sama sekali.
  * Urutan pencocokan: url_key -> foto lokal (mapping langsung, lihat
  * `LOCAL_PHOTO_BY_URL_KEY`, berlaku untuk semua tim) -> url_key (exact ke
- * `MEMBERS.id`) -> url_key (fuzzy) -> nama (exact) -> nama (fuzzy) -> foto
- * dari API (jika ada) -> avatar generatif (fallback terakhir, sama seperti
+ * `MEMBERS.id`) -> url_key (fuzzy) -> nama (exact) -> nama (fuzzy) -> nama
+ * panggilan -> foto dari API (jika ada) -> avatar generatif (fallback terakhir, sama seperti
  * dipakai di Member Birthdays).
  *
  * Pencocokan "fuzzy" diperlukan karena nama/slug dari API kadang tidak
@@ -343,7 +359,11 @@ export function resolveTheaterMemberPhoto(opts: {
   if (urlKey) {
     const normalizedUrlKey = normalizeUrlKey(urlKey);
 
-    const localPhoto = LOCAL_PHOTO_BY_URL_KEY[normalizedUrlKey];
+    // `url_key` API terbaru kadang berformat "jkt48_gracie" (seperti username IDN/Showroom) — coba juga
+    // tanpa prefix "jkt48_" supaya tetap cocok dengan mapping nickname di atas.
+    const localPhoto =
+      LOCAL_PHOTO_BY_URL_KEY[normalizedUrlKey] ??
+      LOCAL_PHOTO_BY_URL_KEY[normalizedUrlKey.replace(/^jkt48_/, "")];
     if (localPhoto) return localPhoto;
 
     const slugId = slugToMemberId(urlKey);
@@ -363,20 +383,15 @@ export function resolveTheaterMemberPhoto(opts: {
   const byNameFuzzy = MEMBERS.find((m) => namesFuzzyMatch(m.name, name));
   if (byNameFuzzy) return getMemberPhotoUrl(byNameFuzzy);
 
+  // Nama panggilan (kata pertama) → foto lokal, mis. API mengirim nama "Gracie" saja.
+  const firstWord = normalizeUrlKey(name).split("_")[0];
+  const byNickname = firstWord ? LOCAL_PHOTO_BY_URL_KEY[firstWord] : undefined;
+  if (byNickname) return byNickname;
+
   if (apiImg) return apiImg;
 
   const seed = encodeURIComponent(name);
   return `https://api.dicebear.com/7.x/thumbs/svg?seed=${seed}&backgroundColor=ffdfbf,ffd5dc,c0aede,d1d4f9,b6e3f4`;
-}
-
-/**
- * Persingkat label tier tiket, mis. "General Admission" -> "General".
- * Cuma membuang akhiran kata "Admission" (kalau ada) supaya badge/heading
- * tidak kepanjangan, sisanya label API dipakai apa adanya.
- */
-export function shortenTicketLabel(label: string): string {
-  const shortened = label.replace(/\s*admission\s*$/i, "").trim();
-  return shortened || label;
 }
 
 // ─── Formatting helpers ─────────────────────────────────────────────────────
@@ -390,46 +405,6 @@ export function formatTheaterDate(dateStr: string): string {
       month: "long",
       year: "numeric",
     }).format(d);
-  } catch {
-    return dateStr;
-  }
-}
-
-export function formatTheaterPrice(price: number): string {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
-/**
- * Format tanggal-jam singkat untuk kartu periode penjualan tiket,
- * mis. "01 Agu, 21.30" — dipakai untuk rentang "start_date → end_date"
- * pada `sales_period`. Selalu diformat dalam zona waktu Asia/Jakarta
- * (WIB) supaya tampilannya konsisten untuk semua user, apa pun timezone
- * device mereka.
- */
-export function formatTheaterPeriodDateTime(dateStr: string): string {
-  try {
-    const parts = new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Jakarta",
-    }).formatToParts(new Date(dateStr));
-
-    const get = (type: string) =>
-      parts.find((p) => p.type === type)?.value ?? "";
-
-    const day = get("day");
-    const month = get("month").replace(/\.$/, "");
-    const hour = get("hour");
-    const minute = get("minute");
-
-    return `${day} ${month}, ${hour}.${minute}`;
   } catch {
     return dateStr;
   }

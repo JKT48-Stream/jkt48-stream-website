@@ -1,16 +1,20 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type ApiStatusSource = "youtube" | "jkt48connect";
+
 export type ApiStatusEvent =
-  | { type: "ok" }
+  | { type: "ok"; source?: ApiStatusSource }
   | {
       type: "error";
+      /** Layanan penyebab error. Kosong = YouTube (perilaku lama). */
+      source?: ApiStatusSource;
       code: "QUOTA_EXCEEDED" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFIG_ERROR" | "NETWORK" | "UNKNOWN";
       message: string;
       resetAt?: number;
       retryAfterSec?: number;
     };
 
-function emitApiStatus(ev: ApiStatusEvent) {
+export function emitApiStatus(ev: ApiStatusEvent) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<ApiStatusEvent>("api-status", { detail: ev }));
 }

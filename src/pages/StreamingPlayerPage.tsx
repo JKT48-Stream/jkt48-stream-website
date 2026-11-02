@@ -12,6 +12,7 @@ import {
   fetchJKT48ConnectLive,
   indexJKT48ConnectLive,
   buildMemberLiveStatus,
+  resolveMemberLiveStatus,
 } from "@/lib/jkt48connect";
 
 // Synthetic Member object untuk JKT48 Official agar kompatibel dengan StreamingPlayerPage
@@ -874,14 +875,25 @@ const OtherLiveMembersPanel = ({ currentMemberId }: { currentMemberId: string })
 
         const found: Array<{ member: Member; platform: Platform; streamUrl: string; streamQualities: UrlQuality[]; liveUrl: string }> = [];
 
-        for (const member of MEMBERS) {
-          if (member.id === currentMemberId) continue;
-          const status = buildMemberLiveStatus(liveIndex, {
-            idnUsername: member.idnUsername,
-            showroomKey: member.showroomKey,
-            showroomRoomId: member.showroomRoomId,
-          });
+        // Hanya member yang benar-benar live. IDN umumnya belum punya URL stream di now_live, jadi sumbernya
+        // diambil lewat /api/watch — dibatasi 6 member supaya tidak memboroskan kuota API key.
+        const liveNow = MEMBERS.filter((m) => m.id !== currentMemberId)
+          .map((member) => {
+            const ids = { idnUsername: member.idnUsername, showroomKey: member.showroomKey, showroomRoomId: member.showroomRoomId };
+            return { member, ids, status: buildMemberLiveStatus(liveIndex, ids) };
+          })
+          .filter((c) => c.status.idn === "live" || c.status.showroom === "live")
+          .slice(0, 6);
 
+        const resolved = await Promise.all(
+          liveNow.map(async (c) => ({
+            member: c.member,
+            status: await resolveMemberLiveStatus(liveIndex, c.ids),
+          })),
+        );
+        if (cancelled) return;
+
+        for (const { member, status } of resolved) {
           if (status.idn === "live" && status.idnStreamUrl) {
             found.push({ member, platform: "idn", streamUrl: status.idnStreamUrl, streamQualities: [], liveUrl: status.idnUrl ?? `https://www.idn.app/${member.idnUsername}` });
           } else if (status.showroom === "live" && status.showroomStreamUrl) {
@@ -1045,7 +1057,7 @@ export default function StreamingPlayerPage() {
 
     try {
       const liveEntries = await fetchJKT48ConnectLive();
-      const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
+      const fresh = await resolveMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
         idnUsername: member.idnUsername,
         showroomKey: member.showroomKey,
         showroomRoomId: member.showroomRoomId,
@@ -1080,7 +1092,7 @@ export default function StreamingPlayerPage() {
       try {
         const liveEntries = await fetchJKT48ConnectLive();
         if (cancelled) return;
-        const fresh = buildMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
+        const fresh = await resolveMemberLiveStatus(indexJKT48ConnectLive(liveEntries), {
           idnUsername: member.idnUsername,
           showroomKey: member.showroomKey,
           showroomRoomId: member.showroomRoomId,
