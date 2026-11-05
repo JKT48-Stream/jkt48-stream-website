@@ -11,7 +11,7 @@ import {
   removeFromSearchHistory,
   clearSearchHistory,
   TRENDING_SUGGESTIONS,
-} from "@/pages/SearchPage";
+} from "@/lib/searchHistory";
 
 type Props = {
   onToggleSidebar: () => void;
@@ -41,6 +41,20 @@ export function Navbar({ onToggleSidebar }: Props) {
   }, []);
 
   const loadHistory = () => setHistory(getSearchHistory());
+
+  // Tekan "/" untuk langsung fokus ke kolom cari
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+      if (e.key === "/" && !typing) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // Fetch suggestions saat mengetik
   useEffect(() => {
@@ -147,11 +161,14 @@ export function Navbar({ onToggleSidebar }: Props) {
     <>
       <header
         className={cn(
-          "sticky top-0 z-40 flex h-[var(--header-h)] items-center gap-2 border-b border-border bg-background/95 px-2 backdrop-blur sm:px-4",
+          "glass sticky top-0 z-40 flex h-[var(--header-h)] items-center gap-2 !border-x-0 !border-t-0 px-2 sm:px-4",
           "transition-all duration-300",
           mounted ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0",
         )}
       >
+        {/* Progres scroll */}
+        <span className="scroll-progress" aria-hidden="true" />
+
         {/* Logo + Hamburger */}
         <div className="flex items-center gap-1 sm:gap-2 animate-fade-in-left">
           <Button
@@ -163,11 +180,14 @@ export function Navbar({ onToggleSidebar }: Props) {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <Link to="/" className="px-1 group">
-            <span className="text-lg font-bold tracking-tight sm:text-xl">
-              <span className="inline-block transition-colors duration-200 group-hover:text-foreground/80">JKT</span>
-              <span className="text-primary inline-block transition-transform duration-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]">48</span>
-              <span className="inline-block transition-colors duration-200 group-hover:text-foreground/80"> Stream</span>
+          <Link to="/" className="group flex items-center gap-2.5 px-1" aria-label="JKT48 Stream — Beranda">
+            <span className="relative">
+              <span className="absolute -inset-1 rounded-2xl bg-neon opacity-40 blur-md transition-opacity duration-300 group-hover:opacity-80" aria-hidden="true" />
+              <img src="/logo-192.png" alt="" width="32" height="32" decoding="async" className="relative h-8 w-8 rounded-xl object-cover ring-1 ring-white/20 transition-transform duration-300 group-hover:rotate-[-6deg] group-hover:scale-110" />
+            </span>
+            <span className="navbar-brand text-xl font-extrabold tracking-tight">
+              JKT<span className="text-neon">48</span>
+              <span className="hidden text-foreground/60 sm:inline"> Stream</span>
             </span>
           </Link>
         </div>
@@ -178,14 +198,14 @@ export function Navbar({ onToggleSidebar }: Props) {
           className="relative mx-auto hidden w-full max-w-2xl flex-1 items-center sm:flex animate-fade-in"
           style={{ animationDelay: "80ms" }}
         >
-          <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="flex w-full">
+          <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="relative flex w-full">
             <div
               className={cn(
-                "flex flex-1 items-center rounded-l-full border border-border bg-surface-2 px-4",
-                "transition-all duration-250",
+                "flex flex-1 items-center rounded-full border border-border bg-surface-2/70 pl-4 pr-12 backdrop-blur-md",
+                "transition-all duration-300",
                 focused
-                  ? "border-ring shadow-[0_0_0_1px_hsl(var(--ring))] bg-background"
-                  : "hover:border-border/80",
+                  ? "border-primary/70 bg-background/90 shadow-[0_0_0_3px_hsl(var(--primary)/0.16),0_0_32px_-6px_hsl(var(--primary-glow)/0.45)]"
+                  : "hover:border-primary/40",
               )}
             >
               <Search className={cn(
@@ -203,10 +223,13 @@ export function Navbar({ onToggleSidebar }: Props) {
                   setShowSug(true);
                 }}
                 onBlur={() => setFocused(false)}
-                placeholder="Cari video JKT48..."
+                placeholder="Cari video, member, atau lagu…"
                 className="h-10 w-full bg-transparent text-sm outline-none placeholder:transition-colors placeholder:duration-200"
                 autoComplete="off"
               />
+              {!q && !focused && (
+                <kbd className="tech-label mr-1 hidden rounded-md border border-border bg-background/60 px-1.5 py-0.5 text-muted-foreground md:inline-block" aria-hidden="true">/</kbd>
+              )}
               {q && (
                 <button
                   type="button"
@@ -222,18 +245,18 @@ export function Navbar({ onToggleSidebar }: Props) {
             <button
               type="submit"
               className={cn(
-                "flex h-10 items-center justify-center rounded-r-full border border-l-0 border-border bg-surface-hover px-5",
-                "transition-all duration-200 hover:bg-muted hover:scale-[1.02] active:scale-95",
+                "absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-neon text-primary-foreground shadow-neon",
+                "transition-transform duration-200 hover:scale-110 active:scale-95",
               )}
               aria-label="Cari"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4" />
             </button>
           </form>
 
           {/* ── Dropdown Desktop ── */}
           {dropdownVisible && (
-            <div className="absolute left-0 right-12 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-popover py-2 shadow-elevated animate-fade-in-down">
+            <div className="glass absolute left-0 right-12 top-12 z-50 overflow-hidden rounded-3xl !bg-popover/90 py-2 shadow-elevated animate-fade-in-down">
 
               {/* Suggestions saat mengetik */}
               {showSuggestionsInDropdown && suggestions.map((s, i) => (
@@ -266,7 +289,7 @@ export function Navbar({ onToggleSidebar }: Props) {
               {showHistoryInDropdown && (
                 <>
                   <div className="flex items-center justify-between px-4 pb-1 pt-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Riwayat Pencarian
                     </span>
                     <button
@@ -316,7 +339,7 @@ export function Navbar({ onToggleSidebar }: Props) {
               {showTrendingInDropdown && (
                 <>
                   <div className="px-4 pb-1 pt-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Trending
                     </span>
                   </div>
@@ -366,6 +389,12 @@ export function Navbar({ onToggleSidebar }: Props) {
           className="ml-auto flex items-center gap-1 sm:gap-2 animate-fade-in-right"
           style={{ animationDelay: "120ms" }}
         >
+          <Link
+            to="/member-live"
+            className="btn-neon mr-1 hidden !gap-2 !px-3.5 !py-0 h-9 text-xs sm:inline-flex"
+          >
+            <span className="radar text-white" /> Live
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -388,7 +417,7 @@ export function Navbar({ onToggleSidebar }: Props) {
             aria-label="Akun"
             onClick={() => setShowAccountModal(true)}
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-xs font-bold text-primary-foreground transition-shadow duration-200 hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-hover text-xs font-bold text-foreground ring-1 ring-border transition-colors duration-200 hover:ring-primary/60">
               <User className="h-4 w-4" />
             </span>
           </Button>
@@ -399,7 +428,8 @@ export function Navbar({ onToggleSidebar }: Props) {
       {showAccountModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowAccountModal(false)} />
-          <div ref={modalRef} className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-background shadow-2xl animate-scale-in-bounce">
+          <div ref={modalRef} className="glass hud relative w-full max-w-sm overflow-hidden rounded-3xl !bg-popover/90 shadow-2xl animate-scale-in-bounce">
+            <span className="hud-c tl" /><span className="hud-c tr" /><span className="hud-c bl" /><span className="hud-c br" />
             <div className="relative flex flex-col items-center bg-gradient-to-br from-primary/20 via-primary/10 to-transparent px-6 pb-6 pt-8">
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow shadow-lg animate-float">
                 <User className="h-9 w-9 text-white" />
@@ -425,7 +455,7 @@ export function Navbar({ onToggleSidebar }: Props) {
               </div>
               <button
                 onClick={() => setShowAccountModal(false)}
-                className="mt-4 w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground animate-fade-in-up anim-delay-300 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] active:opacity-80"
+                className="btn-neon mt-4 w-full !justify-center !rounded-xl !py-2.5 animate-fade-in-up anim-delay-300"
               >
                 Mengerti
               </button>

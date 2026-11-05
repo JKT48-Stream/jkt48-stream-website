@@ -312,7 +312,7 @@ const OfficialCard = ({
             }}
           >
             <img
-              src="/assets/icon-jkt.jpg"
+              src="/assets/icon-jkt.webp"
               alt="JKT48"
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -441,7 +441,7 @@ const MemberCard = ({ member, status, onWatch, onOpenProfile, isLoadingStream }:
     <div className="relative flex flex-col rounded-2xl overflow-hidden border transition-all duration-500" style={{ background: "hsl(var(--card))", borderColor: isAnyLive ? "hsl(0,70%,50%,0.45)" : "hsl(var(--border))", boxShadow: isAnyLive ? "0 0 32px hsl(0,70%,40%,0.14)" : "none" }}>
       {isAnyLive && <div className="absolute top-0 left-0 right-0 h-[2px] z-10" style={{ background: "linear-gradient(90deg,transparent 0%,hsl(0,80%,55%) 50%,transparent 100%)" }} />}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
-        <img src={status.liveImg || getMemberPhotoUrl(member)} alt={member.name} className="w-full h-full object-cover object-top" loading="lazy" onError={(e) => { const t = e.target as HTMLImageElement; if (t.src !== getMemberPhotoUrl(member)) { t.src = getMemberPhotoUrl(member); } else { t.src = "/logo.jpg"; } }} />
+        <img src={status.liveImg || getMemberPhotoUrl(member)} alt={member.name} className="w-full h-full object-cover object-top" loading="lazy" onError={(e) => { const t = e.target as HTMLImageElement; if (t.src !== getMemberPhotoUrl(member)) { t.src = getMemberPhotoUrl(member); } else { t.src = "/logo.png"; } }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom,transparent 50%,hsl(var(--card)) 100%)" }} />
         <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeClass}`}>{member.team}</div>
         {isAnyLive && <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-red-600 shadow-lg"><span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" /><span className="text-white text-[9px] font-black tracking-widest">LIVE</span></div>}

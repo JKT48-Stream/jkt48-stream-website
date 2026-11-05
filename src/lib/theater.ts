@@ -239,7 +239,7 @@ function namesFuzzyMatch(nameA: string, nameB: string): boolean {
 
 /**
  * Mapping LANGSUNG `url_key` (dari API JKT48Connect) -> path foto lokal
- * (public/assets/foto/<team>/<file>.jpg), untuk SEMUA tim (Love, Dream,
+ * (public/assets/foto/<team>/<file>.webp), untuk SEMUA tim (Love, Dream,
  * Passion, Trainee).
  *
  * Alasan mapping ini perlu terpisah dari `MEMBERS`: `url_key` yang dikirim
@@ -263,71 +263,71 @@ function namesFuzzyMatch(nameA: string, nameB: string): boolean {
  */
 const LOCAL_PHOTO_BY_URL_KEY: Record<string, string> = {
   // ─── Trainee ──────────────────────────────────────────────────────────
-  fera: "/assets/foto/trainee/fera.jpg",
-  virgi: "/assets/foto/trainee/virgi.jpg",
-  auwia: "/assets/foto/trainee/auwia.jpg",
-  rilly: "/assets/foto/trainee/rilly.jpg",
-  carissa: "/assets/foto/trainee/carissa.jpg",
-  bella: "/assets/foto/trainee/bella.jpg",
-  fahira: "/assets/foto/trainee/fahira.jpg",
-  rara: "/assets/foto/trainee/rara.jpg",
-  giaa: "/assets/foto/trainee/giaa.jpg",
-  heidi: "/assets/foto/trainee/heidi.jpg",
-  maira: "/assets/foto/trainee/maira.jpg",
-  ekin: "/assets/foto/trainee/ekin.jpg",
-  jemima: "/assets/foto/trainee/jemima.jpg",
-  maxine: "/assets/foto/trainee/maxine.jpg",
-  mikaela: "/assets/foto/trainee/mikaela.jpg",
-  intan: "/assets/foto/trainee/intan.jpg",
-  jazzy: "/assets/foto/trainee/jazzy.jpg",
-  ralyne: "/assets/foto/trainee/ralyne.jpg",
-  sona: "/assets/foto/trainee/sona.jpg",
+  fera: "/assets/foto/trainee/fera.webp",
+  virgi: "/assets/foto/trainee/virgi.webp",
+  auwia: "/assets/foto/trainee/auwia.webp",
+  rilly: "/assets/foto/trainee/rilly.webp",
+  carissa: "/assets/foto/trainee/carissa.webp",
+  bella: "/assets/foto/trainee/bella.webp",
+  fahira: "/assets/foto/trainee/fahira.webp",
+  rara: "/assets/foto/trainee/rara.webp",
+  giaa: "/assets/foto/trainee/giaa.webp",
+  heidi: "/assets/foto/trainee/heidi.webp",
+  maira: "/assets/foto/trainee/maira.webp",
+  ekin: "/assets/foto/trainee/ekin.webp",
+  jemima: "/assets/foto/trainee/jemima.webp",
+  maxine: "/assets/foto/trainee/maxine.webp",
+  mikaela: "/assets/foto/trainee/mikaela.webp",
+  intan: "/assets/foto/trainee/intan.webp",
+  jazzy: "/assets/foto/trainee/jazzy.webp",
+  ralyne: "/assets/foto/trainee/ralyne.webp",
+  sona: "/assets/foto/trainee/sona.webp",
 
   // ─── Team Love ────────────────────────────────────────────────────────
-  anindya: "/assets/foto/love/anindya.jpg",
-  lia: "/assets/foto/love/lia.jpg",
-  lana: "/assets/foto/love/lana.jpg",
-  elin: "/assets/foto/love/elin.jpg",
-  cynthia: "/assets/foto/love/cynthia.jpg",
-  fiony: "/assets/foto/love/fiony.jpg",
-  fritzy: "/assets/foto/love/fritzy.jpg",
-  gracie: "/assets/foto/love/gracie.jpg",
-  lily: "/assets/foto/love/lily.jpg",
-  indah: "/assets/foto/love/indah.jpg",
-  trisha: "/assets/foto/love/trisha.jpg",
-  michie: "/assets/foto/love/michie.jpg",
-  nayla: "/assets/foto/love/nayla.jpg",
+  anindya: "/assets/foto/love/anindya.webp",
+  lia: "/assets/foto/love/lia.webp",
+  lana: "/assets/foto/love/lana.webp",
+  elin: "/assets/foto/love/elin.webp",
+  cynthia: "/assets/foto/love/cynthia.webp",
+  fiony: "/assets/foto/love/fiony.webp",
+  fritzy: "/assets/foto/love/fritzy.webp",
+  gracie: "/assets/foto/love/gracie.webp",
+  lily: "/assets/foto/love/lily.webp",
+  indah: "/assets/foto/love/indah.webp",
+  trisha: "/assets/foto/love/trisha.webp",
+  michie: "/assets/foto/love/michie.webp",
+  nayla: "/assets/foto/love/nayla.webp",
 
   // ─── Team Dream ───────────────────────────────────────────────────────
-  delynn: "/assets/foto/dream/delynn.jpg",
-  olla: "/assets/foto/dream/olla.jpg",
-  freya: "/assets/foto/dream/freya.jpg",
-  ella: "/assets/foto/dream/ella.jpg",
-  gita: "/assets/foto/dream/gita.jpg",
-  greesel: "/assets/foto/dream/greesel.jpg",
-  eli: "/assets/foto/dream/eli.jpg",
-  lyn: "/assets/foto/dream/lyn.jpg",
-  marsha: "/assets/foto/dream/marsha.jpg",
-  nachia: "/assets/foto/dream/nachia.jpg",
-  oline: "/assets/foto/dream/oline.jpg",
-  nala: "/assets/foto/dream/nala.jpg",
+  delynn: "/assets/foto/dream/delynn.webp",
+  olla: "/assets/foto/dream/olla.webp",
+  freya: "/assets/foto/dream/freya.webp",
+  ella: "/assets/foto/dream/ella.webp",
+  gita: "/assets/foto/dream/gita.webp",
+  greesel: "/assets/foto/dream/greesel.webp",
+  eli: "/assets/foto/dream/eli.webp",
+  lyn: "/assets/foto/dream/lyn.webp",
+  marsha: "/assets/foto/dream/marsha.webp",
+  nachia: "/assets/foto/dream/nachia.webp",
+  oline: "/assets/foto/dream/oline.webp",
+  nala: "/assets/foto/dream/nala.webp",
 
   // ─── Team Passion ─────────────────────────────────────────────────────
-  aralie: "/assets/foto/passion/aralie.jpg",
-  christy: "/assets/foto/passion/christy.jpg",
-  erine: "/assets/foto/passion/erine.jpg",
-  oniel: "/assets/foto/passion/oniel.jpg",
-  danella: "/assets/foto/passion/danella.jpg",
-  daisy: "/assets/foto/passion/daisy.jpg",
-  feni: "/assets/foto/passion/feni.jpg",
-  jessi: "/assets/foto/passion/jessi.jpg",
-  kathrina: "/assets/foto/passion/kathrina.jpg",
-  lulu: "/assets/foto/passion/lulu.jpg",
-  levi: "/assets/foto/passion/levi.jpg",
-  muthe: "/assets/foto/passion/muthe.jpg",
-  raisha: "/assets/foto/passion/raisha.jpg",
-  ribka: "/assets/foto/passion/ribka.jpg",
-  kimmy: "/assets/foto/passion/kimmy.jpg",
+  aralie: "/assets/foto/passion/aralie.webp",
+  christy: "/assets/foto/passion/christy.webp",
+  erine: "/assets/foto/passion/erine.webp",
+  oniel: "/assets/foto/passion/oniel.webp",
+  danella: "/assets/foto/passion/danella.webp",
+  daisy: "/assets/foto/passion/daisy.webp",
+  feni: "/assets/foto/passion/feni.webp",
+  jessi: "/assets/foto/passion/jessi.webp",
+  kathrina: "/assets/foto/passion/kathrina.webp",
+  lulu: "/assets/foto/passion/lulu.webp",
+  levi: "/assets/foto/passion/levi.webp",
+  muthe: "/assets/foto/passion/muthe.webp",
+  raisha: "/assets/foto/passion/raisha.webp",
+  ribka: "/assets/foto/passion/ribka.webp",
+  kimmy: "/assets/foto/passion/kimmy.webp",
 };
 
 /** Normalisasi `url_key` API supaya bisa dibandingkan ke key di atas (huruf kecil, `-`/spasi -> `_`, trim). */
@@ -336,7 +336,7 @@ function normalizeUrlKey(key: string): string {
 }
 
 /**
- * Cari foto member secara lokal (public/assets/foto/<team>/<file>.jpg) — dipakai
+ * Cari foto member secara lokal (public/assets/foto/<team>/<file>.webp) — dipakai
  * karena field `lineup` pada API Theater tidak menyertakan foto sama sekali.
  * Urutan pencocokan: url_key -> foto lokal (mapping langsung, lihat
  * `LOCAL_PHOTO_BY_URL_KEY`, berlaku untuk semua tim) -> url_key (exact ke

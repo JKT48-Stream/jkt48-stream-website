@@ -17,7 +17,7 @@ export const JKT48_OFFICIAL = {
   name: "JKT48 Official",
   idnUsername: "jkt48-official",
   showroomKey: "officialJKT48",
-  photoFile: "icon-jkt.jpg",
+  photoFile: "icon-jkt",
   showroomRoomId: 332503,
 } as const;
 
@@ -612,7 +612,7 @@ export const MEMBERS: Member[] = [
 ];
 
 export function getMemberPhotoUrl(member: Member): string {
-  return `/assets/foto/${member.teamFolder}/${member.photoFile}.jpg`;
+  return `/assets/foto/${member.teamFolder}/${member.photoFile}.webp`;
 }
 
 export const TEAM_COLORS: Record<Team, string> = {

@@ -84,7 +84,7 @@ export function MiniPlayer() {
   const thumbUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
   return (
-    <div className="fixed bottom-16 right-3 z-50 w-72 overflow-hidden rounded-xl border border-border bg-card shadow-player animate-mini-player-in md:bottom-4 md:w-96 group">
+    <div className="fixed bottom-[88px] right-3 z-50 w-72 overflow-hidden rounded-3xl border border-border bg-card shadow-player animate-mini-player-in md:bottom-4 md:w-96 group">
       {/* Player */}
       <div className="relative aspect-video bg-black overflow-hidden">
         <div

@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="screen-orientation" content="portrait" />
     <title>JKT48 Stream</title>
-    <link rel="icon" type="image/x-icon" href="/logo.png" />
+    <link rel="icon" type="image/png" href="/logo-192.png" />
+
+    <!-- Buka koneksi lebih awal ke API & CDN thumbnail (hemat ±100-300ms di jaringan seluler) -->
+    <link rel="preconnect" href="https://uphablqrwpdvyhrpqknd.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://i.ytimg.com" />
+    <link rel="dns-prefetch" href="https://yt3.ggpht.com" />
     <meta name="description" content="Tonton video JKT48 Official, JKT48 TV, dan JKT48 LIVE dalam satu platform streaming khusus penggemar JKT48." />
     <meta name="theme-color" content="#e5113a" />
     <meta name="google-site-verification" content="uIfjbHpFSE3gx-tP8cheSSY_feUfiqqjdpV4ggZChMk" />
@@ -18,7 +23,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="JKT48 Stream" />
-    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo-192.png" />
 
     <!-- Windows/Edge PWA -->
     <meta name="msapplication-TileColor" content="#e5113a" />
@@ -41,9 +46,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
             });
         }
     </script>

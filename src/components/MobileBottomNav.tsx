@@ -4,52 +4,43 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", icon: Home, label: "Beranda", end: true },
-  { to: "/member-birthdays", icon: Cake, label: "Birthdays" },
-  { to: "/member-live", icon: Radio, label: "Member Live" },
+  { to: "/member-live", icon: Radio, label: "Live" },
   { to: "/theater", icon: Theater, label: "Theater" },
+  { to: "/member-birthdays", icon: Cake, label: "Ultah" },
   { to: "/playlists", icon: ListMusic, label: "Playlist" },
 ];
 
 export function MobileBottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex h-14 items-center justify-around border-t border-border bg-background/95 backdrop-blur md:hidden animate-bottom-nav-in">
-      {items.map(({ to, icon: Icon, label, end }, i) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          style={{ animationDelay: `${i * 60}ms` }}
-          className={({ isActive }) =>
-            cn(
-              "bottom-nav-item flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium animate-fade-in-up",
-              isActive ? "text-primary active" : "text-muted-foreground",
-            )
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <div className="relative">
-                <Icon
-                  className={cn(
-                    "bottom-nav-icon h-5 w-5",
-                    "transition-transform duration-250 ease-spring",
-                    isActive ? "scale-115" : "",
-                  )}
-                  style={{ transform: isActive ? "scale(1.15)" : "scale(1)" }}
-                />
-              </div>
-              <span
-                className={cn(
-                  "transition-all duration-200",
-                  isActive ? "font-semibold" : "",
-                )}
-              >
-                {label}
-              </span>
-            </>
-          )}
-        </NavLink>
-      ))}
+    <nav
+      aria-label="Navigasi utama"
+      className="fixed inset-x-3 bottom-3 z-30 md:hidden animate-bottom-nav-in"
+      style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="glass flex items-center justify-around gap-1 rounded-full p-1.5 shadow-elevated shadow-[0_0_0_1px_hsl(var(--primary)/0.08),0_24px_50px_-18px_hsl(0_0%_0%/0.7)]">
+        {items.map(({ to, icon: Icon, label, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              cn(
+                "flex h-12 flex-1 items-center justify-center gap-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-smooth",
+                isActive
+                  ? "flex-[1.7] bg-neon text-primary-foreground shadow-neon"
+                  : "text-muted-foreground active:scale-90",
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                {isActive && <span>{label}</span>}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   );
 }

@@ -55,11 +55,11 @@ type Props = {
 
 /** Divider with optional centered label */
 function SectionDivider({ label }: { label?: string }) {
-  if (!label) return <hr className="my-2 border-border" />;
+  if (!label) return <hr className="mx-2 my-2 border-border/70" />;
   return (
     <div className="flex items-center gap-2 px-3 py-2">
       <div className="h-px flex-1 bg-border" />
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+      <span className="text-[11px] font-medium text-muted-foreground">
         {label}
       </span>
       <div className="h-px flex-1 bg-border" />
@@ -161,19 +161,16 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
       to={to}
       end={end}
       onClick={onNavigate}
-      style={{ animationDelay: `${delay}ms` }}
       className={({ isActive }) =>
         cn(
-          "animate-sidebar-item-in flex items-center rounded-xl text-sm",
+          "flex items-center rounded-2xl text-sm font-medium",
           "transition-all duration-200 ease-smooth",
           collapsed
-            ? "flex-col gap-1 px-1 py-3.5 text-[10px]"
-            : "gap-3 px-3 py-2.5",
+            ? "flex-col gap-1.5 px-1 py-3 text-[10px]"
+            : "gap-3 px-3.5 py-2.5",
           isActive
-            ? "bg-surface-hover font-semibold text-foreground"
-            : "text-foreground/60 hover:bg-surface-hover hover:text-foreground",
-          !collapsed && isActive &&
-            "border-l-[3px] border-primary pl-[calc(0.75rem-3px)]",
+            ? "nav-active"
+            : "text-foreground/65 hover:translate-x-0.5 hover:bg-surface-hover hover:text-foreground",
         )
       }
     >
@@ -184,11 +181,11 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
               className={cn(
                 "transition-all duration-200",
                 collapsed ? "h-[22px] w-[22px]" : "h-[18px] w-[18px]",
-                isActive ? "text-primary scale-110" : "",
+                isActive ? "text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" : "",
               )}
             />
             {badge && (
-              <span className="absolute -top-1 -right-1">{badge}</span>
+              <span className="absolute -right-1 -top-1">{badge}</span>
             )}
           </div>
           <span className={cn(collapsed ? "text-center leading-tight" : "flex-1 truncate")}>
@@ -201,11 +198,9 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
 
   // ── Section label ─────────────────────────────────────────────────────────
 
-  const SectionLabel = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
-    <div
-      className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 animate-fade-in"
-      style={{ animationDelay: `${delay}ms` }}
-    >
+  const SectionLabel = ({ children }: { children: React.ReactNode; delay?: number }) => (
+    <div className="tech-label flex items-center gap-2 px-3.5 pb-1.5 pt-3 text-muted-foreground">
+      <span className="h-1 w-1 rounded-full bg-primary-glow shadow-[0_0_8px_hsl(var(--primary-glow))]" aria-hidden="true" />
       {children}
     </div>
   );
@@ -241,7 +236,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
   const InstallBanner = () => {
     if (isInstalled || !canInstall) return null;
     return (
-      <div className="mx-3 mb-1 rounded-xl border border-primary/25 bg-primary/5 p-3.5 transition-all duration-200 hover:border-primary/40 hover:bg-primary/8">
+      <div className="spotlight mx-2 mb-1 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 to-primary-glow/5 p-4 transition-colors duration-200 hover:border-primary/60">
         <div className="mb-2 flex items-center gap-2">
           {isMobile ? (
             <Smartphone className="h-4 w-4 flex-shrink-0 text-primary" />
@@ -259,9 +254,9 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
           onClick={triggerInstall}
           disabled={installing}
           className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-lg py-2",
-            "bg-primary text-xs font-semibold text-primary-foreground",
-            "transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]",
+            "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
+            "bg-neon text-xs font-semibold text-primary-foreground shadow-neon",
+            "transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]",
             installing && "cursor-wait opacity-60",
           )}
         >
@@ -288,15 +283,16 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
       className={cn(
         "flex h-full flex-col overflow-y-auto py-3",
         "transition-[width,padding] duration-300 ease-smooth",
-        collapsed ? "gap-0.5 px-1" : "gap-0 px-2",
+        collapsed ? "gap-0.5 px-2" : "gap-0 px-2.5",
       )}
     >
       {/* ── Main nav ─────────────────────────────────────────────────────── */}
+      {!collapsed && <SectionLabel>Jelajahi</SectionLabel>}
       <div className="space-y-0.5">
         <Item to="/"             icon={Home}      label="Beranda"       end  delay={0} />
         <Item to="/trending"     icon={Flame}      label="Trending"          delay={40} />
         <Item to="/subscriptions" icon={ListVideo} label="Subscriptions"     delay={80} />
-        <Item to="/member-live"  icon={Radio}      label="Member Live"       delay={100} />
+        <Item to="/member-live"  icon={Radio}      label="Member Live"       delay={100} badge={<span className="live-dot text-primary" />} />
         <Item to="/member-birthdays" icon={Cake}    label="Member Birthdays"  delay={110} />
         <Item to="/theater"         icon={Theater}  label="Theater Schedule"  delay={120} />
       </div>
@@ -304,20 +300,20 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
       {collapsed ? (
         /* ── Collapsed sidebar ───────────────────────────────────────── */
         <>
-          <div className="my-2 border-t border-border" />
+          <div className="mx-2 my-2 border-t border-border/70" />
           <div className="space-y-0.5">
             <Item to="/history"   icon={History}   label="Riwayat"  delay={40} />
             <Item to="/saved"     icon={Bookmark}  label="Tersimpan" delay={60} />
             <Item to="/playlists" icon={ListMusic} label="Playlist"  delay={80} />
           </div>
-          <div className="my-2 border-t border-border" />
+          <div className="mx-2 my-2 border-t border-border/70" />
           <InstallButtonCollapsed />
         </>
       ) : (
         /* ── Expanded sidebar ────────────────────────────────────────── */
         <>
           {/* Kamu section */}
-          <hr className="my-2 border-border" />
+          <hr className="mx-2 my-2 border-border/70" />
           <SectionLabel delay={100}>Kamu</SectionLabel>
           <div className="space-y-0.5">
             <Item to="/history"   icon={History}   label="Riwayat"   delay={120} />
@@ -326,7 +322,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
           </div>
 
           {/* Channel JKT48 section */}
-          <hr className="my-2 border-border" />
+          <hr className="mx-2 my-2 border-border/70" />
           <SectionLabel delay={200}>Channel JKT48</SectionLabel>
           <div className="space-y-0.5">
             {(Object.keys(CHANNELS) as Array<keyof typeof CHANNELS>).map((k, i) => {
@@ -337,16 +333,15 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
                   key={k}
                   to={`/channel/${k}`}
                   onClick={onNavigate}
-                  style={{ animationDelay: `${220 + i * 40}ms` }}
                   className={cn(
-                    "animate-sidebar-item-in flex items-center gap-3 rounded-xl px-3 py-2 text-sm",
+                    "flex items-center gap-3 rounded-2xl px-3.5 py-2 text-sm font-medium",
                     "transition-all duration-200",
                     active
-                      ? "bg-surface-hover font-semibold border-l-[3px] border-primary pl-[calc(0.75rem-3px)]"
-                      : "text-foreground/60 hover:bg-surface-hover hover:text-foreground",
+                      ? "bg-surface-hover text-foreground ring-1 ring-primary/50 shadow-[0_0_24px_-10px_hsl(var(--primary))]"
+                      : "text-foreground/65 hover:bg-surface-hover hover:text-foreground",
                   )}
                 >
-                  <div className={cn("flex-shrink-0 transition-transform duration-200", active && "scale-110")}>
+                  <div className="flex-shrink-0">
                     <ChannelMiniAvatar channelTitle={c.name} channelKey={k} size={26} />
                   </div>
                   <span className="flex-1 truncate">{c.name}</span>
@@ -356,15 +351,15 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
           </div>
 
           {/* Install banner */}
-          <hr className="my-2 border-border" />
+          <hr className="mx-2 my-2 border-border/70" />
           <InstallBanner />
 
           {/* ── Footer info ─────────────────────────────────────────────── */}
-          <div className="mt-1 space-y-4 px-3 pb-4 text-xs text-muted-foreground">
+          <div className="mt-1 space-y-4 px-3.5 pb-4 text-xs text-muted-foreground">
 
             {/* App blurb */}
             <div>
-              <p className="font-bold text-foreground">JKT48 Stream</p>
+              <p className="font-display text-base font-extrabold text-foreground">JKT<span className="text-neon">48</span> Stream</p>
               <p className="mt-0.5 leading-relaxed">Platform untuk menonton video dari JKT48</p>
             </div>
 

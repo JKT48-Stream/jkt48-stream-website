@@ -1,3 +1,4 @@
+import { lazy, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -9,24 +10,90 @@ import { AppLayout } from "@/components/AppLayout";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ApiStatusBanner } from "@/components/ApiStatusBanner";
 import Home from "./pages/Home";
-import ChannelPage from "./pages/ChannelPage";
-import SearchPage from "./pages/SearchPage";
-import WatchPage from "./pages/WatchPage";
-import HistoryPage from "./pages/HistoryPage";
-import SavedPage from "./pages/SavedPage";
-import TrendingPage from "./pages/TrendingPage";
-import SubscriptionsPage from "./pages/SubscriptionsPage";
-import PlaylistDetailPage from "./pages/PlaylistDetailPage";
-import PlaylistsPage from "./pages/PlaylistsPage";
-import UserPlaylistDetailPage from "./pages/UserPlaylistDetailPage";
-import ChannelPlaylistDetailPage from "./pages/ChannelPlaylistDetailPage";
-import MemberLivePage from "./pages/MemberLivePage";
-import StreamingPlayerPage from "./pages/StreamingPlayerPage";
-import MemberBirthdaysPage from "./pages/MemberBirthdaysPage";
-import TheaterSchedulePage from "./pages/TheaterSchedulePage";
-import TheaterShowDetailPage from "./pages/TheaterShowDetailPage";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import NotFound from "./pages/NotFound";
 import { EdgeError } from "./lib/edge";
+
+
+// Code splitting: tiap halaman jadi chunk sendiri, hanya diunduh saat dibuka (Home tetap eager karena halaman pertama).
+const loaders = {
+  ChannelPage: () => import("./pages/ChannelPage"),
+  SearchPage: () => import("./pages/SearchPage"),
+  WatchPage: () => import("./pages/WatchPage"),
+  HistoryPage: () => import("./pages/HistoryPage"),
+  SavedPage: () => import("./pages/SavedPage"),
+  TrendingPage: () => import("./pages/TrendingPage"),
+  SubscriptionsPage: () => import("./pages/SubscriptionsPage"),
+  PlaylistDetailPage: () => import("./pages/PlaylistDetailPage"),
+  PlaylistsPage: () => import("./pages/PlaylistsPage"),
+  UserPlaylistDetailPage: () => import("./pages/UserPlaylistDetailPage"),
+  ChannelPlaylistDetailPage: () => import("./pages/ChannelPlaylistDetailPage"),
+  MemberLivePage: () => import("./pages/MemberLivePage"),
+  StreamingPlayerPage: () => import("./pages/StreamingPlayerPage"),
+  MemberBirthdaysPage: () => import("./pages/MemberBirthdaysPage"),
+  TheaterSchedulePage: () => import("./pages/TheaterSchedulePage"),
+  TheaterShowDetailPage: () => import("./pages/TheaterShowDetailPage"),
+};
+const ChannelPage = lazy(loaders.ChannelPage);
+const SearchPage = lazy(loaders.SearchPage);
+const WatchPage = lazy(loaders.WatchPage);
+const HistoryPage = lazy(loaders.HistoryPage);
+const SavedPage = lazy(loaders.SavedPage);
+const TrendingPage = lazy(loaders.TrendingPage);
+const SubscriptionsPage = lazy(loaders.SubscriptionsPage);
+const PlaylistDetailPage = lazy(loaders.PlaylistDetailPage);
+const PlaylistsPage = lazy(loaders.PlaylistsPage);
+const UserPlaylistDetailPage = lazy(loaders.UserPlaylistDetailPage);
+const ChannelPlaylistDetailPage = lazy(loaders.ChannelPlaylistDetailPage);
+const MemberLivePage = lazy(loaders.MemberLivePage);
+const StreamingPlayerPage = lazy(loaders.StreamingPlayerPage);
+const MemberBirthdaysPage = lazy(loaders.MemberBirthdaysPage);
+const TheaterSchedulePage = lazy(loaders.TheaterSchedulePage);
+const TheaterShowDetailPage = lazy(loaders.TheaterShowDetailPage);
+
+// Setelah halaman pertama selesai & browser idle, unduh chunk halaman lain di belakang layar
+// supaya perpindahan halaman terasa instan. Dilewati bila pengguna menghemat data / koneksi sangat lambat.
+function usePrefetchRoutes() {
+  useEffect(() => {
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (conn?.saveData || /(^|-)2g$/.test(conn?.effectiveType ?? "")) return;
+    const order = [
+      loaders.WatchPage, loaders.SearchPage, loaders.ChannelPage, loaders.TrendingPage, loaders.MemberLivePage,
+      loaders.TheaterSchedulePage, loaders.MemberBirthdaysPage, loaders.SubscriptionsPage, loaders.PlaylistsPage,
+      loaders.HistoryPage, loaders.SavedPage,
+    ];
+    const idle = (cb: () => void) =>
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(cb, { timeout: 4000 })
+        : window.setTimeout(cb, 1500); // Safari < 18 belum punya requestIdleCallback
+    let i = 0;
+    let cancelled = false;
+    const next = () => {
+      if (cancelled || i >= order.length) return;
+      order[i++]().catch(() => {}).finally(() => idle(next));
+    };
+    const start = window.setTimeout(() => idle(next), 2500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(start);
+    };
+  }, []);
+}
 
 // Error yang tidak akan sembuh dengan mengulang (kuota/rate limit, key salah, data tidak ada) tidak di-retry,
 // supaya tidak menghabiskan kuota API key JKT48Connect.
@@ -43,7 +110,9 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
+const App = () => {
+  usePrefetchRoutes();
+  return (
   <ThemeProvider>
     <PWAProvider>
       <QueryClientProvider client={queryClient}>
@@ -80,6 +149,7 @@ const App = () => (
       </QueryClientProvider>
     </PWAProvider>
   </ThemeProvider>
-);
+  );
+};
 
 export default App;

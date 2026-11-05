@@ -11,7 +11,13 @@ export default {
       screens: { "2xl": "1536px" },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Geist Variable"', "Inter", "system-ui", "sans-serif"],
+        display: ['"Bricolage Grotesque Variable"', '"Geist Variable"', "system-ui", "sans-serif"],
+        mono: ['"Geist Mono Variable"', "ui-monospace", "monospace"],
+      },
       colors: {
+        frame: "hsl(var(--frame))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -51,6 +57,8 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /* ── Aksen futuristik ── */
+        crimson: "hsl(var(--crimson))",
         /* ── Member Birthdays Counter — warna aksen per tim ── */
         team: {
           passion: "hsl(var(--team-passion))",
@@ -69,9 +77,12 @@ export default {
         player: "var(--shadow-player)",
         "birthday-card": "var(--shadow-birthday-card)",
         "birthday-glow": "var(--shadow-birthday-glow)",
+        neon: "0 0 0 1px hsl(var(--primary) / 0.4), 0 10px 34px -8px hsl(var(--primary) / 0.75)",
+        "neon-soft": "0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 24px -10px hsl(var(--primary) / 0.55)",
       },
       backgroundImage: {
         brand: "var(--gradient-brand)",
+        neon: "var(--gradient-neon)",
         "gradient-birthday": "var(--gradient-birthday)",
         "gradient-birthday-hero": "var(--gradient-birthday-hero)",
       },

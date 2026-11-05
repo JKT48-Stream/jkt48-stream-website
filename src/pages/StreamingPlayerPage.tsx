@@ -101,7 +101,7 @@ const LiveStatsBar = ({
 
   const isOfficial = member.id === JKT48_OFFICIAL.id;
   const badgeClass = TEAM_BADGE_COLORS[member.team];
-  const photoSrc = isOfficial ? "assets/icon-jkt.jpg" : getMemberPhotoUrl(member);
+  const photoSrc = isOfficial ? "/assets/icon-jkt.webp" : getMemberPhotoUrl(member);
 
   return (
     <div className="mt-4">
@@ -142,7 +142,7 @@ const LiveStatsBar = ({
               src={photoSrc}
               alt={member.name}
               className="w-full h-full object-cover object-top"
-              onError={(e) => { (e.target as HTMLImageElement).src = "/logo.jpg"; }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/logo.png"; }}
             />
           </div>
           <div>

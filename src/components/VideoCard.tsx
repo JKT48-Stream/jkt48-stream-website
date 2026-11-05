@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MoreVertical, ListPlus, Bookmark, BookmarkCheck } from "lucide-react";
 import {
@@ -97,7 +97,7 @@ type Props = {
   onVideoRemoved?: (title: string, thumb?: string) => void;
 };
 
-export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoRemoved }: Props) {
+function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemoved }: Props) {
   const navigate = useNavigate();
   const v = video;
   const title = v.snippet.title;
@@ -167,7 +167,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
     return (
       <>
         <div
-          className="yt-card group flex gap-3 rounded-xl p-2 hover:bg-surface-hover transition-all duration-200 animate-fade-in cursor-pointer"
+          className="yt-card group flex gap-3 rounded-3xl p-2 hover:bg-surface-hover transition-all duration-200 animate-fade-in cursor-pointer"
           style={{ animationDelay: `${animationDelay}ms` }}
           onClick={() => {
             navigate(`/watch?v=${v.id}`);
@@ -179,6 +179,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
                 src={thumb}
                 alt={title}
                 loading="lazy"
+                decoding="async"
                 onLoad={() => setThumbLoaded(true)}
                 className={cn(
                   "absolute inset-0 h-full w-full object-cover transition-all duration-400",
@@ -234,7 +235,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
                 }}
               />
               <div
-                className="fixed min-w-[190px] rounded-xl border border-border bg-background shadow-xl animate-scale-in-bounce"
+                className="fixed min-w-[200px] rounded-2xl border border-border bg-popover shadow-elevated animate-scale-in-bounce"
                 style={{ top: listMenuPos.top, right: listMenuPos.right, zIndex: 9999 }}
               >
                 <button
@@ -342,12 +343,12 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
     return (
       <>
         <div
-          className="yt-card group flex gap-2 rounded-xl p-1 hover:bg-surface-hover transition-all duration-200 animate-fade-in cursor-pointer"
+          className="yt-card group flex gap-2 rounded-2xl p-1 hover:bg-surface-hover transition-all duration-200 animate-fade-in cursor-pointer"
           style={{ animationDelay: `${animationDelay}ms` }}
           onClick={() => navigate(`/watch?v=${v.id}`)}
         >
           {/* Thumbnail */}
-          <div className="relative yt-thumb w-40 flex-shrink-0 overflow-hidden rounded-xl">
+          <div className="relative yt-thumb w-40 flex-shrink-0 overflow-hidden rounded-2xl">
             <img
               src={thumb}
               alt={title}
@@ -408,7 +409,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
                 }}
               />
               <div
-                className="fixed min-w-[190px] rounded-xl border border-border bg-background shadow-xl animate-scale-in-bounce"
+                className="fixed min-w-[200px] rounded-2xl border border-border bg-popover shadow-elevated animate-scale-in-bounce"
                 style={{ top: compactMenuPos.top, right: compactMenuPos.right, zIndex: 9999 }}
               >
                 <button
@@ -505,7 +506,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
       >
         {/* Thumbnail area */}
         <div
-          className="yt-thumb relative overflow-hidden rounded-xl cursor-pointer"
+          className="yt-thumb relative overflow-hidden rounded-[1.25rem] cursor-pointer"
           onClick={() => {
             navigate(`/watch?v=${v.id}`);
           }}
@@ -515,6 +516,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
             src={thumb}
             alt={title}
             loading="lazy"
+            decoding="async"
             onLoad={() => setThumbLoaded(true)}
             className={cn(
               "h-full w-full object-cover",
@@ -531,7 +533,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
           {/* Play overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center pointer-events-none">
             <div className="opacity-0 group-hover:opacity-100 transition-all duration-250 scale-75 group-hover:scale-100">
-              <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center backdrop-blur-sm">
+              <div className="w-14 h-14 rounded-full bg-primary shadow-[0_12px_30px_-8px_hsl(var(--primary)/0.9)] flex items-center justify-center">
                 <svg className="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z" />
                 </svg>
@@ -557,7 +559,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
               navigate(`/watch?v=${v.id}`);
             }}
           >
-            <h3 className="line-clamp-2 text-sm font-semibold leading-snug transition-colors duration-150 group-hover:text-foreground">
+            <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug transition-colors duration-150 group-hover:text-primary">
               {title}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
@@ -609,7 +611,7 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
             }}
           />
           <div
-            className="fixed min-w-[190px] rounded-xl border border-border bg-background shadow-xl animate-scale-in-bounce"
+            className="fixed min-w-[200px] rounded-2xl border border-border bg-popover shadow-elevated animate-scale-in-bounce"
             style={{ top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
           >
             <button
@@ -697,6 +699,9 @@ export function VideoCard({ video, layout = "grid", animationDelay = 0, onVideoR
   );
 }
 
+/** Memo: kartu yang sudah tampil tidak dirender ulang saat daftar bertambah (infinite scroll). */
+export const VideoCard = memo(VideoCardImpl);
+
 export function VideoCardSkeleton({ layout = "grid" }: { layout?: "grid" | "list" }) {
   if (layout === "list") {
     return (
@@ -712,7 +717,7 @@ export function VideoCardSkeleton({ layout = "grid" }: { layout?: "grid" | "list
   }
   return (
     <div className="space-y-3 animate-fade-in">
-      <div className="yt-skeleton aspect-video w-full rounded-xl" />
+      <div className="yt-skeleton aspect-video w-full" />
       <div className="flex gap-3">
         <div className="yt-skeleton h-9 w-9 rounded-full flex-shrink-0" />
         <div className="flex-1 space-y-2">

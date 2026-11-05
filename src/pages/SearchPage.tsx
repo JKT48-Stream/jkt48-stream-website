@@ -4,47 +4,16 @@ import { searchVideos, fetchSuggestions, type YTVideo } from "@/lib/youtube";
 import { VideoCard, VideoCardSkeleton } from "@/components/VideoCard";
 import { Search, Clock, X, TrendingUp, ArrowUpLeft } from "lucide-react";
 
-const HISTORY_KEY = "jkt48_search_history";
-const MAX_HISTORY = 20;
+import {
+  getSearchHistory,
+  addToSearchHistory,
+  removeFromSearchHistory,
+  clearSearchHistory,
+  TRENDING_SUGGESTIONS,
+} from "@/lib/searchHistory";
 
-// Export agar bisa dipakai Navbar
-export const TRENDING_SUGGESTIONS = [
-  "JKT48 live showroom",
-  "JKT48 theater",
-  "JKT48 terbaru",
-  "Fritzy JKT48",
-  "Kimmy JKT48",
-  "JKT48 fancam",
-  "JKT48 mini live",
-];
-
-export function getSearchHistory(): string[] {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function addToSearchHistory(term: string) {
-  const trimmed = term.trim();
-  if (!trimmed) return;
-  const current = getSearchHistory();
-  const filtered = current.filter((h) => h.toLowerCase() !== trimmed.toLowerCase());
-  const updated = [trimmed, ...filtered].slice(0, MAX_HISTORY);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
-}
-
-export function removeFromSearchHistory(term: string) {
-  const current = getSearchHistory();
-  const updated = current.filter((h) => h !== term);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
-}
-
-export function clearSearchHistory() {
-  localStorage.removeItem(HISTORY_KEY);
-}
+// Re-export supaya import lama tetap berfungsi
+export { getSearchHistory, addToSearchHistory, removeFromSearchHistory, clearSearchHistory, TRENDING_SUGGESTIONS };
 
 // ─────────────────────────────────────────────────────────────
 // Shared sub-components (dipakai mobile & desktop di halaman ini)
