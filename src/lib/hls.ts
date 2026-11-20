@@ -13,8 +13,7 @@
  * BUKAN key JKT48Connect) juga WAJIB ikut di URL karena `<video src>` / native HLS tidak bisa mengirim header.
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY as SUPABASE_ANON_KEY } from "@/lib/env";
 
 export function toBase64Url(input: string): string {
   const bytes = new TextEncoder().encode(input);

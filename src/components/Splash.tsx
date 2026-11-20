@@ -6,9 +6,9 @@ const SEEN_KEY = "jkt48-splash-seen";
 const COUNT = 9;
 const CENTER = Math.floor(COUNT / 2);
 
-const SPREAD_AT = 2550; // tumpukan sudah menyatu -> mulai menyebar
-const PICK_AT = SPREAD_AT + 1500; // sebaran rapi selesai -> mulai memilih acak
-const SETTLE_MS = 1100; // jeda setelah kartu terpilih sebelum masuk
+const SPREAD_AT = 2550;
+const PICK_AT = SPREAD_AT + 1500;
+const SETTLE_MS = 1100;
 
 type Phase = "shuffle" | "spread" | "pick";
 
@@ -22,7 +22,6 @@ function pickCards(count: number) {
   return a.slice(0, count);
 }
 
-/** Satu kali "riffle shuffle": tumpukan dibelah dua lalu disisipkan selang-seling. */
 function riffle(order: number[]) {
   const mid = Math.ceil(order.length / 2);
   const a = order.slice(0, mid);
@@ -35,10 +34,9 @@ function riffle(order: number[]) {
   return out;
 }
 
-const SPACING = 12; // jarak antar kartu (vw)
+const SPACING = 12;
 const clampTilt = (v: number) => Math.max(-52, Math.min(52, v));
 
-/** Posisi akhir tiap kartu saat menyebar (coverflow 3D yang simetris), dipakai keyframe splash-spread. */
 function spreadVars(index: number): Record<string, number> {
   const o = index - CENTER;
   return {
@@ -49,10 +47,6 @@ function spreadVars(index: number): Record<string, number> {
   };
 }
 
-/**
- * Sorotan acak yang berjalan bolak-balik (ping-pong) dari tengah, makin lama makin lambat, lalu berhenti
- * tepat di kartu target. Berjalan 1 kartu per langkah agar kamera bisa mengikuti dengan mulus.
- */
 function buildSweep(n: number, target: number) {
   const MIN = 14;
   let dir = Math.random() < 0.5 ? -1 : 1;
@@ -68,11 +62,6 @@ function buildSweep(n: number, target: number) {
   return path.map((index, k) => ({ index, wait: Math.round(55 + 250 * Math.pow(k / K, 2.2)) }));
 }
 
-/**
- * Transform wajah kartu relatif terhadap kartu yang sedang disorot (h): kartu yang disorot menghadap lurus
- * ke depan, sisanya miring makin jauh dari tengah. Diawali rotateY(-ry) agar kompensasi miring bawaan
- * kartu, sehingga posisi horizontalnya tidak bergeser.
- */
 function faceTransform(index: number, hot: number, picked: boolean) {
   const ry = clampTilt(-(index - CENTER) * 26);
   const d = index - hot;
@@ -82,7 +71,6 @@ function faceTransform(index: number, hot: number, picked: boolean) {
   return `rotateY(${-ry}deg) translate3d(0, ${lift}vh, ${z}px) rotateY(${clampTilt(-d * 26)}deg) scale(${scale})`;
 }
 
-/** Tombol dengan efek magnet halus (tanpa state React, langsung ke DOM agar ringan). */
 function MagneticButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
   const ref = useRef<HTMLButtonElement>(null);
   const raf = useRef(0);
@@ -119,12 +107,10 @@ function MagneticButton({ onClick, children }: { onClick: () => void; children: 
   );
 }
 
-/** Intro layar penuh dengan kartu member 3D yang dikocok. Tampil sekali per sesi; bisa dilewati (klik/Enter/Esc). */
 export function Splash({ onDone }: { onDone: () => void }) {
   const cards = useMemo(() => pickCards(COUNT), []);
   const n = cards.length;
 
-  // Urutan tumpukan: awal -> kocok 1 -> kocok 2 (menentukan posisi z tiap kartu)
   const layout = useMemo(() => {
     const o0 = Array.from({ length: n }, (_, i) => i);
     const o1 = riffle(o0);
@@ -157,7 +143,6 @@ export function Splash({ onDone }: { onDone: () => void }) {
     try {
       sessionStorage.setItem(SEEN_KEY, "1");
     } catch {
-      /* ignore */
     }
     window.setTimeout(onDone, 950);
   };
@@ -171,7 +156,6 @@ export function Splash({ onDone }: { onDone: () => void }) {
     } else {
       t(() => setPhase("spread"), SPREAD_AT);
       t(() => setPhase("pick"), PICK_AT);
-      // sorotan acak yang makin melambat sampai berhenti di kartu target
       let at = PICK_AT;
       sweep.forEach((st, i) => {
         t(() => {
@@ -195,10 +179,8 @@ export function Splash({ onDone }: { onDone: () => void }) {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Paralaks 3D mengikuti kursor (langsung ke DOM, 1x per frame)
   const onPointerMove = (e: React.PointerEvent) => {
     if (reduce || e.pointerType === "touch") return;
     const x = e.clientX / window.innerWidth - 0.5;
@@ -245,10 +227,8 @@ export function Splash({ onDone }: { onDone: () => void }) {
         </div>
       ))}
 
-      {/* Panggung 3D */}
       <div className="splash-scene" aria-hidden="true">
         <div className="splash-stage" ref={stageRef}>
-          {/* Kamera: menggeser seluruh deretan kartu sehingga kartu yang disorot selalu di tengah layar */}
           <div
             className="splash-camera"
             style={{
@@ -285,13 +265,11 @@ export function Splash({ onDone }: { onDone: () => void }) {
         </div>
       </div>
 
-      {/* Atas */}
       <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5 sm:p-8">
         <span className="tech-label uppercase">JKT48 Stream</span>
         <span className="tech-label uppercase">{MEMBERS.length} member</span>
       </div>
 
-      {/* Bawah */}
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 pb-7 sm:p-8 sm:pb-9">
         <div className="splash-title" data-show={phase !== "shuffle"}>
           <p className="tech-label uppercase opacity-80">
@@ -304,7 +282,6 @@ export function Splash({ onDone }: { onDone: () => void }) {
         <MagneticButton onClick={finish}>Masuk</MagneticButton>
       </div>
 
-      {/* Progress otomatis masuk */}
       {!reduce && <div className="splash-progress" style={{ animationDuration: `${totalMs}ms` }} aria-hidden="true" />}
     </div>
   );

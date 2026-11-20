@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { members, daysUntilBirthday, isBirthdayToday, sortByUpcoming } from "@/data/birthday-members";
 
-/** Pita berjalan tipis: ulang tahun member terdekat (data lokal, tanpa API). */
 export function Ticker() {
   const now = new Date();
   const upcoming = sortByUpcoming(members, now).slice(0, 8);

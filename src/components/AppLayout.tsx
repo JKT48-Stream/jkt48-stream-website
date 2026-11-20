@@ -33,9 +33,6 @@ export function AppLayout() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  // Efek futuristik: progres scroll + spotlight yang mengikuti kursor (--mx/--my pada elemen .spotlight).
-  // PENTING: --sp hanya ditulis ke elemen .scroll-progress, bukan ke <html>. Menulis custom property di root
-  // memaksa browser menghitung ulang style SELURUH halaman di setiap frame scroll (berat di HP).
   useEffect(() => {
     let raf = 0;
     let moveRaf = 0;
@@ -50,7 +47,7 @@ export function AppLayout() {
         const root = document.documentElement;
         const max = root.scrollHeight - window.innerHeight;
         const v = max > 0 ? Math.min(1, window.scrollY / max) : 0;
-        if (Math.abs(v - last) < 0.002) return; // perubahan <0.2% tidak terlihat
+        if (Math.abs(v - last) < 0.002) return;
         last = v;
         bar.style.setProperty("--sp", v.toFixed(3));
       });
@@ -91,7 +88,6 @@ export function AppLayout() {
   }, []);
 
   useEffect(() => {
-    // "instant" supaya tidak ikut scroll-behavior: smooth di CSS (kalau tidak, halaman baru terlihat menggulir dari bawah)
     window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -149,7 +145,6 @@ export function AppLayout() {
 
   return (
     <>
-    {/* Latar futuristik: aurora + grid */}
     <div className="fx-backdrop" aria-hidden="true">
       <div className="fx-aurora" />
       <div className="fx-grid" />
@@ -161,7 +156,6 @@ export function AppLayout() {
       <Navbar onToggleSidebar={handleToggle} />
 
       <div className="flex flex-1">
-        {/* Desktop sidebar — panel mengambang */}
         <aside
           className={cn(
             "sticky top-[var(--header-h)] hidden h-[calc(100vh-var(--header-h))] flex-shrink-0 lg:block",
@@ -176,7 +170,6 @@ export function AppLayout() {
           </div>
         </aside>
 
-        {/* Mobile/tablet drawer */}
         {!isDesktop && drawerMounted && (
           <>
             <div
@@ -211,7 +204,6 @@ export function AppLayout() {
           </>
         )}
 
-        {/* Konten utama */}
         <main key={location.pathname} className="page-enter min-w-0 flex-1 pb-24 md:pb-6">
           <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
             <Outlet />

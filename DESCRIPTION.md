@@ -234,13 +234,12 @@ pnpm install
 Salin `.env.example` menjadi `.env`:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 Isi variabel berikut:
 
 ```env
-VITE_SUPABASE_PROJECT_ID="your-supabase-project-id"
 VITE_SUPABASE_PUBLISHABLE_KEY="your-supabase-anon-key"
 VITE_SUPABASE_URL="https://your-project.supabase.co"
 ```

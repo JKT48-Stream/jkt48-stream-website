@@ -35,6 +35,7 @@ storybook-static/
 .env
 .env.*
 !.env.example
+.env*.local
 *.local
 supabase/.env
 supabase/.env.*
@@ -147,4 +148,31 @@ $RECYCLE.BIN/
 *.7z
 *.rar
 
-# Catatan: lockfile (pnpm-lock.yaml, bun.lockb, package-lock.json, yarn.lock) SENGAJA tidak di-ignore.
+# ─────────────────────────────────────────────────────────────
+# Lockfile package manager lain (project ini memakai pnpm -> hanya pnpm-lock.yaml yang di-commit)
+# ─────────────────────────────────────────────────────────────
+package-lock.json
+yarn.lock
+bun.lockb
+bun.lock
+npm-shrinkwrap.json
+
+# ─────────────────────────────────────────────────────────────
+# Aset sumber yang tidak dipakai aplikasi
+# Kode hanya memuat versi .webp; .jpg adalah file asli sebelum dikompres.
+# (Hapus blok ini jika kamu memang ingin menyimpan .jpg asli di repo.)
+# ─────────────────────────────────────────────────────────────
+public/assets/**/*.jpg
+public/assets/*.jpg
+
+# ─────────────────────────────────────────────────────────────
+# Tools AI / editor lain & riwayat lokal
+# ─────────────────────────────────────────────────────────────
+.claude/
+.cursor/
+.aider*
+.history/
+.cline/
+.windsurf/
+
+# Catatan: pnpm-lock.yaml SENGAJA tidak di-ignore.

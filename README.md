@@ -512,7 +512,7 @@ const badgeClass = TEAM_BADGE_COLORS[member.team]; // Tailwind classes for the t
 
 Environment configuration is split into two categories based on sensitivity.
 
-### Frontend (`.env`, public)
+### Frontend (Vercel Environment Variables, public)
 
 Variables prefixed with `VITE_*` get bundled into the production build and are visible to anyone opening the app in a browser. Only public credentials (anon/publishable keys) should ever go here.
 
@@ -520,13 +520,17 @@ Variables prefixed with `VITE_*` get bundled into the production build and are v
 |---|---|
 | `VITE_SUPABASE_URL` | Supabase project endpoint URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key (safe to expose publicly, scoped by Row Level Security) |
-| `VITE_SUPABASE_PROJECT_ID` | Supabase project ID |
 
-Copy `.env.example` to `.env` and fill it in with your own Supabase project credentials:
+Set these two variables in Vercel (**Project → Settings → Environment Variables**, for Production, Preview and Development). For local development, pull them into a git-ignored file instead of creating a committed `.env`:
 
 ```bash
-cp .env.example .env
+vercel link
+vercel env pull .env.local
 ```
+
+For local development only `.env.local` is allowed: `pnpm dev` refuses to start if a plain `.env`, `.env.development` or `.env.production` file exists. Tests (`pnpm test`) use dummy values from `vitest.config.ts` and never touch the real project.
+
+`VITE_SUPABASE_PROJECT_ID` is no longer used: the project ref is already part of `VITE_SUPABASE_URL`.
 
 ### Backend (Supabase Secrets, sensitive)
 
@@ -542,7 +546,7 @@ The following variables are **never** placed in the frontend `.env`. They should
 supabase secrets set YOUTUBE_API_KEY=your_key_here
 ```
 
-> The `.env` file (containing real project credentials) is already listed in `.gitignore` and is not included in this repository. Always use `.env.example` as the reference for the required variable structure, and never push real credentials to a public version control repository.
+> `.env` and `.env.*` (except `.env.example`) are listed in `.gitignore`. Always use `.env.example` as the reference for the required variable structure, and never push real credentials to a public version control repository.
 
 ---
 
@@ -566,9 +570,9 @@ cd jkt48-stream
 pnpm install
 
 # 3. Copy and fill in the frontend environment variables
-cp .env.example .env
-# Fill in VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY,
-# and VITE_SUPABASE_PROJECT_ID with your own Supabase project credentials
+cp .env.example .env.local
+# Fill in VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY
+# with your own Supabase project credentials
 
 # 4. (Optional) Configure and deploy Supabase Edge Functions
 supabase login
@@ -651,7 +655,7 @@ This project is configured for deployment on **Vercel** via `vercel.json`, which
 
 1. Run `pnpm build` to generate the `dist/` folder.
 2. Connect the repository to Vercel (or any other static hosting platform that supports SPA rewrites).
-3. Set the `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SUPABASE_PROJECT_ID` environment variables in the hosting platform's dashboard — do not commit a `.env` file into a public repository as part of the build process.
+3. Set the `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` environment variables (then redeploy, since `VITE_*` values are baked in at build time) in the hosting platform's dashboard — do not commit a `.env` file into a public repository as part of the build process.
 4. Make sure all Supabase Edge Functions are deployed and their secrets are configured before pointing the frontend application at a production Supabase project.
 
 ---

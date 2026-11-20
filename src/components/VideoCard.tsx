@@ -206,7 +206,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
             </div>
           </div>
 
-          {/* Three-dot menu */}
           <div className="flex-shrink-0 self-start pt-1">
             <button
               ref={listBtnRef}
@@ -347,7 +346,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
           style={{ animationDelay: `${animationDelay}ms` }}
           onClick={() => navigate(`/watch?v=${v.id}`)}
         >
-          {/* Thumbnail */}
           <div className="relative yt-thumb w-40 flex-shrink-0 overflow-hidden rounded-2xl">
             <img
               src={thumb}
@@ -379,7 +377,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
             </p>
           </div>
 
-          {/* Three-dot button — always visible */}
           <div className="flex-shrink-0 self-start pt-0.5">
             <button
               ref={compactBtnRef}
@@ -395,7 +392,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
           </div>
         </div>
 
-        {/* Dropdown portal */}
         {compactMenuOpen &&
           createPortal(
             <>
@@ -497,14 +493,12 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
     );
   }
 
-  // ── Grid layout (default) ──────────────────────────────────────────────────
   return (
     <>
       <div
         className="yt-card group block animate-fade-in-up"
         style={{ animationDelay: `${animationDelay}ms` }}
       >
-        {/* Thumbnail area */}
         <div
           className="yt-thumb relative overflow-hidden rounded-[1.25rem] cursor-pointer"
           onClick={() => {
@@ -530,7 +524,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
               {duration}
             </span>
           ) : null}
-          {/* Play overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center pointer-events-none">
             <div className="opacity-0 group-hover:opacity-100 transition-all duration-250 scale-75 group-hover:scale-100">
               <div className="w-14 h-14 rounded-full bg-primary shadow-[0_12px_30px_-8px_hsl(var(--primary)/0.9)] flex items-center justify-center">
@@ -542,9 +535,7 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
           </div>
         </div>
 
-        {/* Card info row */}
         <div className="mt-3 flex gap-3">
-          {/* Avatar */}
           <div
             className="flex-shrink-0 transition-transform duration-200 group-hover:scale-105 cursor-pointer"
             onClick={() => channelHref && navigate(channelHref)}
@@ -552,7 +543,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
             <ChannelMiniAvatar channelTitle={channel} channelId={channelId} size={36} />
           </div>
 
-          {/* Title + metadata */}
           <div
             className="min-w-0 flex-1 cursor-pointer"
             onClick={() => {
@@ -574,7 +564,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
             </p>
           </div>
 
-          {/* Three-dot menu */}
           <div className="flex-shrink-0">
             <button
               ref={menuBtnRef}
@@ -699,7 +688,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
   );
 }
 
-/** Memo: kartu yang sudah tampil tidak dirender ulang saat daftar bertambah (infinite scroll). */
 export const VideoCard = memo(VideoCardImpl);
 
 export function VideoCardSkeleton({ layout = "grid" }: { layout?: "grid" | "list" }) {

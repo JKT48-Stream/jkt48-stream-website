@@ -2,12 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Item = { el: HTMLElement; cx: number; cy: number; x: number; y: number; vx: number; vy: number };
 
-const RADIUS = 3.8; // jangkauan dorongan (dalam satuan lebar kotak)
-const PUSH = 1.25; // dorongan maksimum (dalam satuan lebar kotak)
-const STIFFNESS = 0.16; // kekencangan pegas
-const DAMPING = 0.74; // redaman (makin kecil = makin membal)
+const RADIUS = 3.8;
+const PUSH = 1.25;
+const STIFFNESS = 0.16;
+const DAMPING = 0.74;
 
-// Font 5x7 untuk huruf yang dipakai wordmark.
 const GLYPHS: Record<string, string[]> = {
   J: ["00111", "00010", "00010", "00010", "00010", "10010", "01100"],
   K: ["10001", "10010", "10100", "11000", "10100", "10010", "10001"],
@@ -24,22 +23,12 @@ const GLYPHS: Record<string, string[]> = {
 
 type Props = {
   text: string;
-  /** Jumlah huruf pertama yang berwarna putih/foreground; sisanya merah. */
   plainCount?: number;
   gap?: number;
   animate?: boolean;
   className?: string;
 };
 
-/**
- * Wordmark kotak-kotak ala grafik kontribusi GitHub (sudut sedikit melengkung, bukan bulat).
- * Dibangun dari grid 5x7 per huruf.
- *  - Hover: kotak yang menyala di dekat kursor TERDORONG menjauh (tolakan radial) lalu kembali dengan pegas
- *    yang sedikit membal, sehingga huruf melengkung mengikuti kursor. Fisika berjalan di satu loop rAF
- *    dan hanya mengubah transform, jadi ringan; loop berhenti sendiri saat semua kotak sudah diam.
- *  - Klik: gelombang riak menyebar dari kotak yang diklik.
- *  - Animasi masuk baru berjalan saat wordmark terlihat di layar (IntersectionObserver).
- */
 export function DotMatrix({ text, plainCount = 0, gap = 5, animate = false, className }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(!animate);
@@ -59,7 +48,6 @@ export function DotMatrix({ text, plainCount = 0, gap = 5, animate = false, clas
       }
     }
     return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, plainCount]);
 
   useEffect(() => {
@@ -82,7 +70,6 @@ export function DotMatrix({ text, plainCount = 0, gap = 5, animate = false, clas
     return () => io.disconnect();
   }, [animate]);
 
-  // ── Fisika tolakan kursor (hanya kotak yang menyala) ──
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const items = useRef<Item[]>([]);
   const raf = useRef(0);
@@ -128,7 +115,7 @@ export function DotMatrix({ text, plainCount = 0, gap = 5, animate = false, clas
           const d = Math.hypot(dx, dy);
           if (d < R) {
             const f = (1 - d / R) ** 2 * maxPush;
-            const soft = d / (d + 0.6 * unit); // hindari lonjakan saat kursor tepat di atas kotak
+            const soft = d / (d + 0.6 * unit);
             const inv = d > 0.001 ? 1 / d : 0;
             tx = dx * inv * f * soft * 1.6;
             ty = dy * inv * f * soft * 1.6;

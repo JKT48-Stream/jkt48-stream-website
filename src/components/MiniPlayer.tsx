@@ -30,7 +30,6 @@ function loadYouTubeAPI(): Promise<void> {
   return ytApiPromise;
 }
 
-// 100 = video dihapus/privat, 101 & 150 = embedding dinonaktifkan pemilik video
 const YT_EMBED_BLOCKED_CODES = [100, 101, 150];
 
 export function MiniPlayer() {
@@ -72,7 +71,6 @@ export function MiniPlayer() {
       try {
         playerRef.current?.destroy?.();
       } catch {
-        /* ignore */
       }
       playerRef.current = null;
     };
@@ -85,13 +83,11 @@ export function MiniPlayer() {
 
   return (
     <div className="fixed bottom-[88px] right-3 z-50 w-72 overflow-hidden rounded-3xl border border-border bg-card shadow-player animate-mini-player-in md:bottom-4 md:w-96 group">
-      {/* Player */}
       <div className="relative aspect-video bg-black overflow-hidden">
         <div
           ref={hostRef}
           className="absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-[1.01]"
         />
-        {/* Fallback saat YouTube menolak embed (dinonaktifkan oleh pemilik video) */}
         {embedBlocked && (
           <div
             className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-3 text-center"
@@ -117,7 +113,6 @@ export function MiniPlayer() {
             </a>
           </div>
         )}
-        {/* Controls overlay */}
         <div className="absolute right-1 top-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button
             onClick={() => navigate(`/watch?v=${videoId}`)}
@@ -136,13 +131,11 @@ export function MiniPlayer() {
         </div>
       </div>
 
-      {/* Info bar */}
       <div className="p-2 flex items-center gap-2 transition-colors duration-200 group-hover:bg-surface-2">
         <div className="flex-1 min-w-0">
           <p className="line-clamp-1 text-xs font-semibold transition-colors duration-150">{title}</p>
           <p className="line-clamp-1 text-[11px] text-muted-foreground">{channelTitle}</p>
         </div>
-        {/* Always-visible close on mobile */}
         <button
           onClick={close}
           className="flex-shrink-0 rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-150 hover:rotate-90 md:hidden"
@@ -152,7 +145,6 @@ export function MiniPlayer() {
         </button>
       </div>
 
-      {/* Bottom progress bar animation */}
       <div className="h-0.5 bg-primary/20 overflow-hidden">
         <div
           className="h-full bg-primary"

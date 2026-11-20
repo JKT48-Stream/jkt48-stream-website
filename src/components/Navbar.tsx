@@ -42,7 +42,6 @@ export function Navbar({ onToggleSidebar }: Props) {
 
   const loadHistory = () => setHistory(getSearchHistory());
 
-  // Tekan "/" untuk langsung fokus ke kolom cari
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -56,7 +55,6 @@ export function Navbar({ onToggleSidebar }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Fetch suggestions saat mengetik
   useEffect(() => {
     if (!q.trim() || !focused || submittedRef.current) {
       setSuggestions([]);
@@ -80,7 +78,6 @@ export function Navbar({ onToggleSidebar }: Props) {
     };
   }, [q, focused]);
 
-  // Tutup dropdown saat klik di luar
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -166,10 +163,8 @@ export function Navbar({ onToggleSidebar }: Props) {
           mounted ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0",
         )}
       >
-        {/* Progres scroll */}
         <span className="scroll-progress" aria-hidden="true" />
 
-        {/* Logo + Hamburger */}
         <div className="flex items-center gap-1 sm:gap-2 animate-fade-in-left">
           <Button
             variant="ghost"
@@ -192,7 +187,6 @@ export function Navbar({ onToggleSidebar }: Props) {
           </Link>
         </div>
 
-        {/* Desktop search */}
         <div
           ref={wrapperRef}
           className="relative mx-auto hidden w-full max-w-2xl flex-1 items-center sm:flex animate-fade-in"
@@ -254,11 +248,9 @@ export function Navbar({ onToggleSidebar }: Props) {
             </button>
           </form>
 
-          {/* ── Dropdown Desktop ── */}
           {dropdownVisible && (
             <div className="glass absolute left-0 right-12 top-12 z-50 overflow-hidden rounded-3xl !bg-popover/90 py-2 shadow-elevated animate-fade-in-down">
 
-              {/* Suggestions saat mengetik */}
               {showSuggestionsInDropdown && suggestions.map((s, i) => (
                 <div
                   key={s}
@@ -273,7 +265,6 @@ export function Navbar({ onToggleSidebar }: Props) {
                     <Search className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <span className="flex-1 line-clamp-1">{s}</span>
                   </button>
-                  {/* ArrowUpLeft: isi input tanpa submit */}
                   <button
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => fillInput(s)}
@@ -285,7 +276,6 @@ export function Navbar({ onToggleSidebar }: Props) {
                 </div>
               ))}
 
-              {/* History saat input kosong */}
               {showHistoryInDropdown && (
                 <>
                   <div className="flex items-center justify-between px-4 pb-1 pt-1">
@@ -313,7 +303,6 @@ export function Navbar({ onToggleSidebar }: Props) {
                         <Clock className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                         <span className="flex-1 line-clamp-1">{term}</span>
                       </button>
-                      {/* ArrowUpLeft: isi input tanpa submit */}
                       <button
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => fillInput(term)}
@@ -322,7 +311,6 @@ export function Navbar({ onToggleSidebar }: Props) {
                       >
                         <ArrowUpLeft className="h-3.5 w-3.5" />
                       </button>
-                      {/* X: hapus item */}
                       <button
                         onMouseDown={(e) => handleDeleteHistory(term, e)}
                         aria-label="Hapus riwayat"
@@ -335,7 +323,6 @@ export function Navbar({ onToggleSidebar }: Props) {
                 </>
               )}
 
-              {/* Trending saat tidak ada history */}
               {showTrendingInDropdown && (
                 <>
                   <div className="px-4 pb-1 pt-1">
@@ -373,7 +360,6 @@ export function Navbar({ onToggleSidebar }: Props) {
           )}
         </div>
 
-        {/* Mobile search button */}
         <Button
           variant="ghost"
           size="icon"
@@ -384,7 +370,6 @@ export function Navbar({ onToggleSidebar }: Props) {
           <Search className="h-5 w-5" />
         </Button>
 
-        {/* Right actions */}
         <div
           className="ml-auto flex items-center gap-1 sm:gap-2 animate-fade-in-right"
           style={{ animationDelay: "120ms" }}
@@ -424,7 +409,6 @@ export function Navbar({ onToggleSidebar }: Props) {
         </div>
       </header>
 
-      {/* Account Modal */}
       {showAccountModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowAccountModal(false)} />

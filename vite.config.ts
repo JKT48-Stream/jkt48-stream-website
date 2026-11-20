@@ -1,10 +1,32 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import fs from "fs";
 import { componentTagger } from "lovable-tagger";
 
+/**
+ * Development lokal HANYA boleh memakai `.env.local` (hasil `vercel env pull .env.local`).
+ * File env lain ikut dimuat otomatis oleh Vite dan bisa diam-diam menimpa/mencampur nilai,
+ * jadi di mode dev kita menolaknya supaya tidak ada kunci "nyasar" yang tersimpan di repo.
+ */
+function assertOnlyEnvLocal(root: string) {
+  const forbidden = [".env", ".env.development", ".env.development.local", ".env.production", ".env.production.local"];
+  const found = forbidden.filter((f) => fs.existsSync(path.resolve(root, f)));
+  if (found.length > 0) {
+    throw new Error(
+      `File env tidak diizinkan untuk development lokal: ${found.join(", ")}. ` +
+        "Pindahkan isinya ke .env.local (atau jalankan `vercel env pull .env.local`) lalu hapus file tersebut.",
+    );
+  }
+  if (!fs.existsSync(path.resolve(root, ".env.local"))) {
+    console.warn("[env] .env.local tidak ditemukan. Jalankan `vercel env pull .env.local` atau salin dari .env.example.");
+  }
+}
+
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode, command }) => {
+  if (command === "serve") assertOnlyEnvLocal(__dirname);
+  return {
   server: {
     host: "::",
     port: 8080,
@@ -40,4 +62,5 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-}));
+};
+});

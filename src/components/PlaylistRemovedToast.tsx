@@ -60,7 +60,6 @@ export function PlaylistRemovedToast({
           "ease-[cubic-bezier(0.34,1.56,0.64,1)]",
         )}
       >
-        {/* Progress bar */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-destructive/20 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-destructive to-destructive/70 origin-left"
@@ -74,7 +73,6 @@ export function PlaylistRemovedToast({
         </div>
 
         <div className="flex items-center gap-3 px-4 py-3.5">
-          {/* Animated X icon */}
           <div className="relative flex-shrink-0">
             <span
               className={cn(
@@ -93,7 +91,6 @@ export function PlaylistRemovedToast({
             />
           </div>
 
-          {/* Text */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground leading-tight">
               Dihapus dari playlist!
@@ -109,7 +106,6 @@ export function PlaylistRemovedToast({
             )}
           </div>
 
-          {/* Thumbnail */}
           {videoThumb && (
             <img
               src={videoThumb}
@@ -118,7 +114,6 @@ export function PlaylistRemovedToast({
             />
           )}
 
-          {/* Close button */}
           <button
             onClick={dismiss}
             className="flex-shrink-0 ml-1 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-200 hover:rotate-90"
@@ -127,7 +122,6 @@ export function PlaylistRemovedToast({
           </button>
         </div>
 
-        {/* Decorative left strip */}
         <div className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-destructive to-destructive/70 rounded-l-2xl" />
       </div>
     </div>
