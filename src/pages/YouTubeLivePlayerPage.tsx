@@ -4,11 +4,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { CHANNELS, type ChannelKey } from "@/lib/youtube";
 import { cn } from "@/lib/utils";
 
-/* ─── YouTube IFrame Player API loader ───────────────────────────────────────
- * Dipakai supaya kita bisa mendeteksi error "embedding dinonaktifkan oleh
- * pemilik video" (code 101/150) lewat event onError, alih-alih membiarkan
- * YouTube menampilkan overlay error mentahnya sendiri di dalam iframe.
- * ────────────────────────────────────────────────────────────────────────── */
 declare global {
   interface Window {
     YT?: any;
@@ -36,11 +31,7 @@ function loadYouTubeAPI(): Promise<void> {
   return ytApiPromise;
 }
 
-// Error code dari YouTube IFrame API:
-// 100 = video dihapus/privat, 101 & 150 = embedding dinonaktifkan pemilik video
 const YT_EMBED_BLOCKED_CODES = [100, 101, 150];
-
-/* ─── Icons ───────────────────────────────────────────────────────────────── */
 const IconArrowLeft = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
     <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
@@ -80,7 +71,6 @@ const IconShrink = () => (
   </svg>
 );
 
-/* ─── Live Dot Badge ──────────────────────────────────────────────────────── */
 function LiveBadge({ className }: { className?: string }) {
   return (
     <span
@@ -99,7 +89,6 @@ function LiveBadge({ className }: { className?: string }) {
   );
 }
 
-/* ─── Elapsed Timer ───────────────────────────────────────────────────────── */
 function ElapsedTimer() {
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -116,7 +105,6 @@ function ElapsedTimer() {
   return <span className="text-xs text-muted-foreground tabular-nums">{label}</span>;
 }
 
-/* ─── YouTube Embed Player ────────────────────────────────────────────────── */
 function YouTubeEmbedPlayer({
   videoId,
   isMobile,
@@ -192,9 +180,6 @@ function YouTubeEmbedPlayer({
     };
   }, []);
 
-  // Reset status blocked setiap kali video berganti, lalu buat player via
-  // YouTube IFrame API supaya event onError (mis. embedding dinonaktifkan
-  // oleh pemilik video) bisa kita tangkap dan tampilkan fallback sendiri.
   useEffect(() => {
     let destroyed = false;
     setEmbedBlocked(false);
@@ -224,8 +209,6 @@ function YouTubeEmbedPlayer({
           },
         });
       } catch {
-        // Kalau constructor-nya sendiri gagal, anggap saja tidak bisa diputar
-        // di sini dan tampilkan fallback, daripada layar kosong/error mentah.
         setEmbedBlocked(true);
       }
     });
@@ -235,7 +218,6 @@ function YouTubeEmbedPlayer({
       try {
         playerRef.current?.destroy?.();
       } catch {
-        /* ignore */
       }
       playerRef.current = null;
     };
@@ -254,10 +236,7 @@ function YouTubeEmbedPlayer({
         border: "1px solid rgba(220,38,38,0.15)",
       }}
     >
-      {/* Host untuk YouTube IFrame Player (dibuat via JS, bukan <iframe> statis) */}
       <div ref={hostRef} className="absolute inset-0 h-full w-full" />
-
-      {/* Fallback saat YouTube menolak embed (dinonaktifkan oleh pemilik video) */}
       {embedBlocked && (
         <div
           className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 px-6 text-center"
@@ -292,7 +271,6 @@ function YouTubeEmbedPlayer({
         </div>
       )}
 
-      {/* Fullscreen button overlay */}
       {!isMobile && !embedBlocked && (
         <button
           onClick={toggleFullscreen}
@@ -306,7 +284,6 @@ function YouTubeEmbedPlayer({
   );
 }
 
-/* ─── Channel Info Bar ────────────────────────────────────────────────────── */
 function ChannelInfoBar({
   channelKey,
   videoId,
@@ -326,7 +303,6 @@ function ChannelInfoBar({
   return (
     <div className="mt-3 rounded-xl border border-border bg-surface-hover/40 px-4 py-3">
       <div className="flex items-start gap-3">
-        {/* Channel icon placeholder */}
         <div
           className="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-black text-white"
           style={{ background: `hsl(${channel.color})` }}
@@ -344,7 +320,6 @@ function ChannelInfoBar({
             <span className="text-xs text-muted-foreground">· Sedang live di YouTube</span>
           </div>
         </div>
-        {/* Actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <a
             href={ytUrl}
@@ -371,7 +346,6 @@ function ChannelInfoBar({
           </button>
         </div>
       </div>
-      {/* Description note */}
       <div className="mt-3 rounded-lg bg-primary/5 px-3 py-2">
         <p className="text-xs text-muted-foreground leading-relaxed">
           Kamu sedang menonton <span className="font-semibold text-foreground">live stream resmi</span> dari{" "}
@@ -380,7 +354,6 @@ function ChannelInfoBar({
         </p>
       </div>
 
-      {/* Notice khusus: channel JKT48 LIVE menonaktifkan embed pihak ketiga */}
       {channelKey === "48DailyLive" && (
         <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
           <svg
@@ -416,7 +389,6 @@ function ChannelInfoBar({
   );
 }
 
-/* ─── Main YouTubeLivePlayerPage ─────────────────────────────────────────── */
 export default function YouTubeLivePlayerPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -440,7 +412,6 @@ export default function YouTubeLivePlayerPage() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Lock scroll on mobile
   useEffect(() => {
     if (!isMobileLayout) return;
     const main = document.querySelector("main");
@@ -527,7 +498,6 @@ export default function YouTubeLivePlayerPage() {
     />
   );
 
-  // ── Mobile: sticky player + scroll below ──────────────────────────────────
   if (isMobileLayout) {
     return (
       <div className="flex flex-col" style={{ height: "calc(100dvh - 56px)" }}>
@@ -544,7 +514,6 @@ export default function YouTubeLivePlayerPage() {
     );
   }
 
-  // ── Desktop: single column (no sidebar needed for YouTube embed) ──────────
   return (
     <motion.div
       initial={{ opacity: 0 }}

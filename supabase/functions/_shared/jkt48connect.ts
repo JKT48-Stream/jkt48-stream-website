@@ -1,29 +1,3 @@
-/**
- * JKT48Connect API (generasi terbaru) — modul bersama untuk Supabase Edge Functions.
- *
- * Dokumentasi: https://api.jkt48connect.app/docs
- *
- * Ringkasan perubahan dari API lama (`https://jkt48connect.com/api/v1/*`, key `jk48c_...`, header
- * `x-api-key`, envelope `{ ok, data, cached_at, tier }`):
- *
- *   • Base URL       : https://api.jkt48connect.app            (bukan jkt48connect.com)
- *   • Path           : /api/now_live, /api/theater, /api/theater/:id   (tanpa `/v1`)
- *   • Auth           : header `X-API-Key: jkc_<40 hex>`        (key lama `jk48c_...` tidak dipakai lagi)
- *   • Respons        : TANPA envelope `{ ok, data }` — bentuknya mengikuti tiap endpoint
- *                      (now_live = array, theater = `{ theater: [...], page, perpage, total_count }`,
- *                      detail theater = `{ shows: [...] }`)
- *   • Error          : 401 / 429 selalu JSON `{ status, message, limit, used, resets_at, ... }`
- *   • Kuota          : per key per bulan, dibaca dari header `X-RateLimit-*`
- *
- * API key TIDAK BOLEH sampai ke browser (lihat bagian "Frontend dan backend" di dokumentasi), karena itu
- * semua pemanggilan dilakukan dari Edge Function, bukan dari kode frontend.
- *
- * File ini sengaja tidak memakai API khusus Deno (tidak ada `Deno.*`, tidak ada import eksternal) supaya
- * bisa diuji langsung dengan Vitest (lihat `src/test/jkt48connect-shared.test.ts`).
- */
-
-// ─── Konfigurasi ────────────────────────────────────────────────────────────
-
 export const JKT48CONNECT_BASE_URL = "https://api.jkt48connect.app";
 
 /** `jkc_` + 40 karakter heksadesimal huruf kecil (dokumentasi: "Akses & integrasi"). */

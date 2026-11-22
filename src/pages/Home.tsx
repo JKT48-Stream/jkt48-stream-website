@@ -31,7 +31,6 @@ function HeroVideo({ video }: { video: YTVideo }) {
   const duration = formatDuration(video.contentDetails?.duration ?? "");
   const open = () => navigate(`/watch?v=${video.id}`);
 
-  // Kartu 3D: miring halus mengikuti kursor (hanya mouse, bukan sentuh)
   const onMove = (e: React.PointerEvent<HTMLElement>) => {
     if (e.pointerType !== "mouse") return;
     const el = ref.current;
@@ -161,7 +160,6 @@ function LiveCard() {
   );
 }
 
-/** Akses cepat ke halaman utama lain (semua rute sudah ada). */
 const QUICK: { to: string; label: string; hint: string; icon: typeof Flame; tile: string }[] = [
   { to: "/trending", label: "Trending", hint: "Yang lagi ramai", icon: Flame, tile: "355 100% 62%" },
   { to: "/theater", label: "Theater", hint: "Jadwal pertunjukan", icon: Theater, tile: "8 100% 66%" },
@@ -251,7 +249,6 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   const loadMore = async () => {
@@ -302,7 +299,6 @@ export default function Home() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageTokens, loading]);
 
   const hero = videos[0];
@@ -310,7 +306,6 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero + panel samping */}
       <section className="grid gap-4 px-3 pt-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         {loading ? (
           <div className="yt-skeleton min-h-[340px] rounded-[2rem] lg:min-h-[440px]" />
@@ -329,7 +324,6 @@ export default function Home() {
 
       <QuickTiles />
 
-      {/* Filter channel */}
       <div className="sticky top-[var(--header-h)] z-20 mt-4 flex items-center gap-3 overflow-x-auto scrollbar-hide bg-background/70 px-3 py-3 backdrop-blur-xl sm:px-6">
         <h2 className="section-rule mr-3 hidden flex-shrink-0 font-display text-2xl font-extrabold sm:block">Video terbaru</h2>
         <div className="flex gap-2">
@@ -341,7 +335,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Notice: video dari channel JKT48 LIVE tidak bisa diputar di website ini */}
       {(active === "ALL" || active === "48DailyLive") && (
         <div className="mx-3 mb-4 mt-1 sm:mx-6">
           <div className="flex items-start gap-3 rounded-3xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -364,7 +357,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Banner channel (saat channel tertentu dipilih) */}
       {active !== "ALL" && (
         <div className="channel-header-banner panel spotlight mx-3 mb-4 mt-1 flex items-center gap-4 !rounded-3xl p-4 sm:mx-6 sm:p-5">
           <div
@@ -380,7 +372,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Grid video */}
       <div
         className={`grid grid-cols-1 gap-x-4 gap-y-8 px-3 pb-8 pt-2 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 xl:grid-cols-4 transition-opacity duration-200 ${chipChanging ? "opacity-0" : "opacity-100"}`}
       >
@@ -403,7 +394,6 @@ export default function Home() {
         {loadingMore && Array.from({ length: 4 }).map((_, i) => <VideoCardSkeleton key={`m-${i}`} />)}
       </div>
 
-      {/* Load more sentinel */}
       <div ref={sentinelRef} className="h-10" />
     </div>
   );

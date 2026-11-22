@@ -30,8 +30,6 @@ import { formatDuration, fetchPlaylistItems, fetchPlaylistInfo, bestThumb, bestP
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 
-// ─── Dialog Konfirmasi Hapus dari Library ────────────────────────────────────
-
 function DeleteDialog({
   playlistTitle,
   onConfirm,
@@ -148,8 +146,6 @@ function DeleteDialog({
   );
 }
 
-// ─── Baris Video (Read-Only) ──────────────────────────────────────────────────
-
 function VideoRow({
   video,
   index,
@@ -191,23 +187,18 @@ function VideoRow({
 
   return (
     <>
-      {/* ── Row container: flex items-center agar semua child sejajar tengah */}
       <div
         className="group relative flex items-center gap-2 rounded-xl px-2 py-2 transition-all duration-200 hover:bg-surface-hover sm:gap-3 sm:px-3 animate-fade-in"
         style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
       >
-        {/* ── Nomor: di luar Link, sebelah kiri thumbnail, self-center agar
-            benar-benar di tengah vertikal — persis seperti YouTube */}
         <span className="w-6 flex-shrink-0 text-center text-xs text-muted-foreground self-center select-none">
           {index + 1}
         </span>
 
-        {/* ── Thumbnail + Info: dibungkus Link */}
         <Link
           to={`/watch?v=${video.id}&channellist=${playlistId}&index=${index + 1}`}
           className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0"
         >
-          {/* Thumbnail */}
           <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-lg sm:h-20 sm:w-36">
             <img
               src={video.thumb}
@@ -225,14 +216,12 @@ function VideoRow({
             </div>
           </div>
 
-          {/* Info teks */}
           <div className="min-w-0 flex-1 pr-2">
             <p className="line-clamp-2 text-sm font-medium leading-snug">{video.title}</p>
             <p className="mt-1 text-xs text-muted-foreground">{video.channelTitle}</p>
           </div>
         </Link>
 
-        {/* ── Three-dot menu button */}
         <button
           ref={btnRef}
           onClick={openMenu}
@@ -246,7 +235,6 @@ function VideoRow({
         </button>
       </div>
 
-      {/* Dropdown portal */}
       {menuOpen && createPortal(
         <>
           <div
@@ -347,7 +335,6 @@ export default function ChannelPlaylistDetailPage() {
 
   useEffect(() => {
     if (!playlist) return;
-    // Selalu refresh semua video dari YouTube agar selalu up-to-date
     (async () => {
       try {
         const allVideos: YTVideo[] = [];
@@ -367,22 +354,16 @@ export default function ChannelPlaylistDetailPage() {
           addedAt: Date.now(),
         }));
 
-        // Ambil ulang info playlist resmi dari YouTube (termasuk thumbnail
-        // terbarunya) — sumber yang sama dipakai pada tampilan playlist
-        // channel yang tidak bug, supaya thumbnail playlist yang disimpan
-        // ikut ter-update saat ada video baru ditambahkan oleh channel.
         let freshThumb: string | undefined;
         try {
           const info = await fetchPlaylistInfo(playlist.youtubePlaylistId);
           if (info) freshThumb = bestPlaylistThumb(info);
         } catch {
-          // Jika gagal ambil info playlist, fallback ke thumbnail video pertama di bawah
         }
         if (!freshThumb) freshThumb = refreshed[0]?.thumb;
 
         updateSavedChannelPlaylistVideos(playlist.id, refreshed, freshThumb);
       } catch {
-        // Jika gagal (misal: offline), tampilkan data cache yang ada
       }
     })();
   }, [playlist?.id]);
@@ -425,7 +406,6 @@ export default function ChannelPlaylistDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row page-enter">
-      {/* ── Kiri: Info Playlist ───────────────────────────────────────────── */}
       <div className="lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:w-[360px] lg:flex-shrink-0 lg:overflow-y-auto">
         <button
           onClick={() => navigate("/playlists")}
@@ -509,7 +489,6 @@ export default function ChannelPlaylistDetailPage() {
         </div>
       </div>
 
-      {/* ── Kanan: Daftar Video ───────────────────────────────────────────── */}
       <div className="flex-1 pb-20 lg:pb-8">
         <div className="px-1 pt-2">
           {videos.length === 0 ? (

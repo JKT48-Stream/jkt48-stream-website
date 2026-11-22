@@ -16,8 +16,6 @@ import {
 } from "@/lib/theater";
 import { cn } from "@/lib/utils";
 
-// ─── Skeleton ───────────────────────────────────────────────────────────────
-
 function TheaterCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -31,11 +29,8 @@ function TheaterCardSkeleton() {
   );
 }
 
-// ─── Card ───────────────────────────────────────────────────────────────────
-
 function TheaterShowCard({ show }: { show: TheaterListItem }) {
   const past = isTheaterShowPast(show.date);
-  // API terbaru membawa nama member birthday langsung di daftar jadwal (tidak perlu request detail per show).
   const birthdayNames = show.birthday_members.map((m) => m.name);
 
   return (
@@ -47,7 +42,6 @@ function TheaterShowCard({ show }: { show: TheaterListItem }) {
         past && "opacity-70 hover:opacity-100",
       )}
     >
-      {/* Banner — pakai aspect-video supaya proporsional dengan banner API */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
         {show.banner ? (
           <img
@@ -57,7 +51,6 @@ function TheaterShowCard({ show }: { show: TheaterListItem }) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          // Gambar jadwal dibuat otomatis oleh API; sebelum statusnya `ready` tampilkan placeholder.
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
             <Theater className="h-8 w-8 text-muted-foreground/40" />
           </div>
@@ -76,7 +69,6 @@ function TheaterShowCard({ show }: { show: TheaterListItem }) {
         )}
       </div>
 
-      {/* Info */}
       <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-base">
           {show.title}
@@ -124,8 +116,6 @@ function TheaterShowCard({ show }: { show: TheaterListItem }) {
   );
 }
 
-// ─── Section wrapper ────────────────────────────────────────────────────────
-
 function ScheduleSection({ title, shows }: { title: string; shows: TheaterListItem[] }) {
   if (shows.length === 0) return null;
   return (
@@ -140,20 +130,14 @@ function ScheduleSection({ title, shows }: { title: string; shows: TheaterListIt
   );
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
-
 export default function TheaterSchedulePage() {
-  // Jadwal terakhir (dari kunjungan sebelumnya) langsung ditampilkan sambil data baru dimuat di latar.
   const cached = useMemo(() => readCachedSchedule(), []);
-
-  // 1) Halaman pertama — kecil & cepat, langsung tampil begitu siap.
   const first = useQuery({
     queryKey: ["theater-schedule", "first"],
     queryFn: () => fetchTheaterPage(1),
     staleTime: 1000 * 60 * 10,
   });
 
-  // 2) Halaman berikutnya diambil paralel di latar setelah halaman pertama datang.
   const rest = useQuery({
     queryKey: ["theater-schedule", "rest", first.data?.total, first.data?.perpage],
     queryFn: () => fetchTheaterRemaining(first.data!),
@@ -165,15 +149,12 @@ export default function TheaterSchedulePage() {
 
   const schedule = useMemo(() => {
     if (!first.data) return cached?.data ?? [];
-    // Selama halaman lain belum selesai, pertahankan salinan lama agar daftar tidak "menyusut" sesaat.
     return restDone
       ? mergeTheaterShows(first.data.items, rest.data ?? [])
       : mergeTheaterShows(cached?.data ?? [], first.data.items);
   }, [first.data, rest.data, restDone, cached]);
 
-  // Simpan hasil lengkap untuk kunjungan berikutnya.
   useEffect(() => {
-    // Hanya simpan bila semua halaman berhasil, supaya salinan lokal tidak menyusut karena halaman yang gagal.
     const complete = !!first.data && (theaterPageCount(first.data) <= 1 || rest.isSuccess);
     if (complete && schedule.length > 0) writeCachedSchedule(schedule);
   }, [first.data, rest.isSuccess, schedule]);

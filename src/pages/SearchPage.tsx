@@ -12,12 +12,7 @@ import {
   TRENDING_SUGGESTIONS,
 } from "@/lib/searchHistory";
 
-// Re-export supaya import lama tetap berfungsi
 export { getSearchHistory, addToSearchHistory, removeFromSearchHistory, clearSearchHistory, TRENDING_SUGGESTIONS };
-
-// ─────────────────────────────────────────────────────────────
-// Shared sub-components (dipakai mobile & desktop di halaman ini)
-// ─────────────────────────────────────────────────────────────
 
 interface HistoryListProps {
   history: string[];
@@ -25,7 +20,6 @@ interface HistoryListProps {
   onFillInput: (term: string) => void;
   onDelete: (term: string, e: React.MouseEvent) => void;
   onClearAll: (e: React.MouseEvent) => void;
-  /** Desktop: X hanya muncul saat hover. Mobile: X selalu terlihat */
   alwaysShowX?: boolean;
 }
 
@@ -52,7 +46,6 @@ function HistoryList({ history, onSubmit, onFillInput, onDelete, onClearAll, alw
             className="group flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2.5 hover:bg-surface-hover transition-colors duration-150"
             style={{ animationDelay: `${i * 20}ms` }}
           >
-            {/* Icon + label → klik untuk search */}
             <div
               onClick={() => onSubmit(term)}
               className="flex flex-1 items-center gap-3 min-w-0"
@@ -65,7 +58,6 @@ function HistoryList({ history, onSubmit, onFillInput, onDelete, onClearAll, alw
               </span>
             </div>
 
-            {/* ArrowUpLeft: isi input */}
             <button
               onClick={() => onFillInput(term)}
               aria-label="Isi pencarian"
@@ -74,7 +66,6 @@ function HistoryList({ history, onSubmit, onFillInput, onDelete, onClearAll, alw
               <ArrowUpLeft className="h-3.5 w-3.5" />
             </button>
 
-            {/* X: hapus item */}
             <button
               onClick={(e) => onDelete(term, e)}
               aria-label="Hapus riwayat"
@@ -128,10 +119,6 @@ function TrendingList({ onSubmit, onFillInput }: TrendingListProps) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Main SearchPage
-// ─────────────────────────────────────────────────────────────
-
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
@@ -141,8 +128,6 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
-
-  // Suggestions state (untuk mobile input di halaman ini)
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [inputFocused, setInputFocused] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -157,7 +142,6 @@ export default function SearchPage() {
     setHistory(getSearchHistory());
   }, []);
 
-  // Fetch suggestions saat mobile input berubah
   useEffect(() => {
     if (!input.trim() || !inputFocused || submittedRef.current) {
       setSuggestions([]);
@@ -176,7 +160,6 @@ export default function SearchPage() {
     return () => { if (debounceRef.current) window.clearTimeout(debounceRef.current); };
   }, [input, inputFocused]);
 
-  // Delay close dropdown agar klik item sempat terproses
   useEffect(() => {
     if (inputFocused) {
       setShowDropdown(true);
@@ -195,7 +178,6 @@ export default function SearchPage() {
       return;
     }
 
-    // Scroll ke atas
     topRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
@@ -242,7 +224,6 @@ export default function SearchPage() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleSubmit = useCallback((term?: string) => {
@@ -284,9 +265,6 @@ export default function SearchPage() {
     <div className="px-3 py-4 sm:px-6">
       <div ref={topRef} />
 
-      {/* ══════════════════════════════════════
-          MOBILE: Input + Dropdown
-      ══════════════════════════════════════ */}
       <div className="relative mb-4 sm:hidden">
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div className="flex items-center rounded-full border border-border bg-surface-2 px-4 focus-within:border-ring focus-within:bg-background focus-within:shadow-[0_0_0_1px_hsl(var(--ring))] transition-all duration-200">
@@ -317,7 +295,6 @@ export default function SearchPage() {
           </div>
         </form>
 
-        {/* Dropdown suggestions saat mengetik */}
         {showMobileSuggestions && (
           <div className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-popover py-2 shadow-elevated animate-fade-in-down">
             {suggestions.map((s, i) => (
@@ -347,7 +324,6 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* Dropdown history + trending saat input kosong */}
         {showMobileHistoryOrTrending && (
           <div className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-2xl border border-border bg-popover py-2 shadow-elevated animate-fade-in-down">
             {hasHistory ? (
@@ -398,10 +374,6 @@ export default function SearchPage() {
         )}
       </div>
 
-      {/* ══════════════════════════════════════
-          EMPTY STATE: Belum pernah search
-          (mobile & desktop)
-      ══════════════════════════════════════ */}
       {!q && !hasHistory && !inputFocused && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-surface-2">
@@ -411,17 +383,12 @@ export default function SearchPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Ketik judul, member, atau kata kunci
           </p>
-          {/* Trending di bawah empty state */}
           <div className="mt-8 w-full max-w-md text-left">
             <TrendingList onSubmit={handleSubmit} onFillInput={handleFillInput} />
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════
-          HISTORY PAGE: Ada riwayat, tidak fokus
-          (mobile & desktop)
-      ══════════════════════════════════════ */}
       {!q && hasHistory && !inputFocused && (
         <HistoryList
           history={history}
@@ -433,10 +400,6 @@ export default function SearchPage() {
         />
       )}
 
-      {/* ══════════════════════════════════════
-          HASIL PENCARIAN
-          (mobile & desktop)
-      ══════════════════════════════════════ */}
       {q && (
         <>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -444,7 +407,6 @@ export default function SearchPage() {
             <span className="font-semibold text-foreground">"{q}"</span>
           </p>
 
-          {/* Mobile: grid */}
           <div className="grid grid-cols-1 gap-4 sm:hidden">
             {loading && Array.from({ length: 6 }).map((_, i) => <VideoCardSkeleton key={i} />)}
             {!loading && videos.map((v, i) => (
@@ -453,7 +415,6 @@ export default function SearchPage() {
             {loadingMore && Array.from({ length: 3 }).map((_, i) => <VideoCardSkeleton key={`m-${i}`} />)}
           </div>
 
-          {/* Desktop: list */}
           <div className="hidden sm:block space-y-3">
             {loading && Array.from({ length: 6 }).map((_, i) => <VideoCardSkeleton key={i} layout="list" />)}
             {!loading && videos.map((v, i) => (

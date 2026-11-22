@@ -89,23 +89,16 @@ export default function WatchPage() {
   const [shared, setShared] = useState(false);
   const [channelInfo, setChannelInfo] = useState<YTChannelInfo | null>(null);
   const [currentSec, setCurrentSec] = useState<number>(0);
-
-  // Playlist panel state
   const [playlistVideos, setPlaylistVideos] = useState<YTVideo[]>([]);
   const [playlistLoading, setPlaylistLoading] = useState(false);
   const [playlistCollapsed, setPlaylistCollapsed] = useState(false);
   const playlistPanelRef = useRef<HTMLDivElement>(null);
   const activeItemRef = useRef<HTMLDivElement>(null);
-
-  // User playlist / channel playlist panel state (local playlists)
   const [localPlaylistVideos, setLocalPlaylistVideos] = useState<PlaylistVideo[]>([]);
   const localListId = userListId ?? channelListId ?? null;
-
-  // Determine which "active panel" is in use
   const hasYTPlaylist = !!listId;
   const hasLocalPlaylist = !!localListId;
 
-  // Load local playlist (userlist or channellist) from storage
   useEffect(() => {
     if (!localListId) {
       setLocalPlaylistVideos([]);
@@ -121,7 +114,6 @@ export default function WatchPage() {
     }
   }, [localListId, userListId, channelListId]);
 
-  // Track whether we are in mobile layout (< 1024px) for YouTube-style sticky player
   const [isMobileLayout, setIsMobileLayout] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 1024 : false
   );
@@ -239,7 +231,6 @@ export default function WatchPage() {
       }
     };
 
-    // Unlock orientasi sepenuhnya
     const unlockOrientation = () => {
       try { screen.orientation?.unlock?.(); } catch { /* ignore */ }
     };
@@ -592,7 +583,6 @@ export default function WatchPage() {
         currentSec={currentSec}
       />
 
-      {/* Modal Tambah ke Playlist */}
       {showAddPlaylist && video && v && (
         <AddToPlaylistModal
           video={{
@@ -640,10 +630,8 @@ export default function WatchPage() {
     </>
   );
 
-  // ── MOBILE LAYOUT (< lg): sticky player at top, scrollable content below ──
   const mobileLayout = (
     <div className="flex flex-col" style={{ height: "calc(100dvh - 56px)" }}>
-      {/* Sticky video player — never scrolls */}
       <div className="flex-shrink-0 bg-black w-full">
         <div
           ref={playerContainerRef}
@@ -652,7 +640,6 @@ export default function WatchPage() {
         >
           <div ref={playerHostRef} className="absolute inset-0 h-full w-full" />
         </div>
-        {/* Mini-player button */}
         <div className="flex items-center gap-2 px-3 py-1.5 bg-background border-b border-border/40">
           <button
             onClick={openMini}
@@ -664,12 +651,10 @@ export default function WatchPage() {
         </div>
       </div>
 
-      {/* Scrollable content below player */}
       <div ref={mobileScrollRef} className="flex-1 overflow-y-auto overscroll-contain">
         <div className="px-3 pb-24">
           {videoInfoContent}
 
-          {/* Playlist panel (mobile) */}
           {listId && (
             <PlaylistPanel
               listId={listId}
@@ -686,7 +671,6 @@ export default function WatchPage() {
             />
           )}
 
-          {/* Local playlist panel (mobile) — userlist / channellist */}
           {!listId && hasLocalPlaylist && localPlaylistVideos.length > 0 && (
             <LocalPlaylistPanel
               listId={localListId!}
@@ -701,7 +685,6 @@ export default function WatchPage() {
             />
           )}
 
-          {/* Related videos */}
           <div className="mt-6">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Rekomendasi
@@ -723,43 +706,32 @@ export default function WatchPage() {
     </div>
   );
 
-  // ── DESKTOP LAYOUT (≥ lg): YouTube-style full-width layout ────────────────
-  // Sidebar sudah di-hide oleh AppLayout, jadi kita bisa pakai lebar penuh
-  // mirip YouTube: video besar di kiri, sidebar rekomendasi 380px di kanan
   const desktopLayout = (
     <div
       className={cn(
         "mx-auto px-4 py-4 sm:px-6",
-        // Theater mode: full width tanpa batas
-        // Normal mode: max-width lebih lebar dari sebelumnya (YouTube style)
         theater ? "max-w-full" : "max-w-[1850px]",
       )}
     >
       <div
         className={cn(
           "grid gap-6",
-          // Layout grid: video mengambil ruang sebanyak mungkin, sidebar fixed 380px
-          // Mirip YouTube: video di kiri (flex-grow), rekomendasi di kanan (tetap)
           theater
             ? "grid-cols-1"
             : "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_420px]",
         )}
       >
-        {/* Kolom Kiri: Video Player + Info */}
         <div className="min-w-0">
-          {/* Video Player Container */}
           <div
             ref={playerContainerRef}
             className={cn(
               "relative overflow-hidden rounded-xl bg-black shadow-player",
-              // Theater: penuh layar, normal: 16/9
               theater ? "aspect-video w-full" : "aspect-video w-full",
             )}
           >
             <div ref={playerHostRef} className="absolute inset-0 h-full w-full" />
           </div>
 
-          {/* Kontrol bawah player: theater mode + mini player */}
           <div className="mt-2 flex items-center gap-2">
             <button
               onClick={() => setTheater((t) => !t)}
@@ -777,10 +749,7 @@ export default function WatchPage() {
             </button>
           </div>
 
-          {/* Info video: title, channel, actions, description */}
           {videoInfoContent}
-
-          {/* Rekomendasi di bawah video — hanya tampil di mode teater (karena sidebar disembunyikan) */}
           {theater && related.length > 0 && (
             <div className="mt-8">
               <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -795,25 +764,20 @@ export default function WatchPage() {
           )}
         </div>
 
-        {/* Kolom Kanan: Sidebar Rekomendasi — hanya di mode normal */}
         {!theater && (
           <aside
             ref={sidebarRef}
             className="hidden space-y-3 lg:block"
             style={{
-              // Sticky sidebar ala YouTube: menempel di bawah header saat scroll
               position: "sticky",
               top: "calc(var(--header-h) + 16px)",
               alignSelf: "flex-start",
-              // Tinggi maksimal dengan scroll di dalam sidebar
               maxHeight: "calc(100vh - var(--header-h) - 32px)",
               overflowY: "auto",
-              // Sembunyikan scrollbar (tetap bisa scroll) ala YouTube
               scrollbarWidth: "none",
               msOverflowStyle: "none",
             }}
           >
-            {/* Playlist panel di sidebar desktop */}
             {listId && (
               <PlaylistPanel
                 listId={listId}
@@ -829,7 +793,6 @@ export default function WatchPage() {
                 className="mb-1"
               />
             )}
-            {/* Local playlist panel (desktop) */}
             {!listId && hasLocalPlaylist && localPlaylistVideos.length > 0 && (
               <LocalPlaylistPanel
                 listId={localListId!}
@@ -858,14 +821,9 @@ export default function WatchPage() {
       </div>
     </div>
   );
-
-  // Render hanya satu layout sesuai breakpoint
   return isMobileLayout ? mobileLayout : desktopLayout;
 }
 
-// ---------------------------------------------------------------------------
-// PlaylistPanel — shared component for mobile & desktop.
-// ---------------------------------------------------------------------------
 function PlaylistPanel({
   listId,
   videos,
@@ -1038,9 +996,6 @@ function PlaylistItem({
   );
 }
 
-// ---------------------------------------------------------------------------
-// LocalPlaylistPanel
-// ---------------------------------------------------------------------------
 function LocalPlaylistPanel({
   listId,
   isUserList,
@@ -1221,9 +1176,6 @@ function ChannelAvatar({
   );
 }
 
-// ---------------------------------------------------------------------------
-// WatchHeaderSkeleton
-// ---------------------------------------------------------------------------
 function WatchHeaderSkeleton() {
   return (
     <div className="mt-4 animate-fade-in">
@@ -1261,10 +1213,6 @@ function WatchHeaderSkeleton() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// DescriptionPanel
-// ---------------------------------------------------------------------------
 
 type DescToken =
   | { kind: "text"; value: string }

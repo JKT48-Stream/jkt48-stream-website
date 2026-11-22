@@ -22,8 +22,6 @@ import {
 } from "@/lib/theater";
 import { cn } from "@/lib/utils";
 
-// ─── Small info stat block ──────────────────────────────────────────────────
-
 function InfoStat({
   icon: Icon,
   label,
@@ -47,8 +45,6 @@ function InfoStat({
     </div>
   );
 }
-
-// ─── Member avatar (lineup / birthday) ──────────────────────────────────────
 
 function MemberAvatar({
   photo,
@@ -90,8 +86,6 @@ function MemberAvatar({
   );
 }
 
-// ─── Skeleton foto member (dipakai saat loading, biar mirip layout asli) ────
-
 function MemberAvatarSkeleton() {
   return (
     <div className="flex flex-col gap-1.5">
@@ -100,8 +94,6 @@ function MemberAvatarSkeleton() {
     </div>
   );
 }
-
-// ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function TheaterShowDetailPage() {
   const { referenceCode = "" } = useParams<{ referenceCode: string }>();
@@ -121,21 +113,13 @@ export default function TheaterShowDetailPage() {
     return (
       <div className="px-3 py-4 sm:px-6">
         <div className="mb-4 h-5 w-24 animate-pulse rounded bg-muted" />
-
-        {/* Banner */}
         <div className="mx-auto aspect-[11/6] w-full max-w-2xl animate-pulse rounded-2xl bg-muted md:max-w-3xl" />
-
-        {/* Quick info grid — Tanggal, Tim, Waktu */}
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
-
-        {/* Deskripsi singkat */}
         <div className="mt-4 h-11 w-full animate-pulse rounded-xl bg-muted" />
-
-        {/* Lineup member — dengan placeholder foto biar lebih hidup */}
         <div className="mt-6">
           <div className="mb-3 h-6 w-40 animate-pulse rounded bg-muted" />
           <div className="rounded-2xl border border-border bg-card p-4">
@@ -171,7 +155,6 @@ export default function TheaterShowDetailPage() {
 
   return (
     <div className="px-3 py-4 sm:px-6">
-      {/* Back */}
       <Link
         to="/theater"
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -179,7 +162,6 @@ export default function TheaterShowDetailPage() {
         <ArrowLeft className="h-4 w-4" /> Kembali ke Jadwal
       </Link>
 
-      {/* Banner hero — rasio tetap 11:6, ukuran dibatasi biar tidak raksasa di layar lebar */}
       <div className="relative mx-auto aspect-[11/6] w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-muted md:max-w-3xl">
         {show.banner ? (
           <img
@@ -188,7 +170,6 @@ export default function TheaterShowDetailPage() {
             className="h-full w-full object-cover"
           />
         ) : (
-          // Gambar jadwal dibuat otomatis oleh API; sebelum statusnya `ready` tampilkan placeholder.
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/25 via-muted to-muted">
             <Theater className="h-12 w-12 text-muted-foreground/40" />
           </div>
@@ -218,7 +199,6 @@ export default function TheaterShowDetailPage() {
         </div>
       </div>
 
-      {/* Quick info grid — Tanggal / Tim / Waktu (harga & kuota tidak lagi disediakan API) */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <InfoStat
           icon={CalendarDays}
@@ -260,7 +240,6 @@ export default function TheaterShowDetailPage() {
         </p>
       )}
 
-      {/* Birthday spotlight */}
       {show.is_birthday_show && show.birthday_members.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
@@ -284,7 +263,6 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Lineup */}
       {show.lineup.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-bold text-foreground">
@@ -308,7 +286,6 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Graduation */}
       {show.graduation_members.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
@@ -331,7 +308,6 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Setlist */}
       {show.set_list.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
@@ -350,7 +326,6 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Rekaman show (YouTube) */}
       {show.recordings.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
@@ -385,7 +360,6 @@ export default function TheaterShowDetailPage() {
         </section>
       )}
 
-      {/* Tautan resmi — info tiket / pembelian mengikuti halaman resmi, bukan data API */}
       {show.link && (
         <div className="mt-6 mb-4">
           <a

@@ -38,8 +38,6 @@ import { VideoSavedToast } from "@/components/VideoSavedToast";
 import { VideoRemovedToast } from "@/components/VideoRemovedToast";
 import { PlaylistRemovedToast } from "@/components/PlaylistRemovedToast";
 
-// ─── Dialog Konfirmasi Hapus ──────────────────────────────────────────────────
-
 function DeleteDialog({
   playlistTitle,
   onConfirm,
@@ -139,8 +137,6 @@ function DeleteDialog({
     document.body
   );
 }
-
-// ─── Dialog Edit Playlist ─────────────────────────────────────────────────────
 
 function EditDialog({ pl, onClose }: { pl: UserPlaylist; onClose: () => void }) {
   const [title, setTitle] = useState(pl.title);
@@ -296,8 +292,6 @@ function EditDialog({ pl, onClose }: { pl: UserPlaylist; onClose: () => void }) 
   );
 }
 
-// ─── Baris Video ──────────────────────────────────────────────────────────────
-
 function VideoRow({
   video,
   index,
@@ -345,9 +339,7 @@ function VideoRow({
 
   return (
     <>
-      {/* ── Row container: flex items-center agar semua child sejajar tengah */}
       <div className="group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-surface-hover sm:gap-3 sm:px-3 animate-fade-in">
-        {/* Drag handle (edit mode) */}
         {editMode && (
           <div
             {...dragHandleProps}
@@ -357,17 +349,14 @@ function VideoRow({
           </div>
         )}
 
-        {/* ── Nomor: di luar Link, self-center agar benar-benar di tengah vertikal */}
         <span className="w-6 flex-shrink-0 text-center text-xs text-muted-foreground self-center select-none">
           {index + 1}
         </span>
 
-        {/* ── Thumbnail + Info: dibungkus Link */}
         <Link
           to={`/watch?v=${video.id}&userlist=${playlistId}&index=${index + 1}`}
           className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0"
         >
-          {/* Thumbnail */}
           <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-lg sm:h-20 sm:w-36">
             <img
               src={video.thumb}
@@ -385,14 +374,12 @@ function VideoRow({
             </div>
           </div>
 
-          {/* Info teks */}
           <div className="min-w-0 flex-1 pr-2">
             <p className="line-clamp-2 text-sm font-medium leading-snug">{video.title}</p>
             <p className="mt-1 text-xs text-muted-foreground">{video.channelTitle}</p>
           </div>
         </Link>
 
-        {/* ── Tombol aksi kanan */}
         {editMode ? (
           <button
             onClick={() => onRemove(video.id, video.title, video.thumb)}
@@ -415,7 +402,6 @@ function VideoRow({
         )}
       </div>
 
-      {/* Dropdown portal */}
       {menuOpen && createPortal(
         <>
           <div
@@ -508,8 +494,6 @@ function VideoRow({
   );
 }
 
-// ─── Halaman Detail User Playlist ─────────────────────────────────────────────
-
 export default function UserPlaylistDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -519,8 +503,6 @@ export default function UserPlaylistDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
-
-  // Toast saat video dihapus dari playlist (mode edit tombol X)
   const [removedVideo, setRemovedVideo] = useState<{ title: string; thumb: string } | null>(null);
 
   if (!id || !playlist) {
@@ -550,8 +532,6 @@ export default function UserPlaylistDetailPage() {
     const idx = videos.indexOf(random);
     navigate(`/watch?v=${random.id}&userlist=${id}&index=${idx + 1}`);
   };
-
-  // Menerima title & thumb agar bisa tampilkan toast
   const handleRemove = (videoId: string, videoTitle: string, videoThumb: string) => {
     removeVideoFromPlaylist(id, videoId);
     setRemovedVideo({ title: videoTitle, thumb: videoThumb });
@@ -586,7 +566,6 @@ export default function UserPlaylistDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row page-enter">
-      {/* ── Kiri: Info Playlist ───────────────────────────────────────────── */}
       <div className="lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:w-[360px] lg:flex-shrink-0 lg:overflow-y-auto">
         <button
           onClick={() => navigate("/playlists")}
@@ -683,7 +662,6 @@ export default function UserPlaylistDetailPage() {
         </div>
       </div>
 
-      {/* ── Kanan: Daftar Video ───────────────────────────────────────────── */}
       <div className="flex-1 pb-20 lg:pb-8">
         <div className="px-1 pt-2">
           {videos.length === 0 ? (
@@ -738,7 +716,6 @@ export default function UserPlaylistDetailPage() {
         />
       )}
 
-      {/* Toast saat video dihapus dari playlist di editMode */}
       {removedVideo && (
         <VideoRemovedToast
           videoTitle={removedVideo.title}

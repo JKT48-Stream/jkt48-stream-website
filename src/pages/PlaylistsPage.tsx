@@ -28,8 +28,6 @@ import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 import { PlaylistRemovedToast } from "@/components/PlaylistRemovedToast";
 
-// ─── Animated Modal Backdrop + Container ─────────────────────────────────────
-
 function AnimatedModal({
   onClose,
   children,
@@ -65,7 +63,6 @@ function AnimatedModal({
 
   return createPortal(
     <>
-      {/* Backdrop */}
       <div
         onClick={handleClose}
         style={{ zIndex: 9998 }}
@@ -75,7 +72,6 @@ function AnimatedModal({
           visible ? "opacity-100" : "opacity-0",
         )}
       />
-      {/* Centered container — covers FULL viewport including sidebar */}
       <div
         style={{ zIndex: 9999 }}
         className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
@@ -97,8 +93,6 @@ function AnimatedModal({
     document.body
   );
 }
-
-// ─── Delete Confirmation Dialog ───────────────────────────────────────────────
 
 function DeleteConfirmDialog({
   playlistTitle,
@@ -224,8 +218,6 @@ function DeleteConfirmDialog({
   );
 }
 
-// ─── Dialog Hapus Channel Playlist dari Library ───────────────────────────────
-
 function DeleteChannelConfirmDialog({
   playlistTitle,
   onConfirm,
@@ -350,8 +342,6 @@ function DeleteChannelConfirmDialog({
   );
 }
 
-// ─── Dialog Buat / Edit Playlist ─────────────────────────────────────────────
-
 function PlaylistDialog({
   initial,
   onClose,
@@ -423,7 +413,6 @@ function PlaylistDialog({
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <h2 className="text-lg font-bold">
               {initial?.id ? "Edit Playlist" : "Playlist Baru"}
@@ -527,8 +516,6 @@ function PlaylistDialog({
   );
 }
 
-// ─── Kartu Playlist User ──────────────────────────────────────────────────────
-
 function VisibilityBadge({ v }: { v: UserPlaylist["visibility"] }) {
   if (v === "public") return <Globe className="h-3.5 w-3.5" />;
   if (v === "unlisted") return <Link2 className="h-3.5 w-3.5" />;
@@ -579,7 +566,6 @@ function PlaylistCard({
         </div>
       </Link>
 
-      {/* Info */}
       <div className="flex items-start justify-between gap-2 p-3 rounded-b-2xl">
         <Link to={`/playlists/${pl.id}`} className="min-w-0 flex-1">
           <p className="truncate font-semibold leading-snug">{pl.title}</p>
@@ -636,8 +622,6 @@ function PlaylistCard({
     </div>
   );
 }
-
-// ─── Kartu Channel Playlist (Read-Only) ──────────────────────────────────────
 
 function ChannelPlaylistCard({
   pl,
@@ -737,8 +721,6 @@ function ChannelPlaylistCard({
   );
 }
 
-// ─── Halaman Utama ────────────────────────────────────────────────────────────
-
 export default function PlaylistsPage() {
   const playlists = usePlaylists();
   const channelPlaylists = useSavedChannelPlaylists();
@@ -747,8 +729,6 @@ export default function PlaylistsPage() {
   const [editTarget, setEditTarget] = useState<UserPlaylist | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserPlaylist | null>(null);
   const [deleteChannelTarget, setDeleteChannelTarget] = useState<SavedChannelPlaylist | null>(null);
-
-  // Toast state untuk kedua jenis penghapusan
   const [removedUserPlaylist, setRemovedUserPlaylist] = useState<{ title: string; thumb: string } | null>(null);
   const [removedChannelPlaylist, setRemovedChannelPlaylist] = useState<{ title: string; thumb: string } | null>(null);
 
@@ -764,7 +744,6 @@ export default function PlaylistsPage() {
     setEditTarget(null);
   };
 
-  // Hapus playlist user — tampilkan PlaylistRemovedToast
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
     const removed = deleteTarget;
@@ -778,7 +757,6 @@ export default function PlaylistsPage() {
     }, 350);
   };
 
-  // Hapus channel playlist dari library — tampilkan PlaylistRemovedToast
   const handleDeleteChannelConfirm = () => {
     if (!deleteChannelTarget) return;
     const removed = deleteChannelTarget;
@@ -796,7 +774,6 @@ export default function PlaylistsPage() {
 
   return (
     <div className="px-3 py-4 sm:px-6 page-enter">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between animate-fade-in">
         <h1 className="text-2xl font-bold">Playlist</h1>
         <button
@@ -808,7 +785,6 @@ export default function PlaylistsPage() {
         </button>
       </div>
 
-      {/* Shortcut: Riwayat & Tersimpan */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 animate-fade-in-up" style={{ animationDelay: "60ms" }}>
         <Link
           to="/history"
@@ -838,7 +814,6 @@ export default function PlaylistsPage() {
         </Link>
       </div>
 
-      {/* Empty state */}
       {!hasAnyPlaylist ? (
         <div className="py-16 text-center animate-fade-in-up" style={{ animationDelay: "120ms" }}>
           <ListVideo className="mx-auto mb-4 h-14 w-14 text-muted-foreground animate-float" />
@@ -897,7 +872,6 @@ export default function PlaylistsPage() {
         </>
       )}
 
-      {/* Modals via portal */}
       {showCreate && (
         <PlaylistDialog onClose={() => setShowCreate(false)} onSave={handleCreate} />
       )}
@@ -908,7 +882,6 @@ export default function PlaylistsPage() {
           onSave={handleEdit}
         />
       )}
-      {/* Hapus playlist user */}
       {deleteTarget && (
         <DeleteConfirmDialog
           playlistTitle={deleteTarget.title}
@@ -916,7 +889,6 @@ export default function PlaylistsPage() {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
-      {/* Hapus channel playlist dari library */}
       {deleteChannelTarget && (
         <DeleteChannelConfirmDialog
           playlistTitle={deleteChannelTarget.title}
@@ -925,7 +897,6 @@ export default function PlaylistsPage() {
         />
       )}
 
-      {/* Toast: playlist user dihapus */}
       {removedUserPlaylist && (
         <PlaylistRemovedToast
           playlistTitle={removedUserPlaylist.title}
@@ -935,7 +906,6 @@ export default function PlaylistsPage() {
         />
       )}
 
-      {/* Toast: channel playlist dihapus dari library */}
       {removedChannelPlaylist && (
         <PlaylistRemovedToast
           playlistTitle={removedChannelPlaylist.title}

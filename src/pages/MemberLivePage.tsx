@@ -24,7 +24,6 @@ interface MemberStatus {
   idnUrl: string | null; showroomUrl: string | null;
   idnStreamUrl: string | null; showroomStreamUrl: string | null; showroomStreamUrlLow: string | null;
   idnSlug: string | null;
-  /** Thumbnail live dari JKT48Connect (dipakai menggantikan foto statis saat member sedang live) */
   liveImg: string | null;
 }
 type UrlQuality = { label: string; url: string };
@@ -43,7 +42,6 @@ const SignalWave = ({ active }: { active: boolean }) => (
   </div>
 );
 
-// ─── Loading Section: Memeriksa semua member (inline, always visible) ─────────
 const MemberCheckingSection = () => {
   const totalMembers = MEMBERS.length;
   const bars = [0.5, 0.75, 1, 0.6, 0.85, 0.45, 0.9, 0.7, 1, 0.55, 0.8, 0.65, 0.95, 0.5, 0.75];
@@ -90,7 +88,6 @@ const MemberCheckingSection = () => {
         }
       `}</style>
 
-      {/* ── Hero loading panel ── */}
       <div
         className="relative w-full rounded-2xl mb-6 overflow-hidden flex flex-col items-center justify-center py-12 px-6 text-center"
         style={{
@@ -99,7 +96,6 @@ const MemberCheckingSection = () => {
           minHeight: "260px",
         }}
       >
-        {/* Background radar rings */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           {[1, 1.6, 2.2, 2.8].map((scale, i) => (
             <div
@@ -115,13 +111,11 @@ const MemberCheckingSection = () => {
           ))}
         </div>
 
-        {/* Glow blobs */}
         <div className="absolute -top-10 -left-10 w-56 h-56 rounded-full blur-[80px] pointer-events-none"
           style={{ background: "hsl(0,80%,40%)", opacity: 0.12 }} />
         <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full blur-[70px] pointer-events-none"
           style={{ background: "hsl(350,70%,38%)", opacity: 0.1 }} />
 
-        {/* Top shimmer border */}
         <div className="absolute top-0 left-0 right-0 h-[2px]"
           style={{
             background: "linear-gradient(90deg, transparent 0%, hsl(0,85%,55%) 30%, hsl(20,90%,65%) 50%, hsl(0,85%,55%) 70%, transparent 100%)",
@@ -129,18 +123,14 @@ const MemberCheckingSection = () => {
             animation: "checking-shimmer 2.5s linear infinite",
           }} />
 
-        {/* Center: radar icon */}
         <div className="relative mb-5 flex items-center justify-center" style={{ width: 72, height: 72 }}>
-          {/* Ping ring */}
           <div className="absolute w-full h-full rounded-full border-2"
             style={{ borderColor: "hsl(0,75%,55%,0.5)", animation: "live-ping 1.8s ease-out infinite" }} />
-          {/* Inner circle */}
           <div className="relative w-16 h-16 rounded-full flex items-center justify-center"
             style={{
               background: "radial-gradient(circle at 35% 35%, hsl(0,85%,58%), hsl(0,70%,35%) 60%, hsl(0,50%,18%))",
               boxShadow: "0 0 28px hsl(0,80%,50%,0.5), 0 0 60px hsl(0,70%,40%,0.2)",
             }}>
-            {/* Spinning radar sweep */}
             <div className="absolute inset-0 rounded-full overflow-hidden">
               <div className="absolute inset-0 rounded-full"
                 style={{
@@ -148,7 +138,6 @@ const MemberCheckingSection = () => {
                   animation: "radar-spin 1.5s linear infinite",
                 }} />
             </div>
-            {/* Icon */}
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               className="relative z-10" style={{ width: 26, height: 26 }}>
               <circle cx="12" cy="12" r="2" fill="white" stroke="none" />
@@ -160,7 +149,6 @@ const MemberCheckingSection = () => {
           </div>
         </div>
 
-        {/* Title */}
         <div className="mb-1 text-base font-black tracking-wide"
           style={{
             background: "linear-gradient(90deg, hsl(0,80%,72%), hsl(20,90%,68%), hsl(0,80%,72%))",
@@ -172,12 +160,10 @@ const MemberCheckingSection = () => {
           Memeriksa Status Member
         </div>
 
-        {/* Subtitle */}
         <p className="text-xs mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
           Memuat data IDN Live & Showroom untuk {totalMembers} member…
         </p>
 
-        {/* Equalizer bars */}
         <div className="flex items-end gap-[3px] mb-5" style={{ height: 36 }}>
           {bars.map((h, i) => (
             <div key={i} className="w-[4px] rounded-full origin-bottom"
@@ -189,7 +175,6 @@ const MemberCheckingSection = () => {
           ))}
         </div>
 
-        {/* Dot wave */}
         <div className="flex items-center gap-2">
           {[0, 0.18, 0.36, 0.54, 0.72].map((delay, i) => (
             <div key={i} className="w-1.5 h-1.5 rounded-full"
@@ -200,7 +185,6 @@ const MemberCheckingSection = () => {
           ))}
         </div>
 
-        {/* Bottom shimmer strip */}
         <div className="absolute bottom-0 left-0 right-0 h-[2px]"
           style={{
             background: "linear-gradient(90deg, transparent 0%, hsl(350,75%,45%) 50%, transparent 100%)",
@@ -209,7 +193,6 @@ const MemberCheckingSection = () => {
           }} />
       </div>
 
-      {/* ── Skeleton member grid ── */}
       <div className="flex items-center gap-3 mb-4">
         <div className="h-px flex-1" style={{ background: "linear-gradient(90deg,hsl(var(--border)),transparent)" }} />
         <span className="text-[10px] font-bold tracking-[0.18em] uppercase" style={{ color: "hsl(0,40%,40%)" }}>Member</span>
@@ -224,9 +207,7 @@ const MemberCheckingSection = () => {
               borderColor: "hsl(var(--border))",
               animationDelay: `${i * 0.05}s`,
             }}>
-            {/* Photo area skeleton */}
             <div className="skeleton-card" style={{ aspectRatio: "3/4", animationDelay: `${i * 0.08}s` }} />
-            {/* Text skeleton */}
             <div className="p-3 flex flex-col gap-2">
               <div className="skeleton-card h-3.5 w-3/4 rounded-full" style={{ animationDelay: `${i * 0.08 + 0.1}s` }} />
               <div className="skeleton-card h-7 w-full rounded-xl" style={{ animationDelay: `${i * 0.08 + 0.2}s` }} />
@@ -272,7 +253,6 @@ const OfficialCard = ({
           : "0 8px 32px hsl(var(--border)/0.3)",
       }}
     >
-      {/* Animated shimmer top border */}
       <div
         className="absolute top-0 left-0 right-0 h-[2px]"
         style={{
@@ -282,7 +262,6 @@ const OfficialCard = ({
         }}
       />
 
-      {/* Subtle background glow blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute -top-12 -left-8 w-64 h-64 rounded-full opacity-10 blur-[80px] transition-opacity duration-700"
@@ -295,7 +274,6 @@ const OfficialCard = ({
       </div>
 
       <div className="relative flex flex-col sm:flex-row items-center sm:items-stretch gap-0">
-        {/* Left: Logo band */}
         <div
           className="relative flex-shrink-0 flex items-center justify-center sm:w-40 w-full py-6 sm:py-0"
           style={{
@@ -339,7 +317,6 @@ const OfficialCard = ({
           )}
         </div>
 
-        {/* Center: Info */}
         <div className="flex-1 flex flex-col justify-center gap-1.5 px-5 py-4 sm:py-5 text-center sm:text-left">
           <div className="flex items-center gap-2 justify-center sm:justify-start">
             <span
@@ -369,12 +346,10 @@ const OfficialCard = ({
           </p>
         </div>
 
-        {/* Right: Platform buttons */}
         <div
           className="flex-shrink-0 flex flex-row sm:flex-col justify-center gap-2 px-4 sm:px-5 py-4 sm:py-5 sm:border-l w-full sm:w-auto"
           style={{ borderColor: "hsl(var(--border))" }}
         >
-          {/* IDN button */}
           {isIdnLive ? (
             <button
               onClick={onWatchIdn}
@@ -402,7 +377,6 @@ const OfficialCard = ({
             </button>
           )}
 
-          {/* Showroom button */}
           {isShowroomLive ? (
             <button
               onClick={onWatchShowroom}
@@ -463,7 +437,6 @@ const TEAMS: (Team | "Semua")[] = ["Semua", "Team Love", "Team Dream", "Team Pas
 const LIVE_FILTERS = ["Semua", "Sedang Live", "Offline"] as const;
 type LiveFilter = typeof LIVE_FILTERS[number];
 
-// ─── Helper: build default status map ────────────────────────────────────────
 function buildDefaultStatuses(liveStatus: LiveStatus = "checking"): Map<string, MemberStatus> {
   return new Map(
     MEMBERS.map(m => [m.id, {
@@ -496,13 +469,8 @@ const MemberLivePage = () => {
   const [search, setSearch] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // ─── BULK CHECK: IDN + Showroom sekaligus via JKT48Connect API (GET /api/now_live) ───
-  // Menggantikan check-idn-live-bulk & check-showroom-live-bulk: sekarang
-  // cukup 1 request ke JKT48Connect untuk seluruh member.
   const checkAll = useCallback(async () => {
     setIsRefreshing(true);
-
-    // Reset semua ke "checking"
     setStatuses(buildDefaultStatuses("checking"));
     setOfficialStatus(prev => ({
       ...prev,
@@ -520,18 +488,10 @@ const MemberLivePage = () => {
       console.error("[JKT48Connect] Gagal mengambil status live:", err);
     }
     const liveIndex = indexJKT48ConnectLive(liveEntries);
-
-    // Mulai download library hls.js LEBIH AWAL begitu kita tahu ada member
-    // yang live — bukan nunggu sampai user klik "Tonton Live" baru mulai
-    // import(). Browser akan cache modul ini, jadi begitu user pindah ke
-    // halaman player, hls.js sudah siap pakai (tidak perlu nunggu download
-    // dulu) — mengurangi waktu jeda sebelum video mulai muncul. Dibiarkan
-    // "fire and forget", tidak perlu ditunggu/di-await.
     if (liveEntries.length > 0) {
       import("hls.js").catch(() => { /* biarkan gagal senyap, fallback tetap jalan saat benar-benar dibutuhkan */ });
     }
 
-    // ── Update status OFFICIAL ────────────────────────────────────────────
     setOfficialStatus(prev => ({
       ...prev,
       ...buildMemberLiveStatus(liveIndex, {
@@ -541,7 +501,6 @@ const MemberLivePage = () => {
       }),
     }));
 
-    // ── Update status SEMUA MEMBER sekaligus ──────────────────────────────
     setStatuses(() => {
       const next = new Map<string, MemberStatus>();
       for (const member of MEMBERS) {
@@ -572,7 +531,6 @@ const MemberLivePage = () => {
     const status = statuses.get(member.id)!; const profileUrl = `https://www.idn.app/${member.idnUsername}`;
     if (status.idnStreamUrl) { goToStream(member, "idn", status.idnStreamUrl, status.idnUrl ?? profileUrl); return; }
     if (status.idn === "live") {
-      // Live tapi belum ada URL stream (umum untuk IDN: now_live tidak membawa HLS) → ambil sumber stream lewat /api/watch
       setLoadingPlayer({ memberId: member.id, platform: "idn" });
       try {
         const liveEntries = await fetchJKT48ConnectLive();
@@ -689,7 +647,6 @@ const MemberLivePage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 pb-24">
-        {/* ── Note: info refresh stream saat layar blank ── */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -713,7 +670,6 @@ const MemberLivePage = () => {
           <MemberCheckingSection />
         ) : (
           <>
-            {/* ── JKT48 Official Banner Card ── */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
               <OfficialCard
                 status={officialStatus}
@@ -726,7 +682,6 @@ const MemberLivePage = () => {
               />
             </motion.div>
 
-            {/* ── Member divider ── */}
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px flex-1" style={{ background: "linear-gradient(90deg,hsl(var(--border)),transparent)" }} />
               <span className="text-[10px] font-bold tracking-[0.18em] uppercase" style={{ color: "hsl(var(--primary))" }}>Member</span>

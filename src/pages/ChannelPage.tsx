@@ -56,7 +56,6 @@ const ORDERS: { key: Order; label: string }[] = [
   { key: "oldest", label: "Terlama" },
 ];
 
-// ── Modal Konfirmasi Simpan Playlist dari Channel ─────────────────────────────
 function SaveChannelPlaylistModal({
   playlist,
   channelName,
@@ -88,7 +87,6 @@ function SaveChannelPlaylistModal({
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm rounded-2xl bg-background shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-semibold text-base">
             {alreadySaved ? "Hapus dari Playlist Saya?" : "Simpan Playlist ke Library"}
@@ -98,7 +96,6 @@ function SaveChannelPlaylistModal({
           </button>
         </div>
 
-        {/* Info playlist */}
         <div className="flex items-start gap-3 px-5 py-4 border-b border-border">
           <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-surface-hover">
             {thumb ? (
@@ -120,7 +117,6 @@ function SaveChannelPlaylistModal({
           </div>
         </div>
 
-        {/* Info */}
         {!alreadySaved && (
           <div className="px-5 py-3 bg-primary/5 border-b border-border">
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -130,7 +126,6 @@ function SaveChannelPlaylistModal({
           </div>
         )}
 
-        {/* Buttons */}
         <div className="flex gap-3 px-5 py-4">
           <button
             onClick={onClose}
@@ -160,7 +155,6 @@ function SaveChannelPlaylistModal({
   );
 }
 
-// ── Playlist card ─────────────────────────────────────────────────────────────
 function PlaylistCard({
   playlist,
   channelName,
@@ -187,7 +181,6 @@ function PlaylistCard({
     setShowModal(false);
     setSaving(true);
     try {
-      // Ambil SEMUA video dari playlist dengan loop pagination
       const allVideos: YTVideo[] = [];
       let pageToken: string | undefined;
       do {
@@ -227,7 +220,6 @@ function PlaylistCard({
   return (
     <>
       <div className="group relative flex flex-col overflow-hidden rounded-xl transition-transform hover:scale-[1.02]">
-        {/* Thumbnail */}
         <Link
           to={`/playlist?list=${playlist.id}`}
           className="relative block aspect-video w-full overflow-hidden rounded-xl bg-surface-hover"
@@ -244,7 +236,6 @@ function PlaylistCard({
               <ListVideo className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
-          {/* Video count strip */}
           <div className="absolute inset-y-0 right-0 flex w-12 flex-col items-center justify-center gap-0.5 bg-black/60 backdrop-blur-sm">
             <ListVideo className="h-4 w-4 text-white" />
             <span className="text-center text-[10px] font-bold leading-none text-white">
@@ -252,7 +243,6 @@ function PlaylistCard({
             </span>
             <span className="text-[8px] leading-none text-white/80">video</span>
           </div>
-          {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
             <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
               <Play className="h-3.5 w-3.5 fill-white" />
@@ -261,7 +251,6 @@ function PlaylistCard({
           </div>
         </Link>
 
-        {/* Info */}
         <div className="mt-2 space-y-0.5 px-0.5">
           <p className="line-clamp-2 text-sm font-semibold leading-snug">{playlist.title}</p>
           <p className="text-xs text-muted-foreground">{count} video</p>
@@ -275,7 +264,6 @@ function PlaylistCard({
             >
               Lihat playlist lengkap
             </Link>
-            {/* Tombol Simpan ke Library */}
             <button
               onClick={() => !saving && setShowModal(true)}
               disabled={saving}
@@ -302,7 +290,6 @@ function PlaylistCard({
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <SaveChannelPlaylistModal
           playlist={playlist}
@@ -313,7 +300,6 @@ function PlaylistCard({
         />
       )}
 
-      {/* Toast saat simpan */}
       {toast && (
         <PlaylistSavedToast
           playlistTitle={playlist.title}
@@ -323,7 +309,6 @@ function PlaylistCard({
         />
       )}
 
-      {/* Toast saat hapus */}
       {removedToast && (
         <PlaylistRemovedToast
           playlistTitle={playlist.title}
@@ -346,7 +331,6 @@ function PlaylistCardSkeleton() {
   );
 }
 
-// ── Live Replay card (past live stream) ──────────────────────────────────────
 function LiveReplayCard({
   replay,
   channelName,
@@ -388,7 +372,6 @@ function LiveReplayCard({
   };
 
   const handleWatch = (e: React.MouseEvent) => {
-    // Jangan navigate jika klik di area tombol titik 3
     if ((e.target as HTMLElement).closest("[data-menu-btn]")) return;
     navigate(`/watch?v=${replay.videoId}`);
   };
@@ -406,7 +389,6 @@ function LiveReplayCard({
   return (
     <>
       <div className="group relative flex flex-col overflow-hidden rounded-xl transition-transform hover:scale-[1.02]">
-        {/* Thumbnail — klik untuk tonton */}
         <div
           className="relative block aspect-video w-full overflow-hidden rounded-xl bg-surface-hover cursor-pointer"
           onClick={() => navigate(`/watch?v=${replay.videoId}`)}
@@ -424,7 +406,6 @@ function LiveReplayCard({
             </div>
           )}
 
-          {/* Duration badge */}
           <div className="absolute bottom-2 right-2">
             {duration ? (
               <span className="rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
@@ -437,7 +418,6 @@ function LiveReplayCard({
             )}
           </div>
 
-          {/* Live Replay chip top-left */}
           <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 backdrop-blur-sm">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-2.5 h-2.5 text-red-400">
               <circle cx="12" cy="12" r="8" />
@@ -445,7 +425,6 @@ function LiveReplayCard({
             <span className="text-[9px] font-bold text-white uppercase tracking-wide">Live Replay</span>
           </div>
 
-          {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none">
             <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
               <Play className="h-3.5 w-3.5 fill-white" />
@@ -454,9 +433,7 @@ function LiveReplayCard({
           </div>
         </div>
 
-        {/* Info row — mirip VideoCard grid */}
         <div className="mt-2 flex gap-2">
-          {/* Title + metadata — klik untuk tonton */}
           <div
             className="min-w-0 flex-1 cursor-pointer"
             onClick={() => navigate(`/watch?v=${replay.videoId}`)}
@@ -470,7 +447,6 @@ function LiveReplayCard({
             </p>
           </div>
 
-          {/* Three-dot menu button — selalu muncul, di kanan setelah judul */}
           <div className="flex-shrink-0 pt-0.5">
             <button
               ref={menuBtnRef}
@@ -488,7 +464,6 @@ function LiveReplayCard({
         </div>
       </div>
 
-      {/* Dropdown menu portal */}
       {menuOpen && createPortal(
         <>
           <div
@@ -591,7 +566,6 @@ function LiveCardSkeleton() {
   );
 }
 
-// ── Main ChannelPage ──────────────────────────────────────────────────────────
 export default function ChannelPage() {
   const { handle } = useParams<{ handle: ChannelKey }>();
   if (!handle || !(handle in CHANNELS)) return <Navigate to="/" replace />;
@@ -613,7 +587,6 @@ export default function ChannelPage() {
   const [loadingMorePlaylists, setLoadingMorePlaylists] = useState(false);
   const [playlistsFetched, setPlaylistsFetched] = useState(false);
 
-  // Live tab state — replays only, no live checking
   const [replays, setReplays] = useState<YTLiveBroadcast[]>([]);
   const [loadingLives, setLoadingLives] = useState(false);
   const [livesFetched, setLivesFetched] = useState(false);
@@ -679,7 +652,6 @@ export default function ChannelPage() {
     if (tab === "playlists") loadPlaylists();
   }, [tab, loadPlaylists]);
 
-  // Load replays only (no live checking)
   const loadReplays = useCallback(async () => {
     if (livesFetched) return;
     setLoadingLives(true);
@@ -745,7 +717,6 @@ export default function ChannelPage() {
 
   return (
     <div>
-      {/* Channel banner */}
       <div className="relative h-32 overflow-hidden sm:h-44 lg:h-56">
         {info?.banner ? (
           <img
@@ -766,7 +737,6 @@ export default function ChannelPage() {
 
       <div className="relative -mt-10 px-3 sm:px-6 lg:px-8">
         <div className="flex items-end gap-4">
-          {/* Avatar + Info — wrapped in frosted pill so text is readable over banner */}
           <div
             className="flex items-center gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl px-2 py-2 sm:px-3 sm:py-2.5 flex-shrink-0"
             style={{
@@ -777,7 +747,6 @@ export default function ChannelPage() {
               border: "1px solid hsl(var(--border) / 0.5)",
             }}
           >
-            {/* Avatar */}
             <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full border-2 border-background shadow-elevated sm:h-20 sm:w-20">
               {avatar ? (
                 <img src={avatar} alt={channel.name} className="h-full w-full object-cover" />
@@ -791,7 +760,6 @@ export default function ChannelPage() {
               )}
             </div>
 
-            {/* Info */}
             <div className="min-w-0 py-1">
               <h1 className="truncate text-lg font-bold sm:text-2xl">
                 {info?.title ?? channel.name}
@@ -818,7 +786,6 @@ export default function ChannelPage() {
           </div>
         </div>
 
-        {/* ── TABS ── */}
         <div className="mt-6 flex items-center gap-1 border-b border-border">
           {(["videos", "playlists", "live"] as Tab[]).map((t) => (
             <button
@@ -841,7 +808,6 @@ export default function ChannelPage() {
           ))}
         </div>
 
-        {/* ── SORT ── */}
         {tab === "videos" && (
           <div className="mt-3 flex items-center gap-2 pb-3">
             <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -868,7 +834,6 @@ export default function ChannelPage() {
         )}
       </div>
 
-      {/* ── NOTICE: JKT48 LIVE tidak mengizinkan embed pihak ketiga ── */}
       {handle === "48DailyLive" && (
         <div className="px-3 pt-4 sm:px-6">
           <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -891,7 +856,6 @@ export default function ChannelPage() {
         </div>
       )}
 
-      {/* ── VIDEO GRID — VideoCard sudah built-in punya semua toast ── */}
       {tab === "videos" && (
         <div className="grid grid-cols-1 gap-4 px-3 pb-8 pt-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 xl:grid-cols-4">
           {loadingVideos &&
@@ -903,7 +867,6 @@ export default function ChannelPage() {
         </div>
       )}
 
-      {/* ── PLAYLIST GRID — PlaylistCard punya PlaylistSavedToast & PlaylistRemovedToast ── */}
       {tab === "playlists" && (
         <>
           <div className="grid grid-cols-1 gap-4 px-3 pb-8 pt-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 xl:grid-cols-4">
@@ -930,7 +893,6 @@ export default function ChannelPage() {
         </>
       )}
 
-      {/* ── LIVE GRID — LiveReplayCard punya semua toast ── */}
       {tab === "live" && (
         <div className="px-3 pb-8 pt-4 sm:px-6">
           {loadingLives && (

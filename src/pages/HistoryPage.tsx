@@ -78,7 +78,6 @@ export default function HistoryPage() {
                   to={`/watch?v=${it.id}`}
                   className="flex flex-1 gap-3 min-w-0"
                 >
-                  {/* Thumbnail */}
                   <div className="relative flex-shrink-0 w-40 sm:w-60">
                     <div className="yt-thumb w-full">
                       <img src={it.thumb} alt={it.title} loading="lazy" />
@@ -98,7 +97,6 @@ export default function HistoryPage() {
                     </div>
                   </div>
 
-                  {/* Info */}
                   <div className="min-w-0 flex-1 py-1 pr-16">
                     <h3 className="line-clamp-2 text-sm font-semibold sm:text-base">
                       {it.title}
@@ -109,7 +107,6 @@ export default function HistoryPage() {
                   </div>
                 </Link>
 
-                {/* Three-dot menu */}
                 <div className="absolute right-10 top-2">
                   <button
                     ref={(el) => { menuBtnRefs.current[menuKey] = el; }}
@@ -121,7 +118,6 @@ export default function HistoryPage() {
                   </button>
                 </div>
 
-                {/* Delete button */}
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -140,7 +136,6 @@ export default function HistoryPage() {
                   <X className="h-4 w-4" />
                 </button>
 
-                {/* Dropdown menu portal */}
                 {isMenuOpen &&
                   createPortal(
                     <>

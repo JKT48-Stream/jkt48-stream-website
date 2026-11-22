@@ -23,7 +23,6 @@ import { Play, Shuffle, ListVideo, ArrowLeft, MoreVertical, ListPlus, Bookmark, 
 function VideoRowSkeleton() {
   return (
     <div className="flex items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4">
-      {/* Nomor placeholder */}
       <div className="w-6 flex-shrink-0" />
       <div className="h-16 w-28 flex-shrink-0 animate-pulse rounded-lg bg-surface-hover sm:h-20 sm:w-36" />
       <div className="min-w-0 flex-1 space-y-2 py-1">
@@ -79,20 +78,16 @@ function VideoRow({
 
   return (
     <>
-      {/* ── Row container: items-center agar semua child sejajar tengah vertikal */}
       <div className="group relative flex items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-surface-hover sm:gap-3 sm:px-4">
 
-        {/* ── Nomor: di luar Link, paling kiri, self-center — persis seperti YouTube */}
         <span className="w-6 flex-shrink-0 text-center text-xs text-muted-foreground self-center select-none">
           {index + 1}
         </span>
 
-        {/* ── Thumbnail + Info: dibungkus Link */}
         <Link
           to={`/watch?v=${video.id}&list=${playlistId}&index=${index + 1}`}
           className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0"
         >
-          {/* Thumbnail */}
           <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-lg sm:h-20 sm:w-36">
             <img
               src={thumb}
@@ -108,7 +103,6 @@ function VideoRow({
             </div>
           </div>
 
-          {/* Info teks */}
           <div className="min-w-0 flex-1 pr-2">
             <p className="line-clamp-2 text-sm font-medium leading-snug">
               {video.snippet.title}
@@ -122,7 +116,6 @@ function VideoRow({
           </div>
         </Link>
 
-        {/* ── Three-dot menu button */}
         <button
           ref={btnRef}
           onClick={openMenu}
@@ -136,7 +129,6 @@ function VideoRow({
         </button>
       </div>
 
-      {/* Dropdown portal */}
       {menuOpen && createPortal(
         <>
           <div
@@ -315,9 +307,7 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
-      {/* ── KIRI: Header playlist (sticky di desktop) ── */}
       <div className="lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:w-[360px] lg:flex-shrink-0 lg:overflow-y-auto">
-        {/* Tombol kembali */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 px-4 pt-4 text-sm text-muted-foreground hover:text-foreground"
@@ -326,7 +316,6 @@ export default function PlaylistDetailPage() {
           <span>Kembali</span>
         </button>
 
-        {/* Thumbnail */}
         <div className="relative mx-4 mt-3 overflow-hidden rounded-xl">
           {thumbUrl ? (
             <img
@@ -351,7 +340,6 @@ export default function PlaylistDetailPage() {
           )}
         </div>
 
-        {/* Info playlist */}
         <div className="px-4 py-3">
           {loading && !playlist ? (
             <div className="space-y-2">
@@ -380,7 +368,6 @@ export default function PlaylistDetailPage() {
             </>
           )}
 
-          {/* Tombol aksi */}
           <div className="mt-3 flex gap-2">
             <button
               onClick={playFirst}
@@ -402,7 +389,6 @@ export default function PlaylistDetailPage() {
         </div>
       </div>
 
-      {/* ── KANAN: Daftar video ── */}
       <div className="flex-1 pb-20 lg:pb-8">
         <div className="px-0 pt-2">
           {loading &&

@@ -15,7 +15,6 @@ import {
   resolveMemberLiveStatus,
 } from "@/lib/jkt48connect";
 
-// Synthetic Member object untuk JKT48 Official agar kompatibel dengan StreamingPlayerPage
 const OFFICIAL_MEMBER: Member = {
   id: JKT48_OFFICIAL.id,
   name: JKT48_OFFICIAL.name,
@@ -28,14 +27,12 @@ const OFFICIAL_MEMBER: Member = {
 };
 import { cn } from "@/lib/utils";
 
-/* ─── Types ──────────────────────────────────────────────────────────────── */
 type Platform = "idn" | "showroom";
 type PlayerState = "loading" | "playing" | "error" | "refreshing";
 
 type UrlQuality = { label: string; url: string };
 type HlsQuality = { index: number; label: string; height: number };
 
-/* ─── Icons ───────────────────────────────────────────────────────────────── */
 const IconVolume = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>;
 const IconMute = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>;
 const IconExpand = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" /></svg>;
@@ -49,7 +46,6 @@ const IconShare = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const IconCheck = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12" /></svg>;
 const IconWarning = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 text-red-400"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>;
 
-/* ─── Icon Landscape / Portrait ───────────────────────────────────────────── */
 const IconLandscape = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
     <rect x="2" y="6" width="20" height="12" rx="2" />
@@ -65,12 +61,10 @@ const IconPortrait = () => (
   </svg>
 );
 
-/* ─── Deteksi apakah device adalah mobile/tablet (touch device) ───────────── */
 const isTouchDevice = () =>
   typeof window !== "undefined" &&
   ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-/* ─── Live Stats Bar ──────────────────────────────────────────────────────── */
 const LiveStatsBar = ({
   member,
   platform,
@@ -105,7 +99,6 @@ const LiveStatsBar = ({
 
   return (
     <div className="mt-4">
-      {/* Baris judul */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -134,7 +127,6 @@ const LiveStatsBar = ({
         </div>
       </div>
 
-      {/* Baris channel */}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-red-500/50 flex-shrink-0">
@@ -151,7 +143,6 @@ const LiveStatsBar = ({
           </div>
         </div>
 
-        {/* Tombol aksi */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={onShare}
@@ -174,7 +165,6 @@ const LiveStatsBar = ({
         </div>
       </div>
 
-      {/* Panel deskripsi */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -206,7 +196,6 @@ const LiveStatsBar = ({
   );
 };
 
-/* ─── HLS Video Player ────────────────────────────────────────────────────── */
 const HlsVideoPlayer = ({
   streamUrl,
   streamQualities,
@@ -239,11 +228,8 @@ const HlsVideoPlayer = ({
   const [latency, setLatency] = useState<number | null>(null);
   const [isPiPActive, setIsPiPActive] = useState(false);
 
-  // ── Orientasi: hanya aktif di mobile saat fullscreen ──
   const [isLandscapeMode, setIsLandscapeMode] = useState(false);
   const isOrientationLockedRef = useRef(false);
-
-  // Deteksi mobile menggunakan state agar reaktif (bukan ref yang hanya dihitung sekali)
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   useEffect(() => {
     const check = () => {
@@ -257,13 +243,10 @@ const HlsVideoPlayer = ({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Tombol orientasi hanya tampil di mobile device saat fullscreen
   const showOrientationBtn = isMobileDevice && isFullscreen;
 
-  // ── Reset orientasi saat keluar fullscreen ──
   useEffect(() => {
     if (!isFullscreen) {
-      // Keluar fullscreen → unlock orientasi & reset state
       if (isOrientationLockedRef.current) {
         try {
           screen.orientation?.unlock?.();
@@ -274,7 +257,6 @@ const HlsVideoPlayer = ({
     }
   }, [isFullscreen]);
 
-  // ── Sync isLandscapeMode dengan orientasi fisik device ──
   useEffect(() => {
     if (!isFullscreen) return;
 
@@ -293,14 +275,12 @@ const HlsVideoPlayer = ({
     };
   }, [isFullscreen]);
 
-  /* ── Toggle orientasi: hanya berfungsi saat fullscreen ── */
   const toggleOrientation = useCallback(() => {
     if (!isFullscreen) return;
 
     const nextLandscape = !isLandscapeMode;
     setIsLandscapeMode(nextLandscape);
 
-    // Coba lock orientasi (best-effort, hanya berhasil di mobile browser yang support)
     const tryLock = async () => {
       try {
         if (screen.orientation && typeof screen.orientation.lock === "function") {
@@ -309,14 +289,12 @@ const HlsVideoPlayer = ({
           isOrientationLockedRef.current = true;
         }
       } catch {
-        // Lock gagal (desktop/browser tidak support) — UI state tetap berubah
         isOrientationLockedRef.current = false;
       }
     };
     tryLock();
   }, [isFullscreen, isLandscapeMode]);
 
-  // ── Blank/stall detection ──
   const [showRefreshHint, setShowRefreshHint] = useState(false);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -359,7 +337,6 @@ const HlsVideoPlayer = ({
     if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
   }, []);
 
-  // ── Track fullscreen state ── (support webkit prefix for mobile browsers)
   useEffect(() => {
     const fn = () => {
       const isFs = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
@@ -396,7 +373,6 @@ const HlsVideoPlayer = ({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadIdRef = useRef(0);
@@ -463,17 +439,6 @@ const HlsVideoPlayer = ({
         lowLatencyMode: true,
         backBufferLength: 90,
         autoStartLoad: true,
-        // Tuning supaya time-to-first-frame lebih cepat, khususnya penting
-        // sekarang karena tiap request nambah 1 hop lewat proxy:
-        // - liveSyncDurationCount lebih kecil = HLS.js tidak menunggu
-        //   terlalu banyak segmen ter-buffer dulu sebelum mulai play
-        //   (default 3 segmen; diperkecil ke 2). Trade-off: sedikit lebih
-        //   rentan buffering kalau koneksi tidak stabil.
-        // - testBandwidth: false = skip fragmen tes bandwidth awal yang
-        //   HLS.js biasanya lakukan sebelum pilih kualitas — langsung pilih
-        //   level pertama & mulai fetch fragmen asli, hemat 1 round-trip.
-        // - startFragPrefetch: true = mulai fetch fragmen pertama SEGERA
-        //   begitu playlist selesai di-parse, tidak menunggu event lain.
         liveSyncDurationCount: 2,
         testBandwidth: false,
         startFragPrefetch: true,
@@ -584,10 +549,6 @@ const HlsVideoPlayer = ({
   const currentQualityLabel = hasUrlQualities
     ? (streamQualities.find(q => q.url === activeUrlQuality)?.label ?? streamQualities[0]?.label ?? "Kualitas")
     : currentHlsLevel === -1 ? "Auto" : (hlsQualities.find(q => q.index === currentHlsLevel)?.label ?? "Auto");
-
-  // Saat fullscreen native: browser otomatis mengisi layar penuh,
-  // kita hanya perlu pastikan tidak ada constraint aspect ratio & border radius.
-  // Saat tidak fullscreen: gunakan aspect ratio 16/9 normal.
   const containerStyle: React.CSSProperties = isFullscreen
     ? {
         width: "100%",
@@ -603,7 +564,6 @@ const HlsVideoPlayer = ({
 
   return (
     <div className={isFullscreen ? "fixed inset-0 z-[9999]" : "w-full"}>
-      {/* Kontainer video */}
       <div
         ref={containerRef}
         className={`relative bg-zinc-950 overflow-hidden shadow-2xl w-full h-full ${isFullscreen ? "" : "rounded-xl"}`}
@@ -612,16 +572,13 @@ const HlsVideoPlayer = ({
         onMouseMove={() => { setShowControls(true); startHideTimer(); }}
         onMouseLeave={() => { isHoveringRef.current = false; startHideTimer(); }}
         onTouchEnd={(e) => {
-          // Hanya toggle jika touch bukan di tombol kontrol
           if ((e.target as HTMLElement).closest("button,input,[role=button]")) return;
           e.stopPropagation();
           setShowControls(prev => {
             if (!prev) {
-              // Muncul → mulai timer auto-hide
               startHideTimer();
               return true;
             } else {
-              // Sudah muncul → sembunyikan langsung + tutup quality
               cancelHideTimer();
               setShowQuality(false);
               return false;
@@ -630,7 +587,6 @@ const HlsVideoPlayer = ({
         }}
         onClick={() => setShowQuality(false)}
       >
-        {/* Dekorasi sudut */}
         {["top-0 left-0 border-t-2 border-l-2 rounded-tl-xl", "top-0 right-0 border-t-2 border-r-2 rounded-tr-xl", "bottom-0 left-0 border-b-2 border-l-2 rounded-bl-xl", "bottom-0 right-0 border-b-2 border-r-2 rounded-br-xl"].map((cls, i) => (
           <motion.div key={i} className={`absolute w-5 h-5 ${cls} pointer-events-none`}
             style={{ borderColor: "hsl(0,80%,55%,0.5)", zIndex: 10 }}
@@ -640,7 +596,6 @@ const HlsVideoPlayer = ({
 
         <video ref={videoRef} className="w-full h-full" style={{ objectFit: "contain", background: "#000" }} autoPlay playsInline />
 
-        {/* Overlay kontrol */}
         <AnimatePresence>
           {showControls && playerState === "playing" && (
             <motion.div
@@ -653,20 +608,17 @@ const HlsVideoPlayer = ({
               onMouseLeave={() => startHideTimer()}
             >
               <div className="flex items-center gap-2">
-                {/* LIVE badge */}
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-600/90">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                   <span className="text-white text-[10px] font-black tracking-widest">LIVE</span>
                 </div>
 
-                {/* Latency */}
                 {latency !== null && (
                   <span className="hidden sm:inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/50 font-mono">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400/70" />{latency}s
                   </span>
                 )}
 
-                {/* Volume */}
                 <div className="relative flex items-center gap-1"
                   onMouseEnter={() => { if (volTimerRef.current) clearTimeout(volTimerRef.current); setShowVolume(true); }}
                   onMouseLeave={() => { volTimerRef.current = setTimeout(() => setShowVolume(false), 500); }}
@@ -689,7 +641,6 @@ const HlsVideoPlayer = ({
 
                 <div className="flex-1" />
 
-                {/* Kualitas */}
                 {showQualityBtn && (
                   <div className="relative">
                     <button onClick={(e) => { e.stopPropagation(); setShowQuality(p => !p); }}
@@ -739,11 +690,6 @@ const HlsVideoPlayer = ({
                   </button>
                 )}
 
-                {/* ── Tombol Orientasi ──────────────────────────────────────
-                    Hanya muncul di device touch (mobile/tablet) saat fullscreen.
-                    onClick dipakai agar gesture context browser tetap terjaga
-                    untuk screen.orientation.lock().
-                ─────────────────────────────────────────────────────────── */}
                 {showOrientationBtn && (
                   <button
                     onClick={(e) => {
@@ -777,7 +723,6 @@ const HlsVideoPlayer = ({
           )}
         </AnimatePresence>
 
-        {/* Status loading */}
         {(playerState === "loading" || playerState === "refreshing") && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/90 gap-5 z-10">
             <div className="relative w-16 h-16">
@@ -799,7 +744,6 @@ const HlsVideoPlayer = ({
           </div>
         )}
 
-        {/* Status error */}
         {playerState === "error" && (
           <motion.div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/92 p-8 text-center gap-4 z-10"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -819,7 +763,6 @@ const HlsVideoPlayer = ({
           </motion.div>
         )}
 
-        {/* ── Overlay hint refresh di dalam player ── */}
         <AnimatePresence>
           {showRefreshHint && playerState !== "refreshing" && (
             <motion.div
@@ -850,12 +793,10 @@ const HlsVideoPlayer = ({
           )}
         </AnimatePresence>
       </div>
-      {/* ── Note refresh DIHAPUS dari sini (sudah ada di MemberLivePage) ── */}
     </div>
   );
 };
 
-/* ─── Panel Member Lain yang Live ─────────────────────────────────────────── */
 const OtherLiveMembersPanel = ({ currentMemberId }: { currentMemberId: string }) => {
   const navigate = useNavigate();
   const [liveMembers, setLiveMembers] = useState<Array<{ member: Member; platform: Platform; streamUrl: string; streamQualities: UrlQuality[]; liveUrl: string }>>([]);
@@ -872,11 +813,7 @@ const OtherLiveMembersPanel = ({ currentMemberId }: { currentMemberId: string })
         const liveEntries = await fetchJKT48ConnectLive();
         if (cancelled) return;
         const liveIndex = indexJKT48ConnectLive(liveEntries);
-
         const found: Array<{ member: Member; platform: Platform; streamUrl: string; streamQualities: UrlQuality[]; liveUrl: string }> = [];
-
-        // Hanya member yang benar-benar live. IDN umumnya belum punya URL stream di now_live, jadi sumbernya
-        // diambil lewat /api/watch — dibatasi 6 member supaya tidak memboroskan kuota API key.
         const liveNow = MEMBERS.filter((m) => m.id !== currentMemberId)
           .map((member) => {
             const ids = { idnUsername: member.idnUsername, showroomKey: member.showroomKey, showroomRoomId: member.showroomRoomId };
@@ -981,7 +918,6 @@ const OtherLiveMembersPanel = ({ currentMemberId }: { currentMemberId: string })
   );
 };
 
-/* ─── Main StreamingPlayerPage ────────────────────────────────────────────── */
 export default function StreamingPlayerPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -1008,13 +944,9 @@ export default function StreamingPlayerPage() {
   const [activeStreamQualities, setActiveStreamQualities] = useState(streamQualities);
   const [isAutoRefreshing, setIsAutoRefreshing] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  // ── Reset semua state saat berpindah member (stream params berubah) ──
   const prevMemberIdRef = useRef(memberId);
   const prevPlatformRef = useRef(platform);
   const prevStreamUrlRef = useRef(streamUrl);
-
-  // Deteksi layout mobile (lebar layar < 1024px)
   const [isMobileLayout, setIsMobileLayout] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 1024 : false
   );
@@ -1026,7 +958,6 @@ export default function StreamingPlayerPage() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Lock body/main scroll saat mobile
   useEffect(() => {
     if (!isMobileLayout) return;
     const main = document.querySelector("main");
@@ -1075,7 +1006,6 @@ export default function StreamingPlayerPage() {
     const platformChanged = prevPlatformRef.current !== platform;
     const streamChanged = prevStreamUrlRef.current !== streamUrl;
 
-    // Jika berpindah member / platform / stream, reset semua state dulu
     if (memberChanged || platformChanged || streamChanged) {
       prevMemberIdRef.current = memberId;
       prevPlatformRef.current = platform;
@@ -1120,7 +1050,6 @@ export default function StreamingPlayerPage() {
     };
     autoRefresh();
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId, platform, streamUrl]);
 
   if (!member || !platform || !streamUrl) {
@@ -1188,16 +1117,12 @@ export default function StreamingPlayerPage() {
     </button>
   );
 
-  // ── Mobile: sticky player + inner scroll ──────────────────────────────────
   if (isMobileLayout) {
     return (
       <div className="flex flex-col" style={{ height: "calc(100dvh - 56px)" }}>
-        {/* Player sticky di atas */}
         <div className="flex-shrink-0 bg-black w-full">
           {playerNode}
         </div>
-
-        {/* Konten scrollable di bawah player */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
           <div className="px-3 pb-24">
             <div className="pt-2 pb-1">
@@ -1213,7 +1138,6 @@ export default function StreamingPlayerPage() {
     );
   }
 
-  // ── Desktop: grid dua kolom ───────────────────────────────────────────────
   return (
     <motion.div
       initial={{ opacity: 0 }}
