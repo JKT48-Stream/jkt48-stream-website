@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { isBirthdayToday } from "@/data/birthday-members";
 
-/**
- * Tick tiap detik agar countdown & status ulang tahun selalu sinkron
- * dengan waktu asli perangkat, termasuk transisi otomatis saat
- * lewat tengah malam.
- */
 export function useNow(intervalMs = 1000): Date {
   const [now, setNow] = useState<Date>(() => new Date());
   useEffect(() => {

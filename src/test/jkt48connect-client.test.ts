@@ -44,7 +44,6 @@ describe("client live", () => {
 
   it("resolveMemberLiveStatus: gagal watch tidak melempar", async () => {
     invoke.mockResolvedValue({ data: null, error: { context: { json: async () => ({ error: "x", code: "UPSTREAM_ERROR" }) } } });
-    // key berbeda dari test sebelumnya (hasil watch di-memo 15 detik per key)
     const other: JKT48ConnectLiveEntry[] = [{ name: "Bella", img: "k", platform: "idn", url_key: "jkt48_bella", slug: "l2", streaming: [] }];
     const st = await resolveMemberLiveStatus(indexJKT48ConnectLive(other), { idnUsername: "jkt48_bella" });
     expect(st.idn).toBe("live");

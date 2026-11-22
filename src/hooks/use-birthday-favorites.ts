@@ -15,10 +15,6 @@ function read(): string[] {
   }
 }
 
-/**
- * Simpan daftar id member favorit (khusus tab Member Birthdays Counter) di localStorage.
- * Sinkron antar-komponen dengan custom event agar toggle langsung terlihat di semua kartu.
- */
 export function useBirthdayFavorites() {
   const [ids, setIds] = useState<string[]>(() => read());
 

@@ -10,9 +10,6 @@ export interface BirthdayMember {
   photo?: string;
 }
 
-/**
- * Helper: hasilkan avatar fallback jika `photo` kosong.
- */
 export function getMemberPhoto(m: BirthdayMember): string {
   if (m.photo && m.photo.trim().length > 0) return m.photo;
   const seed = encodeURIComponent(m.nickname || m.name);
@@ -147,11 +144,6 @@ export const members: BirthdayMember[] = [
 
 ];
 
-// ============================================================
-// Utilitas seleksi member berdasarkan tab.
-// ============================================================
-
-/** Hitung berapa hari lagi menuju ulang tahun (0 = hari-H). */
 export function daysUntilBirthday(birthday: string, now: Date = new Date()): number {
   const [m, d] = birthday.split("-").map(Number);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -161,13 +153,11 @@ export function daysUntilBirthday(birthday: string, now: Date = new Date()): num
   return Math.round(diff / (1000 * 60 * 60 * 24));
 }
 
-/** True jika hari ini (waktu lokal) sama dengan tanggal ulang tahun. */
 export function isBirthdayToday(birthday: string, now: Date = new Date()): boolean {
   const [m, d] = birthday.split("-").map(Number);
   return now.getMonth() + 1 === m && now.getDate() === d;
 }
 
-/** Hitung umur member berdasarkan birthYear. Mengembalikan undefined jika birthYear tidak ada. */
 export function getMemberAge(birthday: string, birthYear: number | undefined, now: Date = new Date()): number | undefined {
   if (!birthYear) return undefined;
   const [bMonth, bDay] = birthday.split("-").map(Number);
@@ -178,7 +168,6 @@ export function getMemberAge(birthday: string, birthYear: number | undefined, no
   return age;
 }
 
-/** Urutkan member berdasarkan ulang tahun terdekat. */
 export function sortByUpcoming(list: BirthdayMember[], now: Date = new Date()): BirthdayMember[] {
   return [...list].sort(
     (a, b) => daysUntilBirthday(a.birthday, now) - daysUntilBirthday(b.birthday, now),

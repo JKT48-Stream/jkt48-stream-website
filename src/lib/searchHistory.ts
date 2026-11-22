@@ -1,10 +1,6 @@
-// Riwayat pencarian (localStorage). Dipisah dari SearchPage supaya Navbar (yang selalu dimuat)
-// tidak menarik seluruh halaman SearchPage ke bundle awal.
-
 const HISTORY_KEY = "jkt48_search_history";
 const MAX_HISTORY = 20;
 
-// Export agar bisa dipakai Navbar
 export const TRENDING_SUGGESTIONS = [
   "JKT48 live showroom",
   "JKT48 theater",

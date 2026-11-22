@@ -1,19 +1,8 @@
-/**
- * Pemanggil Supabase Edge Function untuk data JKT48Connect (`live`, `theater`).
- *
- * Semua request ke api.jkt48connect.app dilakukan oleh Edge Function (server-to-server) supaya API key
- * `jkc_...` tidak pernah masuk ke browser. File ini hanya:
- *   1. memanggil function,
- *   2. membaca payload error `{ error, code, resetAt?, retryAfterSec? }` dari function,
- *   3. memberi tahu `ApiStatusBanner` (kuota habis / rate limit / key salah / jaringan) lewat event `api-status`.
- */
-
 import { supabase } from "@/integrations/supabase/client";
 import { emitApiStatus, type ApiStatusEvent } from "@/lib/youtube";
 
 type ErrorCode = Extract<ApiStatusEvent, { type: "error" }>["code"];
 
-/** Error dari Edge Function, membawa `code` & `status` supaya pemanggil bisa membedakan penyebabnya. */
 export class EdgeError extends Error {
   constructor(
     message: string,
@@ -46,16 +35,10 @@ async function readErrorPayload(error: unknown): Promise<{ error?: string; code?
       }
     }
   } catch {
-    /* abaikan */
   }
   return null;
 }
 
-/**
- * @param fn     nama function, mis. "live" / "theater"
- * @param params query string yang diteruskan ke function
- * @param fallbackMessage pesan bila function tidak memberi alasan yang jelas
- */
 export async function callEdge<T>(
   fn: "live" | "theater",
   params: Record<string, string> = {},

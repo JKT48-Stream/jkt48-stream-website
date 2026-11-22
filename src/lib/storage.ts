@@ -20,8 +20,6 @@ export type HistoryItem = {
 
 export type ProgressMap = Record<string, { progress: number; durationSec: number; updatedAt: number }>;
 
-// ─── Playlist types ──────────────────────────────────────────────────────────
-
 export type PlaylistVideo = {
   id: string;
   title: string;
@@ -32,38 +30,27 @@ export type PlaylistVideo = {
 };
 
 export type UserPlaylist = {
-  id: string;           // uuid
+  id: string;
   title: string;
   description: string;
   visibility: "public" | "private" | "unlisted";
   createdAt: number;
   updatedAt: number;
   videos: PlaylistVideo[];
-  /** thumbnail: gunakan thumb video pertama jika tidak ada custom */
   thumb?: string;
 };
 
-/**
- * Playlist yang disimpan dari channel (YouTube playlist).
- * Pengguna hanya bisa menonton, tidak bisa mengedit isi videonya.
- */
 export type SavedChannelPlaylist = {
-  /** ID unik lokal (berbeda dari YouTube playlist ID) */
   id: string;
-  /** YouTube playlist ID asli */
   youtubePlaylistId: string;
   title: string;
   description: string;
   channelTitle: string;
   thumb: string;
   savedAt: number;
-  /** Snapshot video saat disimpan */
   videos: PlaylistVideo[];
-  /** Tandai sebagai playlist dari channel (read-only) */
   isChannelPlaylist: true;
 };
-
-// ─── Helper read/write ────────────────────────────────────────────────────────
 
 function read<T>(k: string, fallback: T): T {
   try {
@@ -78,15 +65,12 @@ function write<T>(k: string, v: T) {
   try {
     localStorage.setItem(k, JSON.stringify(v));
   } catch {
-    /* ignore */
   }
 }
 
 function dispatch() {
   window.dispatchEvent(new Event("jkt48-storage"));
 }
-
-// ─── Progress ─────────────────────────────────────────────────────────────────
 
 export function getProgress(id: string): { progress: number; durationSec: number } | null {
   const map = read<ProgressMap>(PROGRESS_KEY, {});
@@ -107,8 +91,6 @@ export function setProgress(id: string, progress: number, durationSec: number) {
   }
   dispatch();
 }
-
-// ─── History ──────────────────────────────────────────────────────────────────
 
 export function addHistory(item: Omit<HistoryItem, "watchedAt">) {
   const list = read<HistoryItem[]>(HISTORY_KEY, []);
@@ -143,8 +125,6 @@ export function useHistory() {
   };
 }
 
-// ─── Saved ────────────────────────────────────────────────────────────────────
-
 export function toggleSaved(id: string) {
   const set = new Set(read<string[]>(SAVED_KEY, []));
   set.has(id) ? set.delete(id) : set.add(id);
@@ -161,8 +141,6 @@ export function useSaved() {
   }, []);
   return ids;
 }
-
-// ─── User Playlists ───────────────────────────────────────────────────────────
 
 function genId() {
   return `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -213,7 +191,6 @@ export function deletePlaylist(id: string) {
 export function addVideoToPlaylist(playlistId: string, video: Omit<PlaylistVideo, "addedAt">) {
   const list = getPlaylists().map((pl) => {
     if (pl.id !== playlistId) return pl;
-    // Hindari duplikat
     if (pl.videos.some((v) => v.id === video.id)) return pl;
     return {
       ...pl,
@@ -243,7 +220,6 @@ export function reorderPlaylistVideos(playlistId: string, videos: PlaylistVideo[
   dispatch();
 }
 
-/** Salin playlist channel (dari YouTube) ke playlist user */
 export function saveChannelPlaylist(
   title: string,
   description: string,
@@ -300,8 +276,6 @@ export function usePlaylist(id: string) {
   }, [id]);
   return playlist;
 }
-
-// ─── Saved Channel Playlists (Read-Only dari Channel) ────────────────────────
 
 function genChannelPlaylistId() {
   return `cpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

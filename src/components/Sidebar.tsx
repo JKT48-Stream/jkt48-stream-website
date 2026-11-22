@@ -34,8 +34,6 @@ const JKT_X        = "https://x.com/officialjkt48";
 const JKT_SPOTIFY  = "https://open.spotify.com/intl-id/artist/2l8I5pWUnfF7bMK1z6EJRk";
 const JKT_STREAM_GITHUB = "https://github.com/jkt48-stream";
 
-// ─── SVG Icon Paths ──────────────────────────────────────────────────────────
-
 const ICON_GITHUB = "M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z";
 const ICON_INSTAGRAM = "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z";
 const ICON_YOUTUBE = "M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z";
@@ -44,16 +42,11 @@ const ICON_TIKTOK = "M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.8
 const ICON_FACEBOOK = "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z";
 const ICON_SPOTIFY = "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 type Props = {
   collapsed: boolean;
   onNavigate?: () => void;
 };
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
-/** Divider with optional centered label */
 function SectionDivider({ label }: { label?: string }) {
   if (!label) return <hr className="mx-2 my-2 border-border/70" />;
   return (
@@ -67,7 +60,6 @@ function SectionDivider({ label }: { label?: string }) {
   );
 }
 
-/** Social pill chip (small labeled button) */
 function SocialPill({
   href,
   title,
@@ -100,7 +92,6 @@ function SocialPill({
   );
 }
 
-/** Small icon-only social button (for developer row) */
 function SocialIcon({
   href,
   title,
@@ -130,8 +121,6 @@ function SocialIcon({
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 export function Sidebar({ collapsed, onNavigate }: Props) {
   const { pathname } = useLocation();
   const { canInstall, isInstalled, installing, triggerInstall } = usePWA();
@@ -139,8 +128,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
   const isMobile =
     typeof navigator !== "undefined" &&
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  // ── Nav Item ──────────────────────────────────────────────────────────────
 
   const Item = ({
     to,
@@ -196,16 +183,12 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
     </NavLink>
   );
 
-  // ── Section label ─────────────────────────────────────────────────────────
-
   const SectionLabel = ({ children }: { children: React.ReactNode; delay?: number }) => (
     <div className="tech-label flex items-center gap-2 px-3.5 pb-1.5 pt-3 text-muted-foreground">
       <span className="h-1 w-1 rounded-full bg-primary-glow shadow-[0_0_8px_hsl(var(--primary-glow))]" aria-hidden="true" />
       {children}
     </div>
   );
-
-  // ── Install button (collapsed mode) ───────────────────────────────────────
 
   const InstallButtonCollapsed = () => {
     if (isInstalled || !canInstall) return null;
@@ -230,8 +213,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
     </button>
     );
   };
-
-  // ── Install banner (expanded mode) ────────────────────────────────────────
 
   const InstallBanner = () => {
     if (isInstalled || !canInstall) return null;
@@ -276,8 +257,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
     );
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
-
   return (
     <nav
       className={cn(
@@ -286,7 +265,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
         collapsed ? "gap-0.5 px-2" : "gap-0 px-2.5",
       )}
     >
-      {/* ── Main nav ─────────────────────────────────────────────────────── */}
       {!collapsed && <SectionLabel>Jelajahi</SectionLabel>}
       <div className="space-y-0.5">
         <Item to="/"             icon={Home}      label="Beranda"       end  delay={0} />
@@ -298,7 +276,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
       </div>
 
       {collapsed ? (
-        /* ── Collapsed sidebar ───────────────────────────────────────── */
         <>
           <div className="mx-2 my-2 border-t border-border/70" />
           <div className="space-y-0.5">
@@ -310,9 +287,7 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
           <InstallButtonCollapsed />
         </>
       ) : (
-        /* ── Expanded sidebar ────────────────────────────────────────── */
         <>
-          {/* Kamu section */}
           <hr className="mx-2 my-2 border-border/70" />
           <SectionLabel delay={100}>Kamu</SectionLabel>
           <div className="space-y-0.5">
@@ -321,7 +296,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
             <Item to="/playlists" icon={ListMusic} label="Playlist"  delay={180} />
           </div>
 
-          {/* Channel JKT48 section */}
           <hr className="mx-2 my-2 border-border/70" />
           <SectionLabel delay={200}>Channel JKT48</SectionLabel>
           <div className="space-y-0.5">
@@ -350,20 +324,15 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
             })}
           </div>
 
-          {/* Install banner */}
           <hr className="mx-2 my-2 border-border/70" />
           <InstallBanner />
 
-          {/* ── Footer info ─────────────────────────────────────────────── */}
           <div className="mt-1 space-y-4 px-3.5 pb-4 text-xs text-muted-foreground">
-
-            {/* App blurb */}
             <div>
               <p className="font-display text-base font-extrabold text-foreground">JKT<span className="text-neon">48</span> Stream</p>
               <p className="mt-0.5 leading-relaxed">Platform untuk menonton video dari JKT48</p>
             </div>
 
-            {/* JKT48 Official */}
             <div className="space-y-2">
               <SectionDivider label="JKT48 Official" />
               <div className="flex flex-wrap justify-center gap-1.5">
@@ -398,7 +367,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
               </div>
             </div>
 
-            {/* JKT48 Stream GitHub */}
             <div className="space-y-2">
               <SectionDivider label="JKT48 Stream" />
               <div className="flex justify-center">
@@ -421,7 +389,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
               </div>
             </div>
 
-            {/* Developer – BadutZY */}
             <div className="space-y-2">
               <SectionDivider label="BadutZY (Developer)" />
               <div className="flex justify-center gap-1">
@@ -443,7 +410,6 @@ export function Sidebar({ collapsed, onNavigate }: Props) {
               </div>
             </div>
 
-            {/* Copyright */}
             <div className="border-t border-border pt-3">
               <p className="text-xs font-medium leading-relaxed text-muted-foreground">
                 © {new Date().getFullYear()} JKT48 Stream

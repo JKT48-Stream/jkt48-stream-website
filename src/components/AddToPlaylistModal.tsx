@@ -88,7 +88,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
 
   const modal = (
     <>
-      {/* Backdrop */}
       <div
         ref={overlayRef}
         onClick={handleClose}
@@ -100,7 +99,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
         )}
       />
 
-      {/* Modal */}
       <div
         style={{ zIndex: 10000 }}
         className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
@@ -115,7 +113,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <h2 className="font-semibold text-base">Simpan ke playlist</h2>
             <button
@@ -126,7 +123,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
             </button>
           </div>
 
-          {/* Video thumbnail */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-3">
             <img
               src={video.thumb}
@@ -139,7 +135,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
             </div>
           </div>
 
-          {/* Playlist list */}
           <div className="max-h-64 overflow-y-auto">
             {playlists.length === 0 && !creating && (
               <div className="flex flex-col items-center py-8 text-muted-foreground">
@@ -198,7 +193,6 @@ export function AddToPlaylistModal({ video, onClose, onSaved, onRemoved }: Props
             })}
           </div>
 
-          {/* Create new playlist form */}
           {creating ? (
             <div className="border-t border-border px-5 py-4 space-y-3 animate-fade-in-up">
               <input

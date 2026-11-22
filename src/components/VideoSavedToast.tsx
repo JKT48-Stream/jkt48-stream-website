@@ -58,7 +58,6 @@ export function VideoSavedToast({
           "ease-[cubic-bezier(0.34,1.56,0.64,1)]",
         )}
       >
-        {/* Progress bar */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-primary/20 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary to-primary-glow origin-left"
@@ -72,7 +71,6 @@ export function VideoSavedToast({
         </div>
 
         <div className="flex items-center gap-3 px-4 py-3.5">
-          {/* Animated check icon */}
           <div className="relative flex-shrink-0">
             <span
               className={cn(
@@ -91,7 +89,6 @@ export function VideoSavedToast({
             />
           </div>
 
-          {/* Text */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground leading-tight">
               Video tersimpan!
@@ -107,7 +104,6 @@ export function VideoSavedToast({
             )}
           </div>
 
-          {/* Thumbnail */}
           {videoThumb && (
             <img
               src={videoThumb}
@@ -116,7 +112,6 @@ export function VideoSavedToast({
             />
           )}
 
-          {/* Close button */}
           <button
             onClick={dismiss}
             className="flex-shrink-0 ml-1 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-200 hover:rotate-90"
@@ -125,7 +120,6 @@ export function VideoSavedToast({
           </button>
         </div>
 
-        {/* Decorative left strip */}
         <div className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-primary to-primary-glow rounded-l-2xl" />
       </div>
     </div>

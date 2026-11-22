@@ -6,7 +6,6 @@ export type ApiStatusEvent =
   | { type: "ok"; source?: ApiStatusSource }
   | {
       type: "error";
-      /** Layanan penyebab error. Kosong = YouTube (perilaku lama). */
       source?: ApiStatusSource;
       code: "QUOTA_EXCEEDED" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFIG_ERROR" | "NETWORK" | "UNKNOWN";
       message: string;
@@ -247,10 +246,6 @@ export type YTLiveBroadcast = {
   actualStartTime?: string | null;
 };
 
-/**
- * Fetch only completed (replay) streams for a channel.
- * Does NOT check for live status — no live search API call is made.
- */
 export async function fetchLiveReplays(
   handle: ChannelKey,
 ): Promise<{ replays: YTLiveBroadcast[] }> {
@@ -346,39 +341,18 @@ export function bestThumb(v: YTVideo): string {
   );
 }
 
-/**
- * Deteksi apakah sebuah video YouTube berorientasi potret/vertikal
- * (mis. YouTube Shorts), agar saat full screen di mobile layar tidak
- * dipaksa landscape — persis seperti perilaku aplikasi YouTube asli.
- *
- * IFrame Player API tidak memberi akses ke videoWidth/videoHeight asli
- * (iframe-nya cross-origin ke youtube.com), jadi kita pakai beberapa
- * sinyal berikut secara berurutan:
- *
- *  1. Rasio aspek thumbnail beresolusi tertinggi yang tersedia — thumbnail
- *     resolusi tinggi ("maxres") mengikuti rasio aspek video aslinya,
- *     termasuk untuk Shorts (contoh: Shorts → 270×480, landscape → 1280×720).
- *  2. Fallback: cek URL thumbnail — YouTube Shorts sering menggunakan domain
- *     "shorts" atau path yang berbeda pada beberapa kasus.
- *  3. Fallback terakhir: cek durasi video — Shorts umumnya ≤ 60 detik.
- *     Ini heuristik saja karena video pendek biasa juga bisa portrait.
- */
 export function isPortraitVideo(v: YTVideo | null | undefined): boolean {
   if (!v) return false;
   const t = v.snippet?.thumbnails;
 
-  // Sinyal 1: rasio dimensi thumbnail
   if (t) {
     const candidates = [t.maxres, t.standard, t.high, t.medium, t.default];
     for (const c of candidates) {
       if (c && c.width && c.height) {
-        // Thumbnail portrait: tinggi > lebar (mis. 270×480 untuk Shorts)
         return c.height > c.width;
       }
     }
 
-    // Sinyal 2: URL thumbnail — beberapa Shorts memiliki pola URL khusus
-    // (misalnya mengandung "/shorts/" atau dimensi portrait di path-nya)
     const thumbUrl =
       t.maxres?.url ?? t.standard?.url ?? t.high?.url ?? t.medium?.url ?? t.default?.url ?? "";
     if (thumbUrl && /\/shorts\//i.test(thumbUrl)) {
@@ -386,19 +360,14 @@ export function isPortraitVideo(v: YTVideo | null | undefined): boolean {
     }
   }
 
-  // Sinyal 3: durasi ≤ 60 detik sebagai heuristik terakhir
-  // Shorts selalu ≤ 60 detik, tapi tidak semua video pendek adalah portrait.
-  // Hanya gunakan ini jika benar-benar tidak ada sinyal lain.
   const duration = (v as any).contentDetails?.duration as string | undefined;
   if (duration) {
-    // Parse ISO 8601 duration (PT30S, PT1M, dll.)
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (match) {
       const h = parseInt(match[1] ?? "0", 10);
       const m = parseInt(match[2] ?? "0", 10);
       const s = parseInt(match[3] ?? "0", 10);
       const totalSeconds = h * 3600 + m * 60 + s;
-      // Hanya tandai portrait jika ≤ 60 detik DAN tidak ada thumbnail info
       if (totalSeconds > 0 && totalSeconds <= 60) {
         return true;
       }

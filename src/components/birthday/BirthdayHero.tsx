@@ -71,7 +71,6 @@ export function BirthdayHero() {
           </div>
         </div>
 
-        {/* Next-up card(s) */}
         <div className="relative">
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-birthday-card">
             <div className="mb-4 flex items-center justify-between gap-2">

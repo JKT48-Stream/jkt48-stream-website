@@ -364,7 +364,6 @@ function VideoCardImpl({ video, layout = "grid", animationDelay = 0, onVideoRemo
             ) : null}
           </div>
 
-          {/* Info */}
           <div className="min-w-0 flex-1">
             <h4 className="line-clamp-2 text-sm font-medium leading-tight transition-colors duration-150 group-hover:text-primary/90 pr-1">
               {title}

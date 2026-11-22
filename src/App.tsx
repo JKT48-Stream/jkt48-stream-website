@@ -10,27 +10,9 @@ import { AppLayout } from "@/components/AppLayout";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ApiStatusBanner } from "@/components/ApiStatusBanner";
 import Home from "./pages/Home";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import NotFound from "./pages/NotFound";
 import { EdgeError } from "./lib/edge";
 
-
-// Code splitting: tiap halaman jadi chunk sendiri, hanya diunduh saat dibuka (Home tetap eager karena halaman pertama).
 const loaders = {
   ChannelPage: () => import("./pages/ChannelPage"),
   SearchPage: () => import("./pages/SearchPage"),
@@ -66,8 +48,6 @@ const MemberBirthdaysPage = lazy(loaders.MemberBirthdaysPage);
 const TheaterSchedulePage = lazy(loaders.TheaterSchedulePage);
 const TheaterShowDetailPage = lazy(loaders.TheaterShowDetailPage);
 
-// Setelah halaman pertama selesai & browser idle, unduh chunk halaman lain di belakang layar
-// supaya perpindahan halaman terasa instan. Dilewati bila pengguna menghemat data / koneksi sangat lambat.
 function usePrefetchRoutes() {
   useEffect(() => {
     const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -80,7 +60,7 @@ function usePrefetchRoutes() {
     const idle = (cb: () => void) =>
       typeof window.requestIdleCallback === "function"
         ? window.requestIdleCallback(cb, { timeout: 4000 })
-        : window.setTimeout(cb, 1500); // Safari < 18 belum punya requestIdleCallback
+        : window.setTimeout(cb, 1500);
     let i = 0;
     let cancelled = false;
     const next = () => {
@@ -95,10 +75,7 @@ function usePrefetchRoutes() {
   }, []);
 }
 
-// Error yang tidak akan sembuh dengan mengulang (kuota/rate limit, key salah, data tidak ada) tidak di-retry,
-// supaya tidak menghabiskan kuota API key JKT48Connect.
 const NO_RETRY_CODES = ["QUOTA_EXCEEDED", "RATE_LIMITED", "CONFIG_ERROR", "NOT_FOUND", "BAD_REQUEST"];
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

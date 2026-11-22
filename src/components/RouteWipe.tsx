@@ -15,13 +15,12 @@ const LABELS: { test: (p: string) => boolean; label: string }[] = [
   { test: (p) => p.startsWith("/search"), label: "Pencarian" },
 ];
 
-// Halaman yang harus langsung tampil tanpa jeda (pemutar video)
 const SKIP = ["/watch", "/stream"];
 
-const STRIPS = 6; // jumlah "tirai" vertikal
-const COVER_MS = 520; // waktu layar menutup SEBELUM pindah halaman
-const HOLD_MS = 240; // layar ditahan sebentar agar halaman baru sempat tampil
-const REVEAL_MS = 600; // waktu layar membuka
+const STRIPS = 6;
+const COVER_MS = 520;
+const HOLD_MS = 240;
+const REVEAL_MS = 600;
 
 type Phase = "idle" | "in" | "hold" | "out";
 
@@ -29,31 +28,16 @@ const groupOf = (p: string) => "/" + (p.split("/")[1] ?? "");
 const labelOf = (p: string) => LABELS.find((l) => l.test(p))?.label ?? "JKT48 Stream";
 const prefersReduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Hanya antar-halaman utama; pindah dalam grup yang sama (mis. /theater -> /theater/xyz) tidak perlu transisi. */
 function shouldAnimate(from: string, to: string) {
   if (SKIP.some((s) => to.startsWith(s) || from.startsWith(s))) return false;
   return groupOf(from) !== groupOf(to);
 }
 
-/** Penanda di <html> supaya animasi masuk halaman baru menunggu sampai tirai membuka. */
 function flag(on: boolean) {
   if (on) document.documentElement.dataset.rw = "1";
   else delete document.documentElement.dataset.rw;
 }
 
-/**
- * Transisi halaman gaya "tirai" (terinspirasi Curtains di motion.dev/ui), hanya memakai transform
- * sehingga dikerjakan GPU dan ringan.
- *
- * Alur:
- *  1. Klik tautan internal -> klik dicegat, tirai MENUTUP dulu (fase "in").
- *  2. Setelah layar tertutup penuh -> baru navigate() ke halaman tujuan.
- *  3. Halaman baru dirender di balik tirai (fase "hold"), lalu tirai membuka (fase "out").
- *
- * Untuk navigasi yang tidak bisa dicegat (tombol back/forward, navigate() dari kode), tirai dipasang
- * lewat useLayoutEffect, yaitu SEBELUM browser sempat menggambar halaman baru, jadi tidak ada lagi
- * kasus "halaman sudah pindah baru transisi muncul".
- */
 export function RouteWipe() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -61,8 +45,8 @@ export function RouteWipe() {
   const [label, setLabel] = useState("JKT48 Stream");
 
   const phaseRef = useRef<Phase>("idle");
-  const pathRef = useRef(pathname); // pathname terakhir yang sudah diproses
-  const pendingRef = useRef<string | null>(null); // tujuan yang sedang ditunggu
+  const pathRef = useRef(pathname);
+  const pendingRef = useRef<string | null>(null);
   const timers = useRef<number[]>([]);
 
   const setP = useCallback((p: Phase) => {
@@ -90,7 +74,6 @@ export function RouteWipe() {
     [later, setP],
   );
 
-  // ── Cegat klik tautan internal: tutup layar dulu, baru pindah ──
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -103,7 +86,6 @@ export function RouteWipe() {
       if (url.pathname === cur) return;
       if (prefersReduced() || !shouldAnimate(cur, url.pathname)) return;
 
-      // Router Link tidak akan memproses klik yang sudah di-preventDefault; kita navigate sendiri nanti.
       e.preventDefault();
       if (phaseRef.current !== "idle") return;
 
@@ -114,7 +96,6 @@ export function RouteWipe() {
       setP("in");
       const to = url.pathname + url.search + url.hash;
       later(() => navigate(to), COVER_MS);
-      // Pengaman: kalau rute tak kunjung berubah, buka lagi layarnya
       later(() => {
         if (pendingRef.current) {
           pendingRef.current = null;
@@ -126,14 +107,12 @@ export function RouteWipe() {
     return () => document.removeEventListener("click", onClick, true);
   }, [clear, later, navigate, reveal, setP]);
 
-  // ── Rute berubah. useLayoutEffect = jalan sebelum browser menggambar halaman baru ──
   useLayoutEffect(() => {
     if (pathRef.current === pathname) return;
     const from = pathRef.current;
     pathRef.current = pathname;
 
     if (pendingRef.current !== null) {
-      // Transisi yang kita mulai sendiri: layar sudah tertutup, tahan sebentar lalu buka.
       pendingRef.current = null;
       clear();
       setLabel(labelOf(pathname));
@@ -142,12 +121,11 @@ export function RouteWipe() {
       return;
     }
 
-    // Navigasi yang tidak bisa dicegat (back/forward, navigate() dari kode)
     if (prefersReduced() || !shouldAnimate(from, pathname)) return;
     clear();
     flag(true);
     setLabel(labelOf(pathname));
-    setP("hold"); // tirai langsung tertutup sebelum paint
+    setP("hold");
     reveal(HOLD_MS);
   }, [pathname, clear, reveal, setP]);
 

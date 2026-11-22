@@ -36,11 +36,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(theme);
   }, [theme]);
 
-  /**
-   * Fallback untuk browser tanpa View Transitions API (Safari, Firefox).
-   * Menggunakan clip-path animation pada overlay — tapi TIDAK menutupi konten.
-   * Overlay dihapus sebelum tema benar-benar diterapkan sehingga konten asli tetap terlihat.
-   */
   const runFallbackReveal = useCallback((x: number, y: number, next: Theme) => {
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
@@ -97,8 +92,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Modern path — View Transitions API (Chrome/Edge)
-    // Lingkaran tumbuh dari tombol, konten tetap terlihat (bukan overlay)
     if (doc.startViewTransition) {
       const endRadius = Math.hypot(
         Math.max(x, window.innerWidth - x),
@@ -130,7 +123,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Fallback — overlay reveal untuk Safari/Firefox
     runFallbackReveal(x, y, next);
   }, [theme, runFallbackReveal]);
 

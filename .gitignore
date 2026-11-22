@@ -174,5 +174,3 @@ public/assets/*.jpg
 .history/
 .cline/
 .windsurf/
-
-# Catatan: pnpm-lock.yaml SENGAJA tidak di-ignore.

@@ -1,15 +1,3 @@
-/**
- * Satu-satunya tempat membaca konfigurasi Supabase dari environment.
- *
- * Nilainya diisi lewat Environment Variables di Vercel (Production / Preview / Development),
- * atau lewat `.env.local` untuk development lokal (`vercel env pull .env.local`).
- * Tidak ada nilai yang di-hardcode atau di-commit ke repository.
- *
- * PENTING: variabel ber-awalan `VITE_` di-inline ke bundle JavaScript saat build, jadi hanya
- * boleh berisi nilai PUBLIK: URL project dan publishable (anon) key. JANGAN PERNAH menaruh
- * service_role / secret key atau API key pihak ketiga (YouTube, JKT48Connect) di sini.
- */
-
 const rawUrl = import.meta.env.VITE_SUPABASE_URL;
 const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 

@@ -193,9 +193,9 @@ describe("TtlCache SWR", () => {
     const loader = vi.fn(() => slow);
     const bg: Promise<unknown>[] = [];
     const r = await c.getOrLoad("k", 10, 1000, loader, { swr: true, waitUntil: (p) => bg.push(p) });
-    expect(r).toEqual({ data: "lama", stale: true }); // tidak menunggu loader lambat
+    expect(r).toEqual({ data: "lama", stale: true });
     expect(loader).toHaveBeenCalledTimes(1);
-    await c.getOrLoad("k", 10, 1000, loader, { swr: true }); // refresh sedang berjalan → tidak dobel
+    await c.getOrLoad("k", 10, 1000, loader, { swr: true });
     expect(loader).toHaveBeenCalledTimes(1);
     release("baru");
     await Promise.all(bg);

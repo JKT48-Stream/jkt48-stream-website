@@ -1,26 +1,3 @@
-/**
- * Client untuk JKT48Connect API (generasi terbaru) — https://api.jkt48connect.app/docs
- *
- * Dipakai untuk mengambil status live seluruh member JKT48 (IDN Live & Showroom) dalam SATU request.
- *
- * ── Apa yang berubah dari versi API lama ────────────────────────────────────────────────────────────
- *   lama : https://jkt48connect.com/api/v1/live        header `x-api-key: jk48c_…`   envelope { ok, data }
- *   baru : https://api.jkt48connect.app/api/now_live   header `X-API-Key: jkc_…`     array langsung
- *
- * ── Transport ──────────────────────────────────────────────────────────────────────────────────────
- * Browser TIDAK memanggil API ini langsung. Dokumentasi resmi menegaskan API key harus berada di server
- * ("Frontend memanggil backend-mu; backend menambahkan key"). Karena itu semua request lewat Supabase Edge
- * Function `live` (`supabase/functions/live/index.ts`), yang menambahkan key dari secret
- * `JKT48CONNECT_API_KEY`, melakukan retry/cache, lalu mengembalikan data yang SUDAH dinormalisasi
- * (bentuknya = `JKT48ConnectLiveEntry` di bawah).
- *
- * ── Sumber stream ──────────────────────────────────────────────────────────────────────────────────
- *  • Showroom: `now_live` membawa `streaming_url_list` → sudah masuk `streaming[]` di sini.
- *  • IDN     : `now_live` umumnya TIDAK membawa URL HLS. Saat user menekan "Tonton", URL diambil lewat
- *              `resolveMemberLiveStatus()` → function `live?action=watch` → `/api/watch/:key/idn`.
- *              Bila sumber tidak tersedia, UI jatuh ke tombol "buka di idn.app" seperti sebelumnya.
- */
-
 import { toProxiedStreamUrl } from "@/lib/hls";
 import { callEdge } from "@/lib/edge";
 
@@ -34,41 +11,29 @@ export interface JKT48ConnectStreamQuality {
   url: string;
 }
 
-/**
- * Satu sesi live (hasil normalisasi `GET /api/now_live`). Lihat `shapeLive` di
- * `supabase/functions/_shared/jkt48connect.ts` untuk pemetaan dari field mentah API.
- */
 export interface JKT48ConnectLiveEntry {
-  /** ID sesi (`notification_data_id`, mis. "sr-510000-1" atau "idn-…"). */
   id?: string;
   name: string;
   img: string;
   img_alt?: string;
-  /** IDN: username IDN. Showroom: `room_url_key` (mis. "JKT48_Erine"). */
   url_key?: string;
   room_url_key?: string;
   slug?: string | null;
   room_id?: number | null;
   is_graduate?: boolean;
   started_at?: string;
-  /** Tautan halaman live resmi (IDN / Showroom) bila API menyediakannya. */
   link?: string;
-  /** URL HLS tunggal (kosong bila sumber stream belum diketahui). */
   stream_url?: string;
-  /** Daftar kualitas stream HLS, kualitas tertinggi lebih dulu. */
   streaming?: JKT48ConnectStreamQuality[];
-  /** Nama field lama — dijaga supaya kode yang masih membacanya tidak rusak. */
   streaming_url_list?: JKT48ConnectStreamQuality[];
   platform?: JKT48ConnectPlatform;
   type?: JKT48ConnectPlatform;
 }
 
-/** Ambil platform dari entry, cek `platform` dulu baru fallback ke `type`. */
 function entryPlatform(entry: JKT48ConnectLiveEntry): JKT48ConnectPlatform | undefined {
   return entry.platform ?? entry.type;
 }
 
-/** Daftar kualitas stream, dengan fallback berlapis supaya tahan perubahan nama field. */
 function entryQualities(entry: JKT48ConnectLiveEntry): JKT48ConnectStreamQuality[] {
   if (entry.streaming && entry.streaming.length > 0) return entry.streaming;
   if (entry.streaming_url_list && entry.streaming_url_list.length > 0) return entry.streaming_url_list;
@@ -76,19 +41,9 @@ function entryQualities(entry: JKT48ConnectLiveEntry): JKT48ConnectStreamQuality
   return [];
 }
 
-// ─── Fetch ──────────────────────────────────────────────────────────────────
-
-/** Panggilan yang datang bersamaan / berdekatan memakai hasil yang sama → menghemat kuota API key. */
 const LIVE_MEMO_MS = 5_000;
 let liveMemo: { at: number; promise: Promise<JKT48ConnectLiveEntry[]> } | null = null;
 
-/**
- * Ambil seluruh member yang sedang live (IDN Live, Showroom) dalam satu kali panggilan
- * (`GET /api/now_live?group=jkt48`, lewat Edge Function `live`).
- *
- * Return array kosong jika tidak ada yang live. Error (key salah, kuota habis, jaringan) dilempar sebagai
- * `EdgeError` (lihat `src/lib/edge.ts`) dan juga memunculkan `ApiStatusBanner`.
- */
 export function fetchJKT48ConnectLive(): Promise<JKT48ConnectLiveEntry[]> {
   const now = Date.now();
   if (liveMemo && now - liveMemo.at < LIVE_MEMO_MS) return liveMemo.promise;
@@ -100,7 +55,6 @@ export function fetchJKT48ConnectLive(): Promise<JKT48ConnectLiveEntry[]> {
   ).then((data) => (Array.isArray(data) ? data : []));
 
   liveMemo = { at: now, promise };
-  // Jangan simpan hasil gagal: panggilan berikutnya harus mencoba lagi.
   promise.catch(() => {
     if (liveMemo?.promise === promise) liveMemo = null;
   });
@@ -116,10 +70,6 @@ export interface JKT48ConnectWatchSource {
 const WATCH_MEMO_MS = 15_000;
 const watchMemo = new Map<string, { at: number; promise: Promise<JKT48ConnectWatchSource> }>();
 
-/**
- * Ambil sumber stream sebuah sesi live lewat `/api/watch/*` (fallback bila `now_live` tidak membawa URL stream).
- * `key` = `url_key` (IDN) atau `room_url_key` (Showroom).
- */
 export function fetchLiveWatchSource(
   platform: "idn" | "showroom",
   key: string,
@@ -141,16 +91,11 @@ export function fetchLiveWatchSource(
   return promise;
 }
 
-// ─── Index & pencocokan ─────────────────────────────────────────────────────
-
 export interface JKT48ConnectLiveIndex {
-  /** key = url_key / room_url_key (lowercase) -> semua entri live dengan key itu (bisa beda platform) */
   byUrlKey: Map<string, JKT48ConnectLiveEntry[]>;
-  /** key = room_id -> entri live (dipakai sebagai fallback pencocokan Showroom) */
   byRoomId: Map<number, JKT48ConnectLiveEntry>;
 }
 
-/** Bangun index pencarian cepat dari hasil fetchJKT48ConnectLive(). */
 export function indexJKT48ConnectLive(entries: JKT48ConnectLiveEntry[]): JKT48ConnectLiveIndex {
   const byUrlKey = new Map<string, JKT48ConnectLiveEntry[]>();
   const byRoomId = new Map<number, JKT48ConnectLiveEntry>();
@@ -174,10 +119,6 @@ export function indexJKT48ConnectLive(entries: JKT48ConnectLiveEntry[]): JKT48Co
   return { byUrlKey, byRoomId };
 }
 
-/**
- * Cari entri live untuk sebuah member di platform tertentu.
- * Pencocokan dicoba lewat url_key (idnUsername / showroomKey) lalu di-fallback ke room_id (khusus Showroom).
- */
 export function findLiveEntry(
   index: JKT48ConnectLiveIndex,
   platform: JKT48ConnectPlatform,
@@ -203,12 +144,6 @@ export function findLiveEntry(
   return candidates.find((e) => entryPlatform(e) === platform) ?? null;
 }
 
-/* ────────────────────────────────────────────────────────────────────────
- * Helper level tinggi: hitung status live lengkap (IDN + Showroom) untuk
- * satu member sekaligus, dipakai bareng-bareng di MemberLivePage &
- * StreamingPlayerPage supaya logikanya konsisten di satu tempat.
- * ──────────────────────────────────────────────────────────────────────── */
-
 export type JKT48ConnectSimpleStatus = "live" | "offline";
 
 export interface MemberLiveIdentifiers {
@@ -226,11 +161,9 @@ export interface MemberLiveStatus {
   showroomStreamUrl: string | null;
   showroomStreamUrlLow: string | null;
   idnSlug: string | null;
-  /** Thumbnail live (dari IDN kalau live di IDN, kalau tidak dari Showroom) */
   liveImg: string | null;
 }
 
-/** Pakai tautan resmi dari API hanya bila memang menuju host yang diharapkan. */
 function trustedLink(link: string | undefined, hostPattern: RegExp): string | null {
   if (!link) return null;
   try {
@@ -241,7 +174,6 @@ function trustedLink(link: string | undefined, hostPattern: RegExp): string | nu
   }
 }
 
-/** Kualitas tertinggi & terendah dari daftar (daftar sudah urut tinggi → rendah). */
 function pickHighLow(qualities: JKT48ConnectStreamQuality[]) {
   const high = qualities[0]?.url ?? "";
   const lowCandidate = qualities.length > 1 ? qualities[qualities.length - 1]?.url ?? "" : "";
@@ -293,14 +225,6 @@ export function buildMemberLiveStatus(
   };
 }
 
-/**
- * Seperti `buildMemberLiveStatus`, tetapi bila member LIVE namun `now_live` belum membawa URL stream
- * (umum untuk IDN), URL-nya diambil lewat `/api/watch/*`. Hanya melakukan request tambahan untuk platform
- * yang benar-benar live & belum punya URL, jadi aman dipanggil saat user menekan "Tonton" / membuka player.
- *
- * Kegagalan mengambil sumber stream TIDAK dilempar: field stream dibiarkan `null` sehingga UI jatuh ke
- * tombol "buka di idn.app / showroom-live.com" seperti perilaku sebelumnya.
- */
 export async function resolveMemberLiveStatus(
   index: JKT48ConnectLiveIndex,
   identifiers: MemberLiveIdentifiers,

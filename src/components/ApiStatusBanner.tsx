@@ -34,7 +34,6 @@ export function ApiStatusBanner() {
       const ev = (e as CustomEvent<ApiStatusEvent>).detail;
       if (!ev) return;
       if (ev.type === "ok") {
-        // "ok" dari satu layanan hanya menghapus error milik layanan yang sama (YouTube vs JKT48Connect).
         setErr((prev) => (prev && (prev.source ?? "youtube") !== (ev.source ?? "youtube") ? prev : null));
         setDismissed(false);
         return;

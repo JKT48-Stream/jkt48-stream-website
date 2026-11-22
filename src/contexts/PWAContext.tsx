@@ -26,7 +26,6 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    // Cek standalone mode
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as any).standalone === true;
@@ -35,14 +34,12 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Ambil dari window jika sudah ditangkap di main.tsx sebelum React render
     const existing = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
     if (existing) {
       promptRef.current = existing;
       setHasPrompt(true);
     }
 
-    // Dengarkan jika belum ada (race condition)
     const onPromptReady = () => {
       const p = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
       if (p) {
@@ -51,7 +48,6 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Juga tangkap langsung jika masih belum terlambat
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       promptRef.current = e as BeforeInstallPromptEvent;
