@@ -1,6 +1,4 @@
 export const JKT48CONNECT_BASE_URL = "https://api.jkt48connect.app";
-
-/** `jkc_` + 40 karakter heksadesimal huruf kecil (dokumentasi: "Akses & integrasi"). */
 export const API_KEY_FORMAT = /^jkc_[a-f0-9]{40}$/;
 
 export const corsHeaders: Record<string, string> = {
@@ -9,9 +7,6 @@ export const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-// ─── Error ──────────────────────────────────────────────────────────────────
-
-/** Kode yang dipahami `ApiStatusBanner` di frontend. */
 export type ApiErrorCode =
   | "QUOTA_EXCEEDED"
   | "RATE_LIMITED"
@@ -24,7 +19,6 @@ export type ApiErrorCode =
 
 export class UpstreamError extends Error {
   constructor(
-    /** Status HTTP yang diteruskan ke browser. */
     public status: number,
     message: string,
     public code: ApiErrorCode,
@@ -35,7 +29,6 @@ export class UpstreamError extends Error {
   }
 }
 
-/** Kembalikan pesan error yang jelas kalau secret belum diisi / masih memakai key format lama. */
 export function validateApiKey(
   key: string | undefined | null,
 ): { ok: true; key: string } | { ok: false; message: string } {
@@ -66,12 +59,9 @@ export function validateApiKey(
   return { ok: true, key: k };
 }
 
-// ─── Transport ──────────────────────────────────────────────────────────────
-
 export interface QuotaInfo {
   limit: number;
   remaining: number;
-  /** Detik epoch (X-RateLimit-Reset). */
   reset: number;
   period: string;
 }
@@ -79,9 +69,7 @@ export interface QuotaInfo {
 export interface UpstreamOptions {
   apiKey: string;
   query?: Record<string, string | number | undefined>;
-  /** Batas waktu per percobaan. Dokumentasi memakai 15 detik. */
   timeoutMs?: number;
-  /** Jumlah ulang SETELAH percobaan pertama, hanya untuk 5xx / gagal jaringan. */
   retries?: number;
   fetchImpl?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
@@ -105,12 +93,6 @@ function readQuota(h: Headers): QuotaInfo | null {
 }
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-/**
- * GET ke JKT48Connect API dengan: header X-API-Key, timeout, retry terbatas (hanya 5xx/jaringan,
- * backoff eksponensial + jitter) dan pemetaan error 401/403/404/429 yang jelas — sesuai
- * "Client TypeScript dengan retry dan kuota" & "Daftar periksa produksi" di dokumentasi.
- */
 export async function upstreamGet<T = any>(path: string, opts: UpstreamOptions): Promise<UpstreamResult<T>> {
   const { apiKey, query = {}, timeoutMs = 15_000, retries = 2, fetchImpl = fetch, sleep = defaultSleep } = opts;
 
@@ -178,10 +160,8 @@ export async function upstreamGet<T = any>(path: string, opts: UpstreamOptions):
         throw new UpstreamError(res.status, message ?? `HTTP ${res.status}`, "BAD_REQUEST");
       }
 
-      // 5xx → boleh diulang
       lastError = new UpstreamError(502, message ?? `Server JKT48Connect bermasalah (HTTP ${res.status}).`, "UPSTREAM_ERROR");
     } catch (e) {
-      // Error yang tidak akan sembuh dengan retry langsung dilempar.
       if (e instanceof UpstreamError && e.code !== "UPSTREAM_ERROR") throw e;
       if (e instanceof UpstreamError) {
         lastError = e;
@@ -200,7 +180,6 @@ export async function upstreamGet<T = any>(path: string, opts: UpstreamOptions):
     }
 
     if (attempt < retries) {
-      // 0,4 dtk, 0,8 dtk, ... + jitter
       await sleep(400 * 2 ** attempt + Math.random() * 200);
     }
   }
@@ -208,32 +187,18 @@ export async function upstreamGet<T = any>(path: string, opts: UpstreamOptions):
   throw lastError ?? new UpstreamError(502, "JKT48Connect tidak dapat dihubungi.", "UPSTREAM_ERROR");
 }
 
-// ─── Cache (per isolate) + dedup request bersamaan + stale-on-error ────────
-
 interface CacheEntry {
   data: unknown;
   exp: number;
   staleExp: number;
 }
 
-/**
- * Cache in-memory sederhana. Penting untuk menghemat kuota API key (Free = 1.000 request/bulan):
- *  - `inflight`: banyak pengunjung yang meminta data yang sama bersamaan hanya memakai SATU request upstream.
- *  - `staleMs`: saat upstream gagal (5xx / jaringan / kuota habis), salinan lama masih disajikan
- *    daripada langsung error ("Saat upstream gagal, sajikan data lama" — contoh proxy di dokumentasi).
- */
 export class TtlCache {
   private store = new Map<string, CacheEntry>();
   private inflight = new Map<string, Promise<unknown>>();
 
   constructor(private now: () => number = () => Date.now(), private maxEntries = 200) {}
 
-  /**
-   * @param opts.swr  stale-while-revalidate: bila cache sudah lewat TTL tetapi masih dalam masa `staleMs`,
-   *                  data lama LANGSUNG dikembalikan dan pembaruan berjalan di latar belakang. Pengguna tidak
-   *                  menunggu upstream — hanya pengunjung pertama setelah cold start yang menunggu.
-   * @param opts.waitUntil  (mis. `EdgeRuntime.waitUntil`) menjaga pembaruan latar tetap hidup setelah respons terkirim.
-   */
   async getOrLoad<T>(
     key: string,
     ttlMs: number,
@@ -245,7 +210,6 @@ export class TtlCache {
     const hit = this.store.get(key);
     if (hit && hit.exp > t) return { data: hit.data as T, stale: false };
 
-    // Data lama masih layak pakai → sajikan segera, segarkan di latar belakang.
     if (opts.swr && hit && hit.staleExp > t) {
       if (!this.inflight.has(key)) {
         const bg = this.load(key, ttlMs, staleMs, loader, hit).catch(() => undefined);
@@ -260,7 +224,6 @@ export class TtlCache {
     return this.load(key, ttlMs, staleMs, loader, hit);
   }
 
-  /** Jalankan loader (digabung per key), simpan hasilnya; saat gagal sementara, pakai `previous` bila masih layak. */
   private async load<T>(
     key: string,
     ttlMs: number,
@@ -275,7 +238,6 @@ export class TtlCache {
       this.set(key, data, ttlMs, staleMs);
       return { data, stale: false };
     } catch (e) {
-      // Hanya error "sementara" yang boleh ditutup dengan data lama. 401 / 404 / 400 harus tampak.
       const transient =
         e instanceof UpstreamError &&
         (e.code === "UPSTREAM_ERROR" || e.code === "NETWORK" || e.code === "QUOTA_EXCEEDED" || e.code === "RATE_LIMITED");
@@ -293,7 +255,6 @@ export class TtlCache {
       for (const [k, v] of this.store) {
         if (v.staleExp <= t) this.store.delete(k);
       }
-      // masih penuh → buang yang tertua
       while (this.store.size > this.maxEntries) {
         const first = this.store.keys().next().value;
         if (first === undefined) break;
@@ -303,8 +264,6 @@ export class TtlCache {
   }
 }
 
-// ─── Respons ke browser ─────────────────────────────────────────────────────
-
 export function jsonResponse(data: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -312,7 +271,6 @@ export function jsonResponse(data: unknown, status = 200, extraHeaders: Record<s
   });
 }
 
-/** Ubah error apa pun menjadi `{ error, code, resetAt?, retryAfterSec? }` — bentuk yang dibaca frontend. */
 export function errorResponse(e: unknown): Response {
   if (e instanceof UpstreamError) {
     const headers: Record<string, string> = {};
@@ -332,15 +290,12 @@ export function errorResponse(e: unknown): Response {
   return jsonResponse({ error: msg, code: "UNKNOWN" }, 500);
 }
 
-// ─── Helper normalisasi ─────────────────────────────────────────────────────
-
 type Raw = Record<string, any>;
 
 function isObj(v: unknown): v is Raw {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-/** Ambil array dari `data` (atau dari salah satu key `keys` bila `data` berupa objek). */
 export function pickList(data: unknown, ...keys: string[]): Raw[] {
   let arr: unknown = null;
   if (Array.isArray(data)) arr = data;
@@ -369,7 +324,6 @@ export function num(...vals: unknown[]): number | null {
   return null;
 }
 
-/** Hanya URL http(s) absolut yang boleh lolos; `javascript:`, `data:` dan URL rusak jadi "". */
 export function httpUrl(...vals: unknown[]): string {
   for (const v of vals) {
     if (typeof v !== "string" || !v.trim()) continue;
@@ -377,7 +331,6 @@ export function httpUrl(...vals: unknown[]): string {
       const u = new URL(v.trim());
       if (u.protocol === "https:" || u.protocol === "http:") return u.href;
     } catch {
-      /* coba nilai berikutnya */
     }
   }
   return "";
@@ -388,8 +341,6 @@ function httpsUrl(...vals: unknown[]): string {
   return u.startsWith("https://") ? u : "";
 }
 
-// ─── Live (GET /api/now_live) ───────────────────────────────────────────────
-
 export interface LiveStreamQuality {
   label: string;
   quality: number;
@@ -397,7 +348,6 @@ export interface LiveStreamQuality {
 }
 
 export interface LiveEntry {
-  /** `notification_data_id` (mis. "sr-510000-1" / "idn-…") bila ada. */
   id: string;
   name: string;
   img: string;
@@ -408,20 +358,13 @@ export interface LiveEntry {
   slug: string | null;
   is_graduate: boolean;
   started_at: string;
-  /** Tautan halaman live resmi (IDN / Showroom), dari `notification_caption` bila ada. */
   link: string;
   platform: string;
   type: string;
-  /** Stream HLS https, kualitas tertinggi lebih dulu. IDN biasanya KOSONG di sini — lihat `shapeWatch`. */
   streaming: LiveStreamQuality[];
   stream_url: string;
 }
 
-/**
- * Daftar stream → hanya HLS https, tanpa duplikat, kualitas tertinggi dulu.
- * Showroom mengirim beberapa jenis (hls, lhls, webrtc, ...). hls.js hanya bisa memutar `hls`; entri tanpa
- * field `type` tetap diterima karena sebagian respons tidak menyertakannya.
- */
 export function shapeStreams(raw: unknown): LiveStreamQuality[] {
   const seen = new Set<string>();
   return pickList(raw)
@@ -438,7 +381,6 @@ export function shapeStreams(raw: unknown): LiveStreamQuality[] {
     .sort((a, b) => b.quality - a.quality);
 }
 
-/** `notification_caption`: "🔴 Nama — Judul\nhttps://…" → URL pada baris kedua. */
 function captionLink(caption: unknown): string {
   if (typeof caption !== "string") return "";
   const m = caption.match(/https?:\/\/\S+/);
@@ -471,11 +413,6 @@ function mapLive(l: Raw): LiveEntry {
   };
 }
 
-/**
- * Normalisasi `GET /api/now_live?group=jkt48`.
- * Bentuk respons: array (atau objek dengan `lives` / `data`). `now_live` bisa memuat sesi yang sama dua kali
- * (versi nama panggilan & nama lengkap) — digabung berdasarkan platform + id sesi.
- */
 export function shapeLive(raw: unknown): LiveEntry[] {
   const byId = new Map<string, LiveEntry>();
   for (const item of pickList(raw, "lives", "data", "now_live")) {
@@ -489,21 +426,11 @@ export function shapeLive(raw: unknown): LiveEntry[] {
   return [...byId.values()];
 }
 
-// ─── Watch (fallback sumber stream) ─────────────────────────────────────────
-
 export interface WatchResult {
   stream_url: string;
   streaming: LiveStreamQuality[];
 }
 
-/**
- * Normalisasi respons `GET /api/watch/:key` (Showroom, `streaming_url_list`) dan
- * `GET /api/watch/:key/idn` (IDN, `stream_url` | `playback_url` | `url`).
- *
- * Catatan: route `/api/watch/*` TIDAK tercantum di panduan publik (docs/guide), tetapi dipakai oleh
- * aplikasi resmi JKT48Connect (repo Valzyys/JKT48Connet-REVAMP, stream-backend/server.py) sebagai cadangan
- * ketika `now_live` tidak membawa URL stream (kasus umum untuk IDN). Hanya dipanggil bila perlu.
- */
 export function shapeWatch(raw: unknown): WatchResult {
   const r: Raw = isObj(raw) ? raw : {};
   let streaming = shapeStreams(r.streaming_url_list);
@@ -514,8 +441,6 @@ export function shapeWatch(raw: unknown): WatchResult {
   }
   return { stream_url: streaming[0]?.url ?? "", streaming };
 }
-
-// ─── Theater (GET /api/theater, GET /api/theater/:id) ───────────────────────
 
 export interface TheaterLineupMember {
   id: string;
@@ -538,21 +463,14 @@ export interface TheaterRecording {
 }
 
 export interface TheaterListItem {
-  /** ID show dari API (field `code`, atau `id`). Dipakai untuk GET /api/theater/:id. */
   reference_code: string;
-  /** Tautan halaman resmi show (info tiket/pembelian), kosong bila tidak ada. */
   link: string;
-  /** YYYY-MM-DD dalam WIB. */
   date: string;
-  /** HH:mm dalam WIB, "" bila API tidak memberi jam. */
   start_time: string;
-  /** HH:mm dalam WIB, "" bila API tidak memberi jam selesai. */
   end_time: string;
   title: string;
-  /** LOVE / DREAM / PASSION / TRAINEE (huruf besar), "" bila tidak ada. */
   jkt48_member_type: string;
   is_birthday_show: boolean;
-  /** Banner siap pakai (status `ready`), "" bila belum selesai dirender. */
   banner: string;
   poster: string;
   short_description: string | null;
@@ -561,19 +479,11 @@ export interface TheaterListItem {
 }
 
 export interface TheaterDetail extends TheaterListItem {
-  /** Judul lagu pada setlist. */
   set_list: string[];
   graduation_members: TheaterApiMember[];
   recordings: TheaterRecording[];
 }
 
-/**
- * Timestamp → { date, time } dalam WIB.
- * - "2026-11-08"                    → tanggal saja
- * - "2026-11-08T19:00:00" (tanpa zona) → dianggap sudah WIB
- * - "2026-11-08T12:00:00.000Z"      → UTC dikonversi ke WIB (sesuai dokumentasi: akhiran Z = UTC)
- * - angka (epoch detik / milidetik) → dikonversi ke WIB
- */
 export function toWib(value: unknown, fallbackTime = ""): { date: string; time: string } | null {
   if (value === null || value === undefined || value === "") return null;
 
@@ -584,7 +494,6 @@ export function toWib(value: unknown, fallbackTime = ""): { date: string; time: 
     }
     const local = s.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?$/);
     if (local) return { date: local[1], time: local[2] };
-    // Jam saja ("19:00" / "19:00:00") — dipakai untuk field jam mulai/selesai yang terpisah dari tanggal.
     const clock = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
     if (clock) return { date: "", time: `${clock[1].padStart(2, "0")}:${clock[2]}` };
   }
@@ -605,16 +514,13 @@ export function toWib(value: unknown, fallbackTime = ""): { date: string; time: 
   }).formatToParts(d);
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
   const time = `${get("hour")}:${get("minute")}`;
-  // 00:00 WIB berarti API hanya mengirim tanggal (tengah malam), bukan jam tayang yang sebenarnya.
   return { date: `${get("year")}-${get("month")}-${get("day")}`, time: time === "00:00" ? "" : time };
 }
 
-/** "Team Love" / "love" / "LOVE" → "LOVE". */
 function normalizeTeam(v: unknown): string {
   return str(v).replace(/^team\s+/i, "").trim().toUpperCase();
 }
 
-/** Gambar desain (jadwal) yang statusnya `ready`. `jkt48connect` dipakai lebih dulu, lalu photobook, lalu avonera48. */
 function readyDesign(designs: unknown, layout: "banner" | "portrait"): string {
   if (!isObj(designs)) return "";
   for (const theme of ["jkt48connect", "photobook", "avonera48"]) {
@@ -668,7 +574,6 @@ export interface TheaterPage {
   total: number;
 }
 
-/** `GET /api/theater?page=&perpage=` → `{ theater: [...], page, perpage, total_count }`. */
 export function shapeTheaterPage(raw: unknown): TheaterPage {
   const items = pickList(raw, "theater", "shows", "data")
     .map(mapShow)
@@ -682,7 +587,6 @@ export function shapeTheaterPage(raw: unknown): TheaterPage {
   };
 }
 
-/** `GET /api/theater/:id` → `{ shows: [ { ... } ] }`. */
 export function shapeTheaterDetail(raw: unknown, fallbackId: string): TheaterDetail | null {
   const first = pickList(raw, "shows", "theater", "data")[0] ?? (isObj(raw) && (raw.title || raw.setlist) ? raw : null);
   if (!first) return null;

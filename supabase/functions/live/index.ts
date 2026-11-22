@@ -1,23 +1,3 @@
-// JKT48Connect Live API proxy — JKT48Connect API terbaru (https://api.jkt48connect.app/docs)
-//
-// Browser -> Supabase Edge Function (function ini) -> api.jkt48connect.app (server-to-server).
-// API key `jkc_...` disimpan sebagai SECRET Supabase, tidak pernah ikut ke bundle frontend:
-//   supabase secrets set JKT48CONNECT_API_KEY=jkc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// (secret yang sama dipakai juga oleh function `theater`).
-//
-// Action:
-//   GET /live                                     -> GET /api/now_live?group=jkt48
-//        Mengembalikan array sesi live yang sudah dinormalisasi (lihat `shapeLive` di _shared).
-//   GET /live?action=watch&platform=idn&key=<url_key>
-//        -> GET /api/watch/<url_key>/idn          (sumber stream IDN)
-//   GET /live?action=watch&platform=showroom&key=<room_url_key>
-//        -> GET /api/watch/<room_url_key>         (sumber stream Showroom)
-//        Dipanggil HANYA saat user menekan "Tonton" untuk sesi yang `now_live`-nya tidak membawa URL stream
-//        (kasus umum untuk IDN), supaya tidak memboroskan kuota API key.
-//
-// Hemat kuota (Free = 1.000 request / bulan per key): request bersamaan digabung (inflight), hasil di-cache
-// singkat per isolate, dan saat upstream gagal salinan lama masih disajikan.
-
 import {
   TtlCache,
   UpstreamError,
@@ -30,7 +10,6 @@ import {
   validateApiKey,
 } from "../_shared/jkt48connect.ts";
 
-// Dokumentasi menyarankan cache 20–60 detik untuk data live.
 const LIVE_TTL = 30 * 1000;
 const LIVE_STALE = 5 * 60 * 1000;
 const WATCH_TTL = 20 * 1000;
@@ -83,7 +62,6 @@ Deno.serve(async (req) => {
           const { body } = await upstreamGet(path, { apiKey });
           return { available: true, ...shapeWatch(body) };
         } catch (e) {
-          // 404 / 400 = sumber stream memang belum tersedia untuk sesi ini → bukan error aplikasi.
           if (e instanceof UpstreamError && (e.code === "NOT_FOUND" || e.code === "BAD_REQUEST")) {
             return { available: false, stream_url: "", streaming: [] };
           }

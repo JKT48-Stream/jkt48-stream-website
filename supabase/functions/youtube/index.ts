@@ -1,16 +1,3 @@
-// JKT48 Tube YouTube proxy
-// Endpoints (querystring):
-//   ?action=channel&handle=...&order=date|viewCount|oldest&pageToken=...
-//   ?action=channelInfo&handle=...
-//   ?action=videos&ids=id1,id2,...
-//   ?action=search&q=...&pageToken=...
-//   ?action=suggest&q=...
-//   ?action=related&videoId=...
-//   ?action=playlists&handle=...&pageToken=...
-//   ?action=playlistItems&playlistId=...&pageToken=...
-//   ?action=playlistInfo&playlistId=...
-//   ?action=liveReplays&handle=...
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -27,7 +14,6 @@ const HANDLES: Record<string, string> = {
   IDNApp: "idnapp",
 };
 
-// Cache in memory (per isolate)
 const channelIdCache: Record<string, string> = {};
 const uploadsPlaylistCache: Record<string, string> = {};
 const channelInfoCache: Record<string, { data: any; exp: number }> = {};
@@ -262,7 +248,6 @@ Deno.serve(async (req) => {
       return json(payload);
     }
 
-    // ── PLAYLISTS ──────────────────────────────────────────────────────────────
     if (action === "playlists") {
       const handle = url.searchParams.get("handle") ?? "JKT48";
       const pageToken = url.searchParams.get("pageToken") ?? "";
@@ -295,7 +280,6 @@ Deno.serve(async (req) => {
       return json(payload);
     }
 
-    // ── PLAYLIST ITEMS ─────────────────────────────────────────────────────────
     if (action === "playlistItems") {
       const playlistId = url.searchParams.get("playlistId") ?? "";
       const pageToken = url.searchParams.get("pageToken") ?? "";
@@ -323,14 +307,11 @@ Deno.serve(async (req) => {
       return json(payload);
     }
 
-    // ── LIVE REPLAYS (completed streams only, no live check) ──────────────────
     if (action === "liveReplays") {
       const handle = url.searchParams.get("handle") ?? "JKT48";
       if (!HANDLES[handle]) return json({ error: "invalid handle" }, 400);
 
       const meta = await getChannelMeta(HANDLES[handle], key);
-
-      // Fetch only completed (replay) streams — no live status check
       const completedData = await ytFetch(
         `/search?part=snippet&channelId=${meta.id}&eventType=completed&type=video&order=date&maxResults=24`,
         key,
@@ -349,7 +330,6 @@ Deno.serve(async (req) => {
         }))
         .filter((v: any) => v.videoId);
 
-      // Hydrate replays with duration & viewCount
       const replayIds = replays.map((r: any) => r.videoId).filter(Boolean);
       let replayVideos: any[] = [];
       if (replayIds.length > 0) {
@@ -384,7 +364,6 @@ Deno.serve(async (req) => {
       return json(payload);
     }
 
-    // ── PLAYLIST INFO ──────────────────────────────────────────────────────────
     if (action === "playlistInfo") {
       const playlistId = url.searchParams.get("playlistId") ?? "";
       if (!playlistId) return json({ error: "playlistId required" }, 400);
